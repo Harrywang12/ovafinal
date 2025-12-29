@@ -1,0 +1,324 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ============================================
+   BOLD RED & WHITE DESIGN SYSTEM
+   Volleyball-inspired, energetic aesthetics
+   ============================================ */
+
+:root {
+  --primary: #c8102e;
+  --primary-dark: #a00d24;
+  --accent: #ff3d5a;
+  --secondary: #1a1a2e;
+  --surface: #faf8f8;
+  --ink: #1a1a2e;
+  --muted: #6b7280;
+}
+
+/* ============================================
+   BASE STYLES
+   ============================================ */
+
+body {
+  color-scheme: light;
+  @apply text-ink min-h-screen antialiased;
+  background-color: var(--surface);
+  font-family: var(--font-dm-sans), system-ui, sans-serif;
+}
+
+/* Noise texture overlay for organic feel */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.02;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  z-index: 9999;
+}
+
+::selection {
+  background: rgba(200, 16, 46, 0.2);
+  color: var(--ink);
+}
+
+/* Smooth scrolling */
+html {
+  scroll-behavior: smooth;
+}
+
+/* ============================================
+   TYPOGRAPHY
+   ============================================ */
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-bricolage), system-ui, sans-serif;
+  @apply font-bold tracking-tight;
+}
+
+a {
+  @apply text-primary hover:text-primary-dark transition-colors duration-200;
+}
+
+/* ============================================
+   COMPONENT: PILL / BUTTON
+   ============================================ */
+
+.pill {
+  @apply inline-flex items-center gap-2 rounded-full px-6 py-3 text-sm font-semibold uppercase tracking-wider text-white;
+  background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
+  box-shadow: 0 8px 30px rgba(200, 16, 46, 0.3);
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.pill::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, var(--accent) 0%, var(--primary) 100%);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.pill:hover {
+  transform: translateY(-2px) scale(1.02);
+  box-shadow: 0 12px 40px rgba(200, 16, 46, 0.4);
+}
+
+.pill:hover::before {
+  opacity: 1;
+}
+
+.pill > * {
+  position: relative;
+  z-index: 1;
+}
+
+/* Secondary button style */
+.btn-secondary {
+  @apply inline-flex items-center gap-2 px-6 py-3 rounded-full text-sm font-semibold;
+  @apply border-2 border-primary/20 text-primary bg-white/80 backdrop-blur-sm;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.btn-secondary:hover {
+  @apply border-primary text-white bg-primary;
+  transform: translateY(-2px);
+}
+
+/* ============================================
+   COMPONENT: CARDS
+   ============================================ */
+
+.card {
+  @apply bg-white border border-border rounded-2xl p-6;
+  box-shadow: 0 4px 40px rgba(0, 0, 0, 0.04);
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  position: relative;
+}
+
+.card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1px;
+  background: linear-gradient(135deg, transparent 0%, rgba(200, 16, 46, 0.15) 50%, transparent 100%);
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  opacity: 0;
+  transition: opacity 0.4s ease;
+  pointer-events: none;
+}
+
+.card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 20px 60px rgba(200, 16, 46, 0.1);
+}
+
+.card:hover::before {
+  opacity: 1;
+}
+
+/* ============================================
+   COMPONENT: SECTION TAG
+   ============================================ */
+
+.section-tag {
+  @apply text-xs font-bold uppercase tracking-[0.2em];
+  color: var(--primary);
+  letter-spacing: 0.2em;
+}
+
+/* ============================================
+   COMPONENT: HERO GRID
+   ============================================ */
+
+.hero-section {
+  @apply relative min-h-screen flex items-center justify-center overflow-hidden;
+  background: linear-gradient(180deg, var(--surface) 0%, #fff 100%);
+}
+
+.hero-grid {
+  @apply relative rounded-3xl p-8 md:p-12;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.9) 0%, rgba(255, 255, 255, 0.7) 100%);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  box-shadow: 0 20px 80px rgba(0, 0, 0, 0.06);
+}
+
+/* ============================================
+   COMPONENT: GLASS EFFECT
+   ============================================ */
+
+.glass {
+  @apply bg-white/60 border border-white/40 backdrop-blur-xl;
+}
+
+/* ============================================
+   DECORATIVE ELEMENTS
+   ============================================ */
+
+/* Gradient orb decorations */
+.orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(80px);
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+.orb-accent {
+  background: radial-gradient(circle, rgba(200, 16, 46, 0.35) 0%, transparent 70%);
+}
+
+.orb-secondary {
+  background: radial-gradient(circle, rgba(255, 61, 90, 0.25) 0%, transparent 70%);
+}
+
+.orb-primary {
+  background: radial-gradient(circle, rgba(200, 16, 46, 0.2) 0%, transparent 70%);
+}
+
+/* Court line pattern (decorative) */
+.court-pattern {
+  background-image: 
+    linear-gradient(var(--primary) 1px, transparent 1px),
+    linear-gradient(90deg, var(--primary) 1px, transparent 1px);
+  background-size: 60px 60px;
+  opacity: 0.02;
+}
+
+/* ============================================
+   ANIMATIONS
+   ============================================ */
+
+/* Stagger children animation delays */
+.stagger-children > *:nth-child(1) { animation-delay: 0.1s; }
+.stagger-children > *:nth-child(2) { animation-delay: 0.2s; }
+.stagger-children > *:nth-child(3) { animation-delay: 0.3s; }
+.stagger-children > *:nth-child(4) { animation-delay: 0.4s; }
+.stagger-children > *:nth-child(5) { animation-delay: 0.5s; }
+.stagger-children > *:nth-child(6) { animation-delay: 0.6s; }
+
+/* Text gradient animation */
+.text-gradient {
+  background: linear-gradient(90deg, var(--ink) 0%, var(--primary) 50%, var(--ink) 100%);
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* Animated gradient background */
+.gradient-animated {
+  background: linear-gradient(-45deg, var(--surface), #fff, rgba(200, 16, 46, 0.05), var(--surface));
+  background-size: 400% 400%;
+  animation: gradientShift 8s ease infinite;
+}
+
+@keyframes gradientShift {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+
+/* ============================================
+   SCROLL INDICATOR
+   ============================================ */
+
+.scroll-indicator {
+  @apply flex flex-col items-center gap-2;
+  animation: bounce-scroll 2s ease-in-out infinite;
+}
+
+@keyframes bounce-scroll {
+  0%, 100% { transform: translateY(0); opacity: 1; }
+  50% { transform: translateY(8px); opacity: 0.6; }
+}
+
+/* ============================================
+   IMAGE TREATMENTS
+   ============================================ */
+
+.image-reveal {
+  clip-path: inset(0 100% 0 0);
+  transition: clip-path 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.image-reveal.revealed {
+  clip-path: inset(0 0 0 0);
+}
+
+/* Parallax container */
+.parallax-container {
+  @apply relative overflow-hidden;
+}
+
+.parallax-layer {
+  @apply absolute inset-0;
+  will-change: transform;
+}
+
+/* ============================================
+   SCROLLBAR
+   ============================================ */
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(200, 16, 46, 0.3) transparent;
+}
+
+*::-webkit-scrollbar {
+  width: 6px;
+}
+
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+*::-webkit-scrollbar-thumb {
+  background: rgba(200, 16, 46, 0.3);
+  border-radius: 3px;
+}
+
+*::-webkit-scrollbar-thumb:hover {
+  background: rgba(200, 16, 46, 0.5);
+}
+
+/* ============================================
+   RESPONSIVE UTILITIES
+   ============================================ */
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

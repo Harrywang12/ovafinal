@@ -1,0 +1,1 @@
+self.__NEXT_FONT_MANIFEST='{"pages":{},"app":{"/Users/harrisonwang/ovafinal/app/layout":["static/media/9d5a263311222317.p.woff2","static/media/13971731025ec697-s.p.woff2"]},"appUsingSizeAdjust":true,"pagesUsingSizeAdjust":false}';

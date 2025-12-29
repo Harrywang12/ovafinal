@@ -1,0 +1,36 @@
+{
+  "name": "volleyball-ref-training",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "prepare": "husky install"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.45.4",
+    "@tanstack/react-query": "^5.35.5",
+    "framer-motion": "^11.0.6",
+    "lucide-react": "^0.306.0",
+    "next": "14.1.0",
+    "openai": "^4.27.0",
+    "pdf-parse": "^1.1.1",
+    "react": "18.2.0",
+    "react-dom": "18.2.0",
+    "zod": "^3.22.4"
+  },
+  "devDependencies": {
+    "@types/node": "^20.10.4",
+    "@types/react": "^18.2.45",
+    "@types/react-dom": "^18.2.18",
+    "autoprefixer": "^10.4.16",
+    "eslint": "^8.55.0",
+    "eslint-config-next": "14.1.0",
+    "husky": "^8.0.3",
+    "postcss": "^8.4.32",
+    "tailwindcss": "^3.3.5",
+    "typescript": "^5.3.3"
+  }
+}

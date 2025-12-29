@@ -1,0 +1,19 @@
+{
+  "/_not-found": "app/_not-found.js",
+  "/learn/[module]/page": "app/learn/[module]/page.js",
+  "/learn/page": "app/learn/page.js",
+  "/challenge/page": "app/challenge/page.js",
+  "/practice/page": "app/practice/page.js",
+  "/page": "app/page.js",
+  "/login/page": "app/login/page.js",
+  "/api/chatbot/route": "app/api/chatbot/route.js",
+  "/api/lessons/route": "app/api/lessons/route.js",
+  "/api/quiz-attempt/route": "app/api/quiz-attempt/route.js",
+  "/api/rag-search/route": "app/api/rag-search/route.js",
+  "/api/practice/route": "app/api/practice/route.js",
+  "/api/challenge/route": "app/api/challenge/route.js",
+  "/api/embed-rules/route": "app/api/embed-rules/route.js",
+  "/api/upload-rules/route": "app/api/upload-rules/route.js",
+  "/api/generate-question/route": "app/api/generate-question/route.js",
+  "/quiz/page": "app/quiz/page.js"
+}

@@ -1,0 +1,6659 @@
+VOLLEYBALL CANADA
+2025 – 2026
+OFFICIAL VOLLEYBALL RULES
+
+Published and distributed by Volleyball Canada.
+VOLLEYBALL CANADA (National office)
+1A-1084 KENASTON STREET
+OTTAWA, ONTARIO, CANADA K1B 3P5
+TELEPHONE: (613) 748-5681 • FAX: (613) 748-5727
+E-MAIL: info@volleyball.ca • WEB SITE: www.volleyball.ca
+WOMEN'S TEAM CANADA VOLLEYBALL CENTRE
+RICHMOND OLYMPIC OVAL - 6111 RIVER ROAD
+RICHMOND, BC, CANADA V7C 0A2
+E-MAIL: jparon@volleyball.ca
+MEN'S TEAM CANADA VOLLEYBALL CENTRE
+CENTRE SPORTIF DE GATINEAU
+850 BOULEVARD DE LA GAPPE
+GATINEAU, QUÉBEC, CANADA J8T 0B4
+TELEPHONE: (819) 246 1112 FAX (613) 748 5727
+E-MAIL: cnicol@volleyball.ca
+ISBN # 978-1-926597-08-9
+These are the official FIVB international rules.
+Authorized by the National Referee Committee of Canada.
+Edited and modified for Canadian volleyball.
+Volleyball Canada would like to thank all those who have
+collaborated in the revision of the rule book.
+
+-1-
+
+-2-
+
+NATIONAL REFEREE COMMITTEE
+REFEREE CHAIR
+Scott Borys
+
+VC STAFF
+Ryan Bunyan
+
+REFEREE SUB-COMMITTEE CHAIRS
+Women’s Referee Development – Irena Zamboni
+Nominations and Awards – Pat Thorne
+National Promotion – Andrew Robb
+Domestic Development (Beach) – Brian Hiebert
+Domestic Development (Indoor) - Matt van Raalte
+International & High-Performance Development (Beach) – Lucie Guillemette
+International & High-Performance Development (Indoor) – Malcolm Mousseau
+Para Volley Development – Marie-Claude Richer
+
+PROVINCIAL REFEREE CHAIRPERSONS
+NL
+NS
+NB
+PE
+QC
+ON
+MB
+SK
+AB
+BC
+YU
+NT
+NU
+
+Cindy Collins
+Alain Asafor
+Matt van Raalte
+Lindsay Corukum
+Marc Trudel
+Martin Kerstens
+Taras Ilkiw
+Glen Hoffman
+Katyryna Gaudet
+Steve Hewiston
+To be determined
+Yannis Lebrakis
+To be determined
+
+-3-
+
+ACTIVE NATIONAL AND INTERNATIONAL REFEREES IN CANADA
+NATIONAL
+Alberta
+Carol Boulanger
+Jasen Boyko
+Kirk Bugler
+Roger Chan
+Anne Cote
+
+Everette Dionne
+Mark Gough
+Greg Hawthorn
+Debbie Jackson
+Glenn Johnston
+
+Neal Konowalyk
+Jim Merrick
+Tim McLenahan
+Don Middleton
+
+Jenna Nichol
+Harvey Penhale
+Trevor Roszell
+Travis Rott
+
+Jay Schultz
+Kevin Sexsmith
+Stephanie Shostak
+Gustavo Tenorio
+
+Hal Hennenfent
+Kim Janowsky
+Jeff Gogal
+Jeremey Janzen
+Jane Kublick
+Gladys Lai
+
+Mark Lindal
+Kelvin Liu
+Bruce McElroy
+Darrin Moreira
+Jon Rahe
+
+Bryan Reid
+Ashley Shannik
+Valerie Shannik
+David Tam
+Trevor Thors
+
+Nicholas Tran
+Marcus Vanderveen
+Glenn Wheatley
+Brad Willard
+Elizabeth Yoon
+
+Nathan Klippenstein
+John Kooning
+Stan Korol
+
+Jack Laferty
+Robert Lee
+Barry Miller
+
+Kevin Newton
+Peggy Prokopich
+Kirsten Auld Varey
+
+Marc Vermette
+Chris Yaremkewich
+
+Darren Doucette
+
+Baylee Stockford
+
+Patricia Thorne
+
+Randy Wilson
+
+Hugh Harvey
+
+Noel Lilly
+
+Todd Martin
+
+John Vincent
+
+Derek Brooks
+Claude Daniel
+
+Susanne Dittmer
+David Fairfax
+
+Brad Penney
+Steve Stuart
+
+Paul Worden
+
+Bradley Graham
+Deborah Hartnett
+Paul Higgins
+Dale Huddleston
+Martin Kerstens
+Denise Klenk
+Trevor Lall
+
+Dimitri Magirius
+Ryan McDoom
+Renzo Milan
+John Moakler
+Erick Mompoint
+Don Morton
+Kennedy Ramsden
+
+Robert Rocque
+Hollie Roy
+Ali Sharifalam
+Terry Sonoda
+Bill Stanger
+Geoff Stuart
+Lawrence Thorne
+
+Teresa Vizzari
+Khan Vu
+Ryan Wilkes
+David Williams
+Mark Williamson
+Marrick Yee
+Irena Zamboni
+
+Darcy Jackson
+Martin Kingsbury
+Martine Labelle
+Sébastien Lacroix
+Alain Lafaille
+
+Michel Lavoie
+René Maréchal
+Pierre Ostiguy
+Simon Ouellet
+Patrice Préville
+
+Ishaq Rashid
+Marie-Claude Richer
+Isabelle Robichaud
+Alain Rondeau
+Alain Simard
+
+Guillaume St-Denis
+André Trottier
+Marc Trudel
+Sylvain Veilleux
+
+Linette Fetter
+Gerard Gauvin
+Glen Hoffman
+
+Kelly Langill
+Lori Mills
+Murray Sackman
+
+Brittany Staines
+Jeff Toppings
+Marilyn Walter
+
+British Columbia
+David Caughran
+Ron De Jesus
+Jannik Eikenaar
+Trent Erickson
+Milan Fedor
+Gary Frederick
+
+Manitoba
+Jane Edstrom
+Rob Holmes
+Randy Hull
+
+New Brunswick
+Jenn Brown
+Jean-Paul Demers
+
+Newfoundland and Labrador
+Bruce Cocker
+
+Nova Scotia
+Alain Asafor
+Marcie Balch
+
+Ontario
+Jennifer Adams
+Blaise Bassole
+Luc Chayer
+Lino Condotta
+Patrick Corriveau
+Vincent Enright
+Chris Goetz
+
+Prince Edward Island
+Joe Ryan
+
+Quebec
+Lyne Alarie
+Julien Duranceau
+Denis Dussault
+Hugo Giroux
+Lucie Guillemette
+
+Saskatchewan
+Lori Banga
+Wayne Bucknell
+Jacques Delorme
+
+INTERNATIONAL
+Ryan Bunyan (AB)
+Sara Maxwell-Bunyan (AB)
+Scott Mclean (AB)
+Nik Fuess (BC)
+Steve Hewitson (BC)
+Greg Rouault (BC)
+Mitch Davidson (MB)
+
+Peter Henry (MB)
+Azad Hosein (MB)
+Bohdan Ilkiw (MB)
+Taras Ilkiw (MB)
+Edward Toews (MB)
+Matt van Raalte (NB)
+Brad Barton (NS)
+
+Guy Bradbury (ON)
+Andrew Cameron (ON)
+Jason Dodd (ON)
+Malcolm Mousseau (ON)
+Andrew Robb (ON)
+Samara Sevor (ON)
+Elias Soueiti (ON)
+
+Scott Dziewirz (QC)
+Pierre Farmer (QC)
+Marie-Claude Lévesque (QC)
+Serge Thériault (QC)
+Scott Borys (SK)
+Don Pfeifer (SK)
+
+LIFETIME MEMBERS
+Anton Furlani (ON) – 1987 Jean-Guy Ouellet (QC) – 1997
+Wezer Bridle (MB) – 1989
+Claude Huot (QC) – 1997
+Edward Toews (MB) – 1989 Vale Savege (BC) – 2000
+Don Pfeifer (SK) – 1994
+Larry Lerbekmo (AB/BC) – 2003
+Brad Barton (NS) – 1994
+Dennis Pomeroy (SK) – 2008
+Raymond Côté (QC) – 1996 Glenn McKay (AB) – 2009
+Mike Rockwell (BC) – 1996 Sylvia Jaksetic (ON) – 2013
+
+Diane Vandy (QC) – 2015
+Peter Henry (MB) – 2015
+Darryl Freisen (MB) – 2015
+Jack Campbell (NB) – 2016
+Pierre Farmer (QC) – 2016
+Barry Miller (MB) – 2019
+André Trottier (QC) – 2019
+
+-4-
+
+Randy Wilson (NB) – 2019
+Scott Borys (SK) – 2020
+Lucie Guillemette (QC) – 2020
+Pat Thorne (NB) – 2020
+Debbie Jackson (AB) – 2022
+Guy Bradbury (ON) – 2024
+Scott McLean (AB) – 2025
+
+CONTENTS
+OFFICIAL VOLLEYBALL RULES APPROVED BY THE FIVB
+Edited and Modified for Volleyball Canada
+
+SECTION I
+THE GAME
+GAME CHARACTERISTICS
+PHILOSOPHY OF RULES AND REFEREEING
+Chapter One
+FACILITIES AND EQUIPMENT
+1.
+
+Playing area (Diagrams 1 & 2) ........................................................................................14
+
+1.1
+1.2
+1.3
+1.4
+1.5
+1.6
+
+Dimensions
+Playing surface
+Lines on the court
+Zones and areas
+Temperature
+Lighting
+
+2.
+
+Net and posts (Diagram 3) ..............................................................................................15
+
+2.1
+2.2
+2.3
+2.4
+2.5
+2.6
+
+Height of the net
+Structure
+Side bands
+Antennae
+Posts
+Additional equipment
+
+3.
+
+Balls ..................................................................................................................................16
+
+3.1
+3.2
+3.3
+
+Standards
+Uniformity of balls
+Ball retrieval system
+
+4.
+
+Teams ...............................................................................................................................18
+
+4.1
+4.2
+4.3
+4.4
+4.5
+
+Team composition
+Location of the team
+Equipment
+Changes of equipment
+Forbidden objects
+
+5.
+
+Team leaders ...................................................................................................................20
+
+5.1
+5.2
+5.3
+
+Captain
+Coach
+Assistant coach
+
+Chapter Two
+PARTICIPANTS
+
+-5-
+
+Chapter Three
+PLAYING FORMAT
+6.
+
+To score a point, to win a set and the match ...............................................................22
+
+6.1
+6.2
+6.3
+6.4
+
+To score a point
+To win a set
+To win the match
+Default and incomplete team
+
+7.
+
+Structure of play ..............................................................................................................23
+
+7.1
+7.2
+7.3
+7.4
+7.5
+7.6
+7.7
+
+The toss
+Official warm-up session
+Team starting line-up
+Positions
+Positional fault
+Rotation
+Rotational fault
+
+Chapter Four
+PLAYING ACTIONS
+8.
+
+States of Play ...................................................................................................................27
+
+8.1
+8.2
+8.3
+8.4
+
+Ball in play
+Ball out of play
+Ball “IN”
+Ball “OUT”
+
+9.
+
+Playing the ball ................................................................................................................28
+
+9.1
+9.2
+9.3
+
+Team hits
+Characteristics of the hit
+Faults in playing the ball
+
+10.
+
+Ball at the net ...................................................................................................................29
+
+10.1
+10.2
+10.3
+
+Ball crossing the net
+Ball touching the net
+Ball in the net
+
+11.
+
+Player at the net ..............................................................................................................30
+
+11.1
+11.2
+11.3
+11.4
+
+Reaching beyond the net
+Penetration under the net
+Contact with the net
+Player's faults at the net
+
+12.
+
+Service .............................................................................................................................31
+
+12.1
+12.2
+12.3
+12.4
+12.5
+12.6
+12.7
+
+First service in a set
+Service order
+Authorization of the service
+Execution of the service
+Screening
+Faults made during the service
+Serving Faults and Positional Faults
+
+13.
+
+Attack hit ..........................................................................................................................33
+
+13.1
+13.2
+13.3
+
+Characteristics of the attack hit
+Restrictions of the attack hit
+Faults of the attack hit
+
+14.
+
+Block ................................................................................................................................34
+
+14.1
+14.2
+14.3
+
+Blocking
+Block contact
+Blocking within the opponent’s space
+
+-6-
+
+14.4
+14.5
+14.6
+
+Block and team hits
+Blocking the service
+Blocking Faults
+
+Chapter Five
+INTERRUPTIONS, DELAYS, AND INTERVALS
+15.
+
+Interruptions .....................................................................................................................35
+
+15.1
+15.2
+15.3
+15.4
+15.5
+15.6
+15.7
+15.8
+15.9
+15.10
+15.11
+
+Number of regular game interruptions
+Sequence of regular game interruptions
+Request for regular game interruptions
+Time-outs and technical time-outs
+Substitution
+Limitation of substitutions
+Exceptional substitution
+Substitution for expulsion or disqualification
+Illegal substitution
+Substitution Procedure
+Improper Requests
+
+16.
+
+Game delays ....................................................................................................................39
+
+16.1
+16.2
+
+Types of delays
+Delay sanctions
+
+17.
+
+Exceptional game interruptions ....................................................................................39
+
+17.1
+17.2
+17.3
+17.4
+
+Injury/Illness
+External interference
+Prolonged interruptions
+Volleyball Canada - Wiping of the floor
+
+18.
+
+Intervals and change of courts ......................................................................................40
+
+18.1
+18.2
+
+Intervals
+Change of courts
+
+Chapter Six
+THE LIBERO PLAYER
+19.
+
+The Libero Player
+
+19.1
+19.2
+19.3
+19.4
+19.5
+
+Designation of the Libero
+Equipment
+Actions involving the Libero
+Re-designation of a new Libero
+Summary
+
+.......................................................................................................41
+
+20.
+
+Requirements of conduct ...............................................................................................44
+
+20.1
+20.2
+
+Sportsmanlike conduct
+Fair play
+
+21.
+
+Misconduct and its sanctions ........................................................................................44
+
+21.1
+21.2
+21.3
+21.4
+21.5
+21.6
+
+Minor misconduct
+Misconduct leading to sanctions
+Sanction scale
+Application of misconduct sanctions
+Misconduct before and between sets
+Summary of misconduct and cards used
+
+Chapter Seven
+PARTICIPANTS’ CONDUCT
+
+-7-
+
+SECTION II
+Chapter Eight
+THE REFEREES, THEIR RESPONSIBILITIES AND OFFICIAL HAND
+SIGNALS
+22.
+
+Refereeing corps and procedures .................................................................................52
+
+22.1
+22.2
+
+Composition
+Procedures
+
+23.
+
+First referee .....................................................................................................................53
+
+23.1
+23.2
+23.3
+
+Location
+Authority
+Responsibilities
+
+24.
+
+Second referee ................................................................................................................55
+
+24.1
+24.2
+24.3
+
+Location
+Authority
+Responsibilities
+
+25.
+
+Challenge Referee ...........................................................................................................56
+
+25.1
+25.2
+
+Location
+Responsibilities
+
+26.
+
+Reserve Referee
+
+26.1
+26.2
+
+Location
+Responsibilities
+
+27.
+
+Scorer ...............................................................................................................................57
+
+27.1
+27.2
+
+Location
+Responsibilities
+
+28.
+
+Assistant Scorer ..............................................................................................................58
+
+28.1
+28.2
+
+Location
+Responsibilities
+
+29.
+29.1
+29.2
+
+Line Judges .....................................................................................................................59
+
+30.
+
+Official Signals .…………………………………………………………………………………60
+
+30.1
+30.2
+
+Referees’ hand signals (Diagram 11)
+Linde judges’ flag signals (Diagram 12)
+
+31.
+
+Volleyball Canada Blood Policy for Competition .........................................................60
+
+32.
+
+Volleyball Canada Concussion Policy for Competition.…………………………………61
+
+.........................................................................................................56
+
+Location
+Responsibilities
+
+-8-
+
+SECTION III
+DIAGRAMS
+D1a Competition/Control area .....................................................................................................64
+D1b The Playing Area ................................................................................................................65
+D2 The Playing Court ...............................................................................................................66
+D3 Design of the Net ................................................................................................................67
+D4 Position of Players ..............................................................................................................68
+D5a Ball Crossing the Vertical Plane of the Net to the Opponent Court ....................................69
+D5b Ball Crossing the Vertical Plane to the Opponent Free Zone .............................................70
+D6 Collective Screen ................................................................................................................71
+D7 Completed Block ................................................................................................................71
+D8 Back Row Player's Attack ...................................................................................................72
+D9 Warnings and sanctions scales and their consequences ...................................................73
+D10 Location of the Refereeing Corps and Their Assistants .....................................................74
+D11 Referee's Official Hand Signals ..........................................................................................75
+D12 Line Judges' Official Hand Signals .....................................................................................82
+D13 How to check the dimensions of the court ..........................................................................84
+DEFINITIONS ...............................................................................................................................85
+
+-9-
+
+SECTION I
+
+The Game
+
+-10-
+
+GAME CHARACTERISTICS
+Volleyball is a sport played by two teams on a playing court divided by a net. There are different
+versions available for specific circumstances in order to offer the versatility of the game to
+everyone.
+The object of the game is to send the ball over the net in order to ground it on the opponent’s
+court, and to prevent the same effort by the opponent. The team has three hits for returning the
+ball (in addition to the block contact).
+The ball is put in play with a service: hit by the server over the net to the opponents. The rally
+continues until the ball is grounded on the playing court, goes “out” or a team fails to return it
+properly.
+In Volleyball, the team winning a rally scores a point (Rally Point System). When the receiving
+team wins a rally, it gains a point and the right to serve, and its players rotate one position
+clockwise.
+
+-11-
+
+PHILOSOPHY OF RULES AND REFEREEING
+INTRODUCTION
+Volleyball is one of the most successful and popular, competitive, and recreational sports in the
+world. It is fast, it is exciting, and the action is explosive. Yet volleyball comprises several crucial
+overlapping elements whose complimentary interactions render it unique amongst rally games.
+
+In recent years the FIVB has made great strides in adapting the game to a modern audience.
+This text is aimed at a broad Volleyball public - players, coaches, referees, spectators,
+commentators for the following reasons:
+- understanding the rules better, allows better play - coaches can create better team
+structure and tactics, allowing players full rein to display their skills
+- understanding the relationship between rules allows officials to make better decisions
+This introduction at first focuses on Volleyball as a competitive sport, before setting out to identify
+the main qualities required for successful refereeing.
+VOLLEYBALL IS A COMPETITIVE SPORT
+Competition taps latent strengths. It exhibits the best of ability, spirit, creativity, and aesthetics.
+The rules are structured to allow all of these qualities. With a few exceptions, Volleyball allows all
+players to operate both at the net (in attack) and in the back of the court (to defend or serve).
+William Morgan, the game’s creator, would still recognize it because volleyball has retained
+certain distinctive and essential elements over the years. Some of these it shares with other net/
+ball/ racquet games:
+-
+
+service
+rotation (taking turns to serve)
+attack
+defence
+
+Volleyball is, however, unique amongst net games in insisting that the ball is in constant flight – a
+“flying ball” – and by allowing each team a degree of internal passing before the ball must be
+returned to the opponents.
+The introduction of a specialist defensive player – the Libero – has moved the game forward in
+terms of rally length and multi-phase play. Modifications to the service rule have changed the act
+of service from simply a means of putting the ball in play to an offensive weapon.
+
+-12-
+
+The concept of rotation is entrenched to allow for all-round athletes. The rules on player positions
+must permit teams to have flexibility and to create interesting developments in tactics.
+Competitors use this framework to contest techniques, tactics, and power. The framework also
+allows players a freedom of expression to enthuse spectators and viewers.
+And the image of volleyball is increasingly a good one.
+THE REFEREE WITHIN THIS FRAMEWORK
+The essence of a good official lies in the concept of fairness and consistency:
+- to be fair to every participant
+- to be viewed as fair by the spectators
+This demands a huge element of trust – the referee must be trusted to allow the players to
+entertain:
+- by being accurate in his/her judgement
+- by understanding why the rule is written
+- by being an efficient organizer
+- by allowing the competition to flow and by directing it to a conclusion
+- by being an educator – using the rules to penalize the unfair or admonish the impolite
+- by promoting the game – that is, by allowing the spectacular elements in the game to
+shine and the best players to do what they do best: entertain the public.
+Finally, we can say that a good referee will use the rules to make the competition a fulfilling
+experience for all concerned.
+To those who have read so far, view the Rules which follow as the current state of development
+of a great game, but keep in mind why these preceding few paragraphs may be of equal
+importance to you in your own position within the sport.
+
+Get involved!
+Keep the ball flying!
+Understand the game!
+
+-13-
+
+CONTENT OF THE RULES
+Chapter One
+FACILITIES AND EQUIPMENT
+1.
+
+PLAYING AREA (Diagrams 1a, 1b & 2)
+The playing area includes the playing court and the free zone. It shall be rectangular
+and symmetrical.
+
+1.1
+
+DIMENSIONS
+The playing court is a rectangle measuring 18 X 9 m, surrounded by a free zone which
+is a minimum of 3 m wide on all sides.
+The free playing space is the space above the playing area which is free from any
+obstructions. The free playing space shall measure a minimum of 7 m in height from
+the playing surface.
+Volleyball Canada - For new buildings, it is recommended that the free playing space
+measure a minimum of 9 meters in height from the playing surface. For Canada
+Games Competitions, it is required that the free playing space measure a minimum of
+9 meters in height from the playing surface.
+
+1.2
+
+PLAYING SURFACE
+
+1.2.1
+
+The surface must be flat, horizontal, and uniform. It must not present any danger of
+injury to the players. It is forbidden to play on rough or slippery surfaces.
+
+1.2.2
+
+On indoor courts the surface of the playing court must be of a light colour.
+
+1.2.3
+
+On outdoor courts a slope of 5 mm per metre is allowed for drainage. Court lines made
+of solid materials are forbidden.
+
+1.3
+
+LINES ON THE COURT
+
+1.3.1
+
+All lines are 5 cm wide. They must be of a light colour which is different from the colour
+of the floor and from any other lines.
+
+1.3.2
+
+Boundary lines
+Two side lines and two end lines mark the playing court. Both sidelines and end lines
+are drawn inside the dimensions of the playing court.
+
+1.3.3
+
+Centre line
+The axis of the centre line divides the playing court into two equal courts measuring 9
+X 9 m each; however, the entire width of the line is considered to belong to both courts
+equally. This line extends beneath the net from side line to side line.
+
+1.3.4
+
+Attack line
+On each court, an attack line whose rear edge is drawn 3 m back from the axis of the
+centre line, marks the front zone.
+
+-14-
+
+1.4
+
+ZONES AND AREAS
+
+1.4.1
+
+Front zone
+On each court the front zone is limited by the axis of the centre line and the rear edge
+of the attack line.
+The front zone is considered to extend beyond the sidelines to the end of the free
+zone.
+
+1.4.2
+
+Service zone
+The service zone is a 9 m wide area behind each end line.
+It is laterally limited by two short lines, each 15 cm long, drawn 20 cm behind the end
+line as an extension of the sidelines. Both short lines are included in the width of the
+service zone.
+In depth, the service zone extends to the end of the free zone.
+
+1.4.3
+
+Substitution zone
+The substitution zone is limited by the extension of both attack lines up to the scorer’s
+table.
+
+1.4.4
+
+Libero Replacement Zone
+The Libero Replacement Zone is part of the free zone on the side of the team benches,
+limited by the extension of the attack line up to the end line.
+
+1.4.5
+
+Warm-up area
+The warm-up areas, sized approximately 3 X 3 m, are located in both of the bench-side
+corners, outside the free zone, where they will not obstruct the view of spectators, or
+alternatively behind the team bench, where the tribune starts above 2.5 m from the
+court surface. (Diagram 1a, 1b).
+
+1.5
+
+TEMPERATURE
+The minimum temperature shall not be below 10° C (50° F).
+
+1.6
+
+LIGHTING
+The lighting on the playing area should be 1000 to 1500 lux measured at 1 m above
+the surface of the playing area.
+
+2.
+
+NET AND POSTS (Diagram 3)
+
+2.1
+
+HEIGHT OF THE NET
+
+2.1.1
+
+Placed vertically over the centre line, there is a net whose top is set at the height of
+2.43 m for men and 2.24 m for women.
+Volleyball Canada Youth Competition - 15/16 & under men - 2.35m, 15 & under
+women - 2.20m, 16 & under women - 2.24m, 14 & under men - 2.20m, 14 & under
+women - 2.15m.
+
+2.1.2
+
+Its height is measured from the centre of the playing court. The net height (over the two
+side lines) must be exactly the same and must not exceed the official height by more
+than 2 cm.
+-15-
+
+2.2
+
+STRUCTURE
+The net is 1 m wide (+/- 3 cm) and 9.50 to 10 metres long (with 25 to 50 cm on each
+side of the side bands), made of 10 cm square black mesh (Diagram 3).
+At its top, a horizontal band, 7 cm wide, made of two-fold white canvas is sewn along
+its full length. Each extreme end of the band has a hole, through which passes a cord
+fastening the band to the posts for keeping its top taut.
+Within the band a flexible cable fastens the net to the posts and keeps its top taut.
+At the bottom of the net, there is another horizontal band, 5 cm wide, similar to the top
+band, through which is threaded a rope. This rope fastens the net to the posts and
+keeps its lower part taut.
+
+2.3
+
+SIDE-BANDS
+Two white bands are fastened vertically to the net and placed directly above each
+sideline. They are 5 cm wide and 1 m long and are considered as part of the net.
+
+2.4
+
+ANTENNAE
+An antenna is a flexible rod, 1.80 m long and 10 mm in diameter, made of fiberglass or
+similar material.
+An antenna is fastened at the outer edge of each side band. The antennae are placed
+on opposite sides of the net (Diagram 3).
+The top 80 cm of each antenna extends above the net and is marked with 10 cm
+stripes of contrasting colour, preferably red and white.
+The antennae are considered as part of the net and laterally delimit the crossing space
+(Diagram 3, 5a, 5b, Rule 10.1.1).
+
+2.5
+2.5.1
+
+POSTS
+The posts supporting the net are placed at a distance of 0.50 - 1.00 m outside the side
+lines (Diagram 3). They are 2.55 m high and preferably adjustable.
+
+2.5.2
+
+The posts are rounded and smooth, fixed to the ground without wires. There shall be
+no dangerous or obstructing devices.
+
+2.6
+
+ADDITIONAL EQUIPMENT
+All additional equipment is determined by Volleyball Canada regulations.
+
+3.
+
+BALLS
+
+3.1
+
+STANDARDS
+The ball shall be spherical, made of a flexible leather or synthetic leather case with a
+bladder inside made of rubber or a similar material.
+Its colour may be a uniform light colour, or a combination of colours.
+Synthetic leather material and colour combinations of balls used in International Official
+competitions should comply with FIVB standards.
+Its circumference is 65-67 cm and its weight is 260-280 g.
+
+-16-
+
+The inside pressure of the ball shall be 0.30 to 0.325 kg/cm2 (4.26 to 4.61 psi) (294.3 318.82 mbar or hPa).
+Volleyball Canada - For Volleyball Canada Championships, the ball will be as follows:
+14U – 16U: Mikasa VQ200w-CAN
+17U – 18U: Mikasa V200w
+3.2
+
+UNIFORMITY OF BALLS
+All balls used in a match must have the same standards regarding circumference,
+weight, pressure, type, colour, etc.
+
+3.3
+
+BALL RETRIEVAL SYSTEM
+Where possible, five balls shall be used. In this case, six ball retrievers are stationed,
+one at each corner of the free zone and one behind each referee (Diagram 10).
+A three-ball system is recommended to speed up the game however, it is not
+compulsory.
+
+-17-
+
+Chapter Two
+PARTICIPANTS
+4.
+
+TEAMS
+
+4.1
+
+TEAM COMPOSITION
+
+4.1.1
+
+For the match, a team may consist of up to 12 players, plus
+-
+
+Coaching Staff: one coach, a maximum of two assistant coaches,
+
+-
+
+Medical Staff: one team therapist and one medical doctor.
+
+Only those listed on the score sheet may normally enter the Competition Control Area
+and take part in the official warm up and in the match.
+Volleyball Canada – Assistant coaches may replace the head coach.
+Volleyball Canada – The Medical doctor must be a certified medical person.
+Volleyball Canada – A team may include up to 15 players. All 15 players may be in
+uniform, may participate in the warm-up, and may sit on the bench. Only 12 players will
+be registered on the score sheet and only these 12 players may participate in the
+match. The 12 players registered on the score sheet may vary from match to match as
+long as no more than 12 take part in any given match.
+Special note for coaches and referees – please be advised that the standard
+consequence for an illegal substitution, as listed below in rule 15.9, will apply. It is the
+responsibility of the coach to remember non-roster players and avoid an illegal
+substitution, and it is the responsibility of the referee to sanction infractions.
+4.1.2
+
+One of the players, is the team captain, who shall be indicated on the score sheet.
+
+4.1.3
+
+Only the players recorded on the score sheet may enter the court and play in the
+match. Once the coach and the team captain have signed the score sheet, (team list
+for electronic score sheet) the recorded players cannot be changed.
+
+4.2
+
+LOCATION OF THE TEAM
+
+4.2.1
+
+The players not in play should either sit on their team bench or be in their warm-up
+area. The coach and other team members sit on the bench but may temporarily leave
+it.
+The benches for the teams are located beside the scorer’s table, outside the free zone
+(Diagram 1).
+
+4.2.2
+
+Only the team composition members are permitted to enter the playing area, to sit on
+the bench during the match and to participate in the official warm-up session (Rule
+4.1.1, 7.2).
+
+4.2.3
+
+Players not in play may warm-up without balls as follows:
+4.2.3.1
+
+during play: in the warm-up areas;
+
+4.2.3.2
+
+during time-outs: in the free zone behind their court (except for U SPORTS
+and CCAA).
+-18-
+
+4.2.4
+
+During set intervals, players may warm-up using balls within their own free zone.
+
+4.3
+
+EQUIPMENT
+A player's equipment consists of a jersey and shorts / leggings.
+
+4.3.1
+
+The colour and the design for the jerseys and shorts / leggings must be uniform for the
+team (except for the Libero). The length or fit of the shorts are irrelevant and of no
+consequence. The uniforms must be clean.
+
+4.3.2
+
+The shoes must be light and pliable with rubber or composite soles without heels.
+
+4.3.3
+
+Players' jerseys must be numbered from 1 to 99.
+4.3.3.1
+
+The number must be placed on the jersey at the centre of the front and of the
+back. The colour and brightness of the numbers must contrast with the colour
+and brightness of the jerseys.
+
+4.3.3.2
+
+The number must be a minimum of 10 cm in height on the chest and a
+minimum of 15 cm in height on the back. The stripe forming the numbers shall
+be a minimum of 2 cm in width.
+
+4.3.4
+
+The team captain must have on his/her jersey a stripe of 8 X 2 cm underlining the
+number on the chest. (Rule 5.1)
+
+4.3.5
+
+It is forbidden to wear uniforms of a colour different from that of the other players
+(except for the Liberos - Rule 19.2), and/or without official numbers.
+
+4.4
+
+CHANGES OF EQUIPMENT
+The first referee may authorize one or more players:
+
+4.4.1
+
+to play barefoot
+
+4.4.2
+
+to change wet or damaged uniforms between sets or after substitution, provided that
+the colour, design and number of the new uniform(s) are the same
+
+4.4.3
+
+to play in training suits in cold weather, provided that they are of the same colour and
+design for the whole team (except for the Liberos) and numbered according to Rule
+4.3.3.
+
+4.5
+
+FORBIDDEN OBJECTS
+
+4.5.1
+
+It is forbidden to wear objects which may cause injury or give an artificial advantage to
+the player.
+
+-19-
+
+For Volleyball Canada competitions:
+A.
+
+The referee shall not permit the following:
+1. Finger, hand, wrist, elbow, or forearm guards, casts, or braces, made of hard
+plastic, metal, wood, or any other hard substance even if they are padded.
+Items made from soft material, that are padded, not intrusive and not a
+danger to others, may be permitted.
+2. Equipment that could cut or cause abrasions.
+3. Headwear (E.g.: hats, bandannas, etc.) is not permitted except those worn
+for medical, religious and/or cultural beliefs. Headbands can be worn, at a
+maximum 5cm in width, made of non-abrasive cloth, pliable plastic, or
+rubber.
+
+B.
+
+The referee shall permit the following:
+1. Shoulder, upper arm, thigh, or lower leg protective equipment if the material
+is padded so as not to create a danger for other players.
+2. Knee braces if made by a reputable manufacturer and not dangerous to
+other players.
+3. Protector for a broken nose even if made from a hard material.
+4. Thermoplastic finger splints are permitted so long as they are free of sharp
+edges, do not protrude beyond the fingertips, and are secured to the digit or
+hand with tape or other wrapping.
+5. Prosthetics so long as the prosthetic is covered/padded and does not pose
+any danger to himself/herself or other players.
+
+4.5.2
+
+Players may wear glasses or lenses at their own risk.
+
+4.5.3
+
+Compression pads (padded injury protection devices) may be worn for protection or
+support.
+Volleyball Canada: Compression wear can be any single solid colour. The single solid
+colour does not need to be the same for each player.
+
+5.
+
+TEAM LEADERS
+Both the team captain and the coach are responsible for the conduct and discipline of
+their team members.
+The Liberos can be either the team or game captain.
+
+5.1
+
+CAPTAIN
+
+5.1.1
+
+PRIOR TO THE MATCH, the team captain represents his/her team in the toss, then
+signs the score sheet.
+
+5.1.2
+
+DURING THE MATCH and while on the court, the team captain is the game captain.
+When the team captain is not on the court, the coach or the team captain must assign
+another player on the court, to assume the role of game captain. This game captain
+maintains his/her responsibilities until he/she is substituted, or the team captain returns
+to play, or the set ends.
+
+-20-
+
+When the ball is out of play, only the game captain is authorized to speak to the
+referees:
+5.1.2.1
+
+to ask for an explanation on the application or interpretation of the Rules, and
+also to submit the requests or questions of his/her team-mates. If the game
+captain does not agree with the explanation of the first referee, he/she may
+choose to protest against such decision and immediately indicates to the first
+referee that he/she reserves the right to record an official protest on the score
+sheet at the end of the match (Rule 23.2.4).
+
+5.1.2.2
+
+to ask authorization:
+a) to change all or part of the equipment
+b) to verify the positions of the teams
+c) to check the floor, the net, the ball, etc.
+
+5.1.2.3
+
+In the absence of the coach unless the team has an assistant coach who has
+overtaken the coach’s functions to request time-outs and substitutions (Rule
+15.2.1, 15.4, 15.5).
+
+5.1.3
+
+AT THE END OF THE MATCH, the team captain:
+5.1.3.1
+5.1.3.2
+
+thanks the referees and signs the score sheet to ratify the result;
+may, when it has been notified in due time to the first referee, confirm and
+record on the score sheet an official protest regarding the referee's
+application or interpretation of the Rules.
+
+5.2
+
+COACH
+Throughout the match, the coach conducts the play of his/her team from outside the
+playing court. He/she selects the starting line-ups, the substitutes, and takes time-outs.
+In these functions, his/her contacting official is the second referee.
+Volleyball Canada - 18U and younger competitions, the head coach must sign the
+score sheet at the completion of the match.
+
+5.2.1
+
+PRIOR TO THE MATCH, the coach records or checks the names and numbers of
+his/her players on the scoresheet team roster, and then signs it.
+
+5.2.3
+
+DURING THE MATCH, the coach:
+5.2.3.1
+
+prior to each set, gives the second referee or the scorer the line-up sheet(s)
+duly filled in and signed; If Tablet apps are used, the electronic submission of
+the line-up is automatically deemed to be official
+
+5.2.3.2
+5.2.3.3
+
+sits on the team bench, but may leave it;
+requests time-outs and substitutions.
+All time-outs and substitutions are to be requested by the Coach from the
+end of the bench nearest to the scorer when he/she is sitting or from the
+-21-
+
+extension of the attack line in the free zone when he/she is standing or
+walking.
+5.2.3.4
+
+may, as well as other team members, give instructions to the players on the
+court. The coach may give these instructions while standing or walking within
+the free zone in front of his/her team’s bench from the extension of the attack
+line up to the warm-up area, if situated in the corner of the Competition
+Control Area, without disturbing or delaying the match. Should the warm-up
+area be situated behind the team bench, then the coach may move from the
+extension of the attack line to the end of his/her team’s court, but without
+obstructing the view of the line judges.
+
+5.3
+
+ASSISTANT COACH
+
+5.3.1
+
+With the exception of the chair nearest to the scorer, the assistant coach sits on the
+team bench, but has no right to intervene in the match.
+
+5.3.2
+
+Should the coach have to leave his/her team for any reason including sanction, but
+excluding entering the court as a player, an assistant coach may assume the coach's
+functions for the duration of the absence, once confirmed to the referee by the game
+captain.
+
+Chapter Three
+PLAYING FORMAT
+6.
+
+TO SCORE A POINT, TO WIN A SET AND THE MATCH
+
+6.1
+
+TO SCORE A POINT
+
+6.1.1
+
+Point
+A team scores a point:
+
+6.1.2
+
+6.1.1.1
+
+by successfully landing the ball on the opponent's court
+
+6.1.1.2
+
+when the opponent team commits a fault
+
+6.1.1.3
+
+when the opponent team receives a penalty.
+
+Fault
+A team commits a fault by making a playing action contrary to the rules (or by violating
+them in some other way). The referees judge the faults and determine the
+consequences according to the Rules:
+6.1.2.1
+
+if two or more faults are committed successively, only the first one is counted
+
+6.1.2.2
+
+if two or more faults are committed by opponents simultaneously, a DOUBLE
+FAULT is called, and the rally is replayed.
+
+-22-
+
+6.1.3
+
+Rally and completed rally
+A rally is the sequence of playing actions from the moment of the service hit by the
+server until the ball is out of play. A completed rally is the sequence of playing actions
+which results in the award of a point. This includes:
+
+6.2
+
+-
+
+The award of a penalty
+
+-
+
+Loss of service for service hit made after the time-limit.
+
+6.1.3.1
+
+If the serving team wins a rally, it scores a point and continues to serve
+
+6.1.3.2
+
+If the receiving team wins a rally, it scores a point and it must serve next.
+
+TO WIN A SET
+A set (except the deciding set) is won by the team which first scores 25 points with a
+minimum lead of two points. In the case of a 24-24 tie, play is continued until a twopoint lead is achieved (26-24; 27-25; etc.).
+
+6.3
+
+TO WIN THE MATCH
+
+6.3.1
+
+The match is won by the team that wins 2 of 3 sets or 3 of 5 sets.
+
+6.3.2
+
+In the case of a 1 – 1 tie (best 2 of 3) or 2 – 2 tie (best 3 or 5), the deciding set (3rd or
+5th) is played to 15 points with a minimum lead of 2 points. There is no point limit.
+
+6.4
+
+DEFAULT AND INCOMPLETE TEAM
+
+6.4.1
+
+If a team refuses to play after being summoned to do so, it is declared in default and
+forfeits the match with the result 0-3 for the match and 0-25 for each set.
+
+6.4.2
+
+A team that, without justifiable reason, does not appear on the playing court on time is
+declared in default with the same result as in Rule 6.4.1.
+Volleyball Canada - Refer to Tournament Rules for Competition-forfeit.
+
+6.4.3
+
+A team that is declared INCOMPLETE for the set or for the match (Rule 7.3.1), loses
+the set or the match. The opponent team is given the points, or the points and the sets,
+needed to win the set or the match. The incomplete team keeps its points and sets.
+
+7.
+
+STRUCTURE OF PLAY
+
+7.1
+
+THE TOSS
+Before the match, the first referee carries out a toss to decide upon the first service
+and the sides of the court in the first set.
+If a deciding set is to be played, a new toss will be carried out.
+
+7.1.1
+
+The toss is taken in the presence of the two team captains.
+
+7.1.2
+
+The winner of the toss chooses:
+
+-23-
+
+EITHER
+7.1.2.1
+
+the right to serve or to receive the service
+OR
+
+7.1.2.2
+
+the side of the court.
+The loser takes the remaining choice.
+
+7.2
+
+OFFICIAL WARM-UP SESSION
+
+7.2.1
+
+Prior to the match, if the teams have previously had a playing court exclusively at their
+disposal, they are entitled to a 6-minute official warm-up period together at the net; if
+not, they may have 10 minutes.
+
+7.2.2
+
+If either captain requests separate (consecutive) official warm-ups at the net, the teams
+are allowed 3 minutes each or 5 minutes each, according to Rule 7.2.1.
+
+7.2.3
+
+In the case of consecutive official warm-ups, the team that has the first service takes
+the first turn at the net.
+Volleyball Canada – All players must wear playing uniforms for the complete Protocol
+and warm-up.
+
+7.2.4
+
+Volleyball Canada – In an effort to reduce the incidence of injuries and concussions
+during warm-up, Volleyball Canada has developed the following warm-up protocol. This
+protocol is to be followed by all teams during the designated on-court warm-up time:
+a.
+
+Athletes must remain on their side of the net immediately following an attack and
+only move to the opposite side of the net from outside of the court. Athletes are
+not permitted into the receiving court.
+
+b.
+
+Any ball from the receiving side of the court, entered to the attacking side, must
+be entered from outside of the court.
+
+c.
+
+Retrieved balls must be returned along the sidelines of the court and not through
+the receiving court.
+
+d.
+
+If the team is using both sides of the court, i.e. full court game type activity – only
+one ball can be in play at any given time.
+
+e.
+
+Opposing teams are not permitted to use volleyballs in the free zone during the
+other team’s allocated court time. It is recommended for the opposing team to
+support the retrieval of volleyballs for the team on the court.
+
+For teams that do not follow the warm-up protocol, the referees will note on the score
+sheet the non-compliance of the warm-up protocol. The league, PTA, or Volleyball
+Canada will determine the appropriate sanction.
+7.3
+
+TEAM STARTING LINE-UP
+
+7.3.1
+
+There must always be six players per team in play.
+The team’s starting line-up indicates the rotational order of the players on the court.
+This order must be maintained throughout the set.
+
+-24-
+
+7.3.2
+
+Before the start of each set, the coach has to present the starting line-up of his/her
+team on a line-up sheet or via the electronic device, if used. The sheet is submitted,
+duly filled in and signed, to the second referee or the scorer – or electronically sent
+directly to the e-scorer.
+
+7.3.3
+
+The players who are not in the starting line-up of a set are the substitutes for that set
+(except the Liberos). (Rules 7.3.2, 15.5)
+
+7.3.4
+
+Once the line-up sheet has been delivered to the second referee or scorer, no change
+in line-up may be authorized without a regular substitution.
+
+7.3.5
+
+Discrepancies between players’ position on court and on the line-up sheet are dealt
+with as follows:
+7.3.5.1
+
+When such a discrepancy is discovered before the start of the set, players’
+positions must be rectified according to those on the line-up sheet. There will
+be no sanction.
+
+7.3.5.2
+
+When, before the start of the set, a player on court is found not to be
+registered on the line-up sheet of that set, this player must be changed to
+conform to the line-up sheet. There will be no sanction.
+
+7.3.5.3
+
+However, if the coach wishes to keep such non-recorded player(s) on the
+court, he/she has to request regular substitution(s), by use of the
+corresponding hand signal, which will then be recorded on the score sheet.
+If a discrepancy between players’ positions and the line-up sheet is
+discovered later, the team at fault must revert to the correct positions. The
+opponent’s points remain valid and in addition they receive a point and the
+next service. All points scored by the team at fault from the exact moment of
+the fault up to the discovery of the fault are cancelled.
+
+7.3.5.4
+
+Where a player is found to be on court, but he/she is not registered on the
+team roster, the opponent’s points remain valid, and in addition they gain a
+point and service. The team at fault will lose all points and/or sets (0:25, if
+necessary) gained from the moment the non-registered player entered the
+court, and will have to submit a revised line-up sheet and send a new
+registered player into the court, in the position of the non-registered player.
+
+7.4
+
+POSITIONS
+At the moment the ball is hit by the server, each team must be positioned within its own
+court in the rotational order (except the server).
+
+7.4.1
+
+The positions of the players are numbered as follows:
+7.4.1.1
+
+The three players along the net are front-row players and occupy positions 4
+(front-left), 3 (front-centre) and 2 (front-right).
+-25-
+
+7.4.1.2
+
+The other three are back-row players occupying positions 5 (back-left), 6
+(back-centre) and 1 (back-right).
+
+7.4.2
+
+Relative positions between players:’
+7.4.2.1
+
+Each back-row player must be positioned further back from the centre line
+than the corresponding front-row player.
+
+7.4.2.2
+
+The front-row players and the back-row players, respectively, must be
+positioned laterally in the order indicated in Rule 7.4.1.
+
+7.4.3
+
+The positions of players are determined and controlled according to the positions of
+their feet contacting the ground (the last contact with the floor fixes the player’s
+position), as follows (Diagram 4):
+7.4.3.1
+
+each back-row player must be level with or have at least a part of one foot
+further from the centre line than the front foot of the corresponding front-row
+player.
+
+7.4.3.2
+
+each right (left) side player must be level with or have at least a part of one
+foot closer to the right (left) side line than the feet further from the right (left)
+side line of the other players in that row.
+
+7.4.4
+
+After the service hit, the players may move around and occupy any position on their
+court and the free zone.
+
+7.5
+
+POSITIONAL FAULT
+
+7.5.1
+
+The team commits a positional fault, if any player is not in his/her correct position at the
+moment the ball is hit by the server (Rules 7.3 & 7.4). When a player is on court
+through illegal substitution, and play restarts, this is counted as a positional fault with
+the consequences of an illegal substitution.
+
+7.5.2
+
+If the server commits a serving fault at the moment of the service hit, (Rules 12.4 &
+12.7.1), the server’s fault is counted before a positional fault.
+
+7.5.3
+
+If the service becomes faulty after the service hit, (Rule 12.7.2), it is the positional fault
+that will be counted.
+
+7.5.4
+
+A positional fault leads to the following consequences:
+7.5.4.1
+
+the team is sanctioned with a point and service to the opponent
+
+7.5.4.2
+
+players’ positions must be rectified.
+
+7.6
+
+ROTATION
+
+7.6.1
+
+The rotational order is determined by the team’s starting line-up and controlled with the
+service order and players’ positions throughout the set.
+
+-26-
+
+7.6.2
+
+When the receiving team has gained the right to serve, its players rotate one position
+clockwise: the player in position 2 rotates to position 1 to serve, the player in position 1
+rotates to position 6, etc.
+
+7.7
+
+ROTATIONAL FAULT
+
+7.7.1
+
+A rotational fault is committed when the SERVICE is not made according to the
+rotational order (Rule 7.6.1). It leads to the following consequences in order:
+7.7.1.1
+
+the scorer stops play by the buzzer; the opponent gains a point and next
+service.
+If the rotational fault is determined only after the completion of the rally which
+started with a rotational fault, only a single point is awarded to the opponent,
+regardless of the result of the rally played.
+
+7.7.1.2
+7.7.2
+
+the rotational order of the faulty team must be rectified
+
+Additionally, the scorer should determine the exact moment when the fault was
+committed, and all points scored subsequently by the team at fault must be cancelled.
+The opponent’s points remain valid.
+If that moment cannot be determined, no point(s) cancellation takes place, and a point
+and service to the opponent is the only sanction.
+
+Chapter Four
+PLAYING ACTIONS
+8.
+
+STATES OF PLAY
+
+8.1
+
+BALL IN PLAY
+The ball is in play from the moment of the hit of the service authorized by the first
+referee.
+
+8.2
+
+BALL OUT OF PLAY
+The ball is out of play at the moment of the fault which is whistled by one of the
+referees, in the absence of a fault, at the moment of the whistle.
+
+8.3
+
+BALL “IN”
+The ball is “in” if at any moment of its contact with the floor, some part of the ball
+touches the court, including the boundary lines.
+
+8.4
+
+BALL “OUT”
+The ball is “out” when:
+
+8.4.1
+
+all parts of the ball which contact the floor are completely outside the boundary lines;
+
+8.4.2
+
+it touches an object outside the court, the ceiling or a person out of play;
+
+8.4.3
+
+it touches the antennae, ropes, posts or the net itself outside the side bands;
+
+-27-
+
+8.4.4
+
+it crosses the vertical plane of the net either partially or totally outside the crossing
+space, except in the case of Rule 10.1.2;
+
+8.4.5
+
+it crosses completely the lower space under the net (Diagram 5).
+
+9.
+
+PLAYING THE BALL
+Each team must play within its own playing area and space (except Rule 10.1.2).
+The ball may, however, be retrieved from beyond its own free zone and over the
+scoring table in its complete extension.
+
+9.1
+
+TEAM HITS
+A hit is any contact with the ball by a player in play.
+The team is entitled to a maximum of three hits (in addition to blocking, Rule 14.4.1),
+for returning the ball. If more are used, the team commits the fault of “FOUR HITS”.
+
+9.1.1
+
+Consecutive contacts
+A player may not hit the ball two times consecutively (except Rules 9.2.3, 14.2 and
+14.4.2).
+
+9.1.2
+
+Simultaneous contacts
+Two or three players may touch the ball at the same moment.
+9.1.2.1
+
+When two (or three) team-mates touch the ball simultaneously, it is counted
+as two (or three) hits (with the exception of blocking). If they reach for the
+ball, but only one of them touches it, one hit is counted. A collision of players
+does not constitute a fault.
+
+9.1.2.2
+
+When two opponents touch the ball simultaneously over the net and the ball
+remains in play, the team receiving the ball is entitled to another three hits. If
+such a ball goes “out”, it is the fault of the team on the opposite side.
+
+9.1.2.3
+
+If simultaneous hits by two opponents over the net leads to extended contact
+with the ball, even if the contact is completed above the opponent court, play
+continues.
+
+9.1.3
+
+Assisted hit
+Within the playing area, a player is not permitted to take support from a team-mate or
+any structure/object in order to hit the ball.
+However, a player who is about to commit a fault (touch the net or cross the centre
+line, etc.) may be stopped or held back by a teammate.
+
+9.2
+
+CHARACTERISTICS OF THE HIT
+
+9.2.1
+
+The ball may touch any part of the body.
+
+9.2.2
+
+The ball must not be caught and/or thrown. It can rebound in any direction.
+
+9.2.3
+
+The ball may touch various parts of the body, provided that the contacts take place
+simultaneously.
+-28-
+
+Exceptions:
+9.2.3.1
+
+At blocking, consecutive contacts may be made by one or more player(s)
+provided that the contacts occur during one action (Rule 14.1.1 & 14.2).
+
+9.2.3.2
+
+At the first hit of the team, the ball may contact various part of the body
+consecutively, provided that the contacts occur during one action (see Rules
+9.1, 14.4.1).
+
+9.3
+
+FAULTS IN PLAYING THE BALL
+
+9.3.1
+
+FOUR HITS: a team hits the ball four times before returning it (Rule 9.1).
+
+9.3.2
+
+ASSISTED HIT: a player takes support from a team-mate or any structure/object in
+order to hit the ball within the playing area (Rule 9.1.3).
+
+9.3.3
+
+CATCH: the ball is caught and/or thrown; is does not rebound from the hit (Rule 9.2.2).
+
+9.3.4
+
+DOUBLE CONTACT: a player hits the ball twice in succession or the ball contacts
+various parts of his/her body in succession (Rule 9.2.3).
+
+10.
+
+BALL AT THE NET
+
+10.1
+
+BALL CROSSING THE NET
+
+10.1.1
+
+The ball sent to the opponent’s court must go over the net within the crossing space.
+The crossing space is the part of the vertical plane of the net limited as follows:
+(Diagram 5, Rule 10.2)
+10.1.1.1 below, by the top of the net;
+10.1.1.2 at the sides, by the antennae, and their imaginary extension;
+10.1.1.3 above, by the ceiling.
+
+10.1.2
+
+The ball, coming from the first hit of the team, that has crossed the net plane to the
+opponent’s free zone totally or partly through the external space, may be played back
+within the team hits, provided that:
+10.1.2.1 the opponent’s court is not touched by the player;
+10.1.2.2 the ball, when played back, crosses the net plane again totally or partly
+through the external space on the same side of the court.
+The opponent team may not prevent such action.
+10.1.2.3 the ball, sent to the opponent’s free zone totally or partly through the external
+space, which has come from the second or third hit of the team, cannot be
+played back and will be judged as ball OUT the moment it crosses the net
+plane.
+
+-29-
+
+10.1.3
+
+The ball that is heading towards the opponent’s court through the lower space is in
+play until the moment it has completely crossed the vertical plane of the net.
+
+10.2
+
+BALL TOUCHING THE NET
+While crossing the net, the ball may touch it (Rule 10.1.1).
+
+10.3
+
+BALL IN THE NET
+
+10.3.1
+
+A ball driven into the net may be recovered within the limits of the three team hits (Rule
+9.1).
+
+10.3.2
+
+If the ball rips the mesh of the net or tears it down, the rally is cancelled and replayed.
+
+11.
+
+PLAYER AT THE NET
+
+11.1
+
+REACHING BEYOND THE NET
+
+11.1.1
+
+In blocking, a player may touch the ball beyond the net, provided that he/she does not
+interfere with the opponent's play before the latter’s attack hit (Rules 14.1 & 14.3).
+
+11.1.2
+
+After an attack hit, a player is permitted to pass his/her hand beyond the net, provided
+that the initial contact has been made within his/her own playing space, and the ball is
+not caught or thrown.
+
+11.2
+
+PENETRATION UNDER THE NET
+
+11.2.1
+
+It is permitted to penetrate into the opponent's space under the net, provided that this
+does not interfere with the opponent's play.
+
+11.2.2
+
+Penetration into the opponent’s court, beyond the centre line:
+11.2.2.1 To touch the opponent’s court with a foot (feet) is permitted, provided that
+some part of the penetrating foot (feet) remains either in contact with or
+directly above the centre line and this action does not interfere with the
+opponent’s play.
+11.2.2.2 To touch the opponent’s court with any part of the body above the feet is
+permitted provided that it does not interfere with the opponent’s play.
+
+11.2.3
+
+A player may enter the opponent’s court after the ball goes out of play.
+
+11.2.4
+
+Players may penetrate into the opponent’s free zone provided that they do not interfere
+with the opponent's play.
+
+11.3
+
+CONTACT WITH THE NET
+
+11.3.1
+
+Contact with the net by a player between the antennae, during the action of playing the
+ball, is a fault.
+The action of playing the ball includes (among others) take-off, hit (or attempt) and
+landing safely, ready for a new action.
+
+-30-
+
+11.3.2
+
+Players may touch the post, ropes, or any other object outside the antennae, including
+the net itself, provided that it does not interfere with play.
+
+11.3.3
+
+When the ball is driven into the net, causing it to touch an opponent, no fault is
+committed.
+
+11.4
+
+PLAYER'S FAULTS AT THE NET
+
+11.4.1
+
+A player touches the ball or an opponent in the opponent’s space before the
+opponent’s attack hit.
+
+11.4.2
+
+A player interferes with the opponent’s play while penetrating into the opponent’s
+space under the net.
+
+11.4.3
+
+A player’s foot (feet) penetrates completely into the opponent’s court.
+
+11.4.4
+
+A player interferes with play by (amongst others):
+- touching the net between the antennae or the antenna itself during his/her action of
+playing the ball;
+- using the net between the antennae as a support or stabilizing aid;
+- creating an unfair advantage over the opponent by touching the net;
+- making actions which hinder an opponent’s legitimate attempt to play the ball;
+- catching/holding on to the net.
+Any player close to the ball as it is played, and who is him/herself trying to play it, is
+considered in the action of playing the ball, even if no contact is made with it.
+However, touching the net outside the antenna is not to be considered a fault (except
+for Rule 9.1.3).
+
+12.
+
+SERVICE
+The service is the act of putting the ball into play, by the back-right player, placed in the
+service zone (Rule 12.4.1).
+
+12.1
+
+FIRST SERVICE IN A SET
+
+12.1.1
+
+The first service of the first set, as well as that of the deciding set (3rd or 5th) is executed
+by the team determined by the toss (Rule 7.1).
+
+12.1.2
+
+The other sets will be started with the service of the team that did not serve first in the
+previous set.
+
+12.2
+
+SERVICE ORDER
+
+12.2.1
+
+The players must follow the service order recorded on the line-up sheet (Rule 7.3.1 &
+7.3.2).
+
+-31-
+
+12.2.2
+
+After the first service in a set, the player to serve is determined as follows:
+12.2.2.1 When the serving team wins the rally, the player (or his/her substitute) who
+served before, serves again.
+12.2.2.2 When the receiving team wins the rally, it gains the right to serve and rotates
+before actually serving. The player who moves from the front right position to
+the back-right position will serve. (Rule 6,1,3 & 7.6.2)
+
+12.3
+
+AUTHORIZATION OF THE SERVICE
+The first referee authorizes the service, after having checked that the two teams are
+ready to play and that the server is in possession of the ball.
+
+12.4
+
+EXECUTION OF THE SERVICE
+
+12.4.1
+
+The ball shall be hit with one hand or any part of the arm after being tossed or released
+from the hand(s).
+
+12.4.2
+
+Only one toss or release of the ball is allowed. Dribbling or moving the ball in the hands
+is permitted.
+
+12.4.3
+
+At the moment of the service hit or take-off for a jump service, the server must not
+touch the court (the end line included) or the floor outside the service zone.
+After the hit, he/she may step or land outside the service zone, or inside the court.
+
+12.4.4
+
+The server must hit the ball within 8 seconds after the first referee whistles for service.
+
+12.4.5
+
+A service executed before the referee’s whistle is cancelled and repeated.
+
+12.5
+
+SCREENING
+
+12.5.1
+
+The players of the serving team must not prevent their opponent, through individual or
+collective screening, from seeing the service hit and the flight path of the ball.
+
+12.5.2
+
+A player or a group of players of the serving team make(s) a screen by waving arms,
+jumping or moving sideways during the execution of the service, or by standing
+grouped, in order that both the service hit and the flight path of the ball are hidden until
+the ball reaches the vertical plane of the net. Should either be visible to the receiving
+team this is not a screen.
+
+12.5.3
+
+Any player of the serving team is forbidden to raise hands above the head during
+service, until the ball has passed beyond the net.
+The first referee is permitted to caution (advise) a team through the game captain, if
+he/she suspects that it is deliberately screening.
+
+12.6
+
+FAULTS MADE DURING THE SERVICE
+
+12.6.1
+
+Serving faults:
+The following faults lead to a change of service even if the opponent is out of position
+(Rule 12.7.1). The server:
+
+-32-
+
+12.6.1.1 violates the service order (Rule 12.2);
+12.6.1.2 does not execute the service properly (Rule 12.4).
+12.6.2
+
+Faults after the service hit:
+After the ball has been correctly hit, the service becomes a fault (unless a player is out
+of position) if the ball (Rule 12.4 & 12.7.2):
+12.6.2.1 touches a player of the serving team or fails to cross the vertical plane of the
+net completely through the crossing space (Rules 8.4.4, 8.4.5, 10.1.1);
+(
+
+12.6.2.2 goes “out” (Rule 8.4);
+12.6.2.3 passes over a screen (Rule 12.5).
+12.7
+
+SERVING FAULTS AND POSITIONAL FAULTS
+
+12.7.1
+
+If the server makes a fault at the moment of the service hit (improper execution, wrong
+rotational order, etc.) and the opponent is out of position, it is the serving fault which is
+sanctioned.
+
+12.7.2
+
+Instead, if the execution of the service has been correct, but the service subsequently
+becomes faulty (goes out, goes over a screen, etc.), the positional fault has taken
+place first and is sanctioned.
+
+13.
+
+ATTACK HIT
+
+13.1
+
+CHARACTERISTICS OF THE ATTACK HIT
+
+13.1.1
+
+All actions which direct the ball towards the opponents, with the exception of service
+and block, are considered as attack hits.
+
+13.1.2
+
+During an attack hit, tipping is permitted only if the ball is cleanly hit, and not caught or
+thrown.
+
+13.1.3
+
+An attack hit is completed the moment the ball completely crosses the vertical plane of
+the net or is touched by an opponent.
+
+13.2
+
+RESTRICTIONS OF THE ATTACK HIT
+
+13.2.1
+
+A front-row player may complete an attack hit at any height, provided that the contact
+with the ball has been made within the player’s own playing space (except Rules
+13.2.4 and 13.3.6).
+
+13.2.2
+
+A back-row player may complete an attack hit at any height from behind the front zone:
+13.2.2.1 at his/her take-off, the player’s foot (feet) must neither have touched nor
+crossed over the attack line;
+13.2.2.2 after his/her hit, the player may land within the front zone (Rule 1.4.1).
+
+-33-
+
+13.2.3
+
+A back-row player may also complete an attack hit from the front zone, if at the
+moment of the contact a part of the ball is lower than the top of the net.
+
+13.2.4
+
+No player is permitted to complete an attack hit on the OPPONENT'S service, when
+the ball is in the front zone and entirely higher than the top of the net.
+
+13.3
+
+FAULTS OF THE ATTACK HIT
+
+13.3.1
+
+A player hits the ball within the playing space of the opposing team (Rule 13.2.1).
+
+13.3.2
+
+A player hits the ball “out” (Rule 8.4).
+
+13.3.3
+
+A back-row player completes an attack hit from the front zone, if at the moment of the
+hit the ball is entirely higher than the top of the net (Rule 13.2.3).
+
+13.3.4
+
+A player completes an attack hit on the opponent’s service, when the ball is in the front
+zone and entirely higher than the top of the net (13.2.4).
+
+13.3.5
+
+A Libero completes an attack hit if at the moment of the hit the ball is entirely higher
+than the top of the net (Rule 19.3.1.2).
+
+13.3.6
+
+A player completes an attack hit from higher than the top of the net when the ball is
+coming from an overhand finger pass by a Libero in his/her front zone.
+
+14.
+
+BLOCK
+
+14.1
+
+BLOCKING
+
+14.1.1
+
+Blocking is the action of players close to the net to intercept the ball coming from the
+opponent by reaching higher than the top of the net, regardless of the height of the ball
+contact. Only front-row players are permitted to complete a block, but at the moment of
+the contact with the ball, a part of the body must be higher than the top of the net.
+
+14.1.2
+
+Block Attempt
+A block attempt is the action of blocking without touching the ball.
+
+14.1.3
+
+Completed Block
+A block is completed whenever the ball is touched by a blocker (Diagram 7).
+
+14.1.4
+
+Collective Block
+A collective block is executed by two or three players close to each other and is
+completed when one of them touches the ball.
+
+14.2
+
+BLOCK CONTACT
+Consecutive (quick and continuous) contacts with the ball may occur by one or more
+blockers, provided that the contacts are made during one action.
+
+14.3
+
+BLOCKING WITHIN THE OPPONENT’S SPACE
+In blocking, the player may place his/her hands and arms beyond the net, provided that
+this action does not interfere with the opponent's play. Thus, it is not permitted to touch
+the ball beyond the net before an opponent has executed an attack hit.
+-34-
+
+14.4
+
+BLOCK AND TEAM HITS
+
+14.4.1
+
+A block contact is not counted as a team hit. Consequently, after a block contact, a
+team is entitled to three hits to return the ball. (Rule 9.1)
+
+14.4.2
+
+The first hit after the block may be executed by any player, including the one who has
+touched the ball during the block.
+
+14.5
+
+BLOCKING THE SERVICE
+To block an opponent’s service is forbidden.
+
+14.6
+
+BLOCKING FAULTS
+
+14.6.1
+
+The blocker touches the ball in the OPPONENT'S space before the opponent's attack
+hit (Rule 14.3).
+
+14.6.2
+
+A back-row player or a Libero completes a block or participates in a completed block
+(Rules 14.1.1, 14.5 & 19.3.1.3).
+
+14.6.3
+
+Blocking the opponent's service (Rule 14.5).
+
+14.6.4
+
+The ball is sent “out” off the block (Rule 8.4).
+
+14.6.5
+
+Blocking the ball in the opponent’s space from outside the antenna.
+
+14.6.6
+
+A Libero attempts an individual or collective block (Rules 14.1 & 19.3.1.3).
+
+Chapter Five
+INTERRUPTIONS, DELAYS AND INTERVALS
+15.
+
+INTERRUPTIONS
+An interruption is the time between one completed rally and the first referee’s whistle
+for the next service.
+The only regular game interruptions are TIME-OUTS and SUBSTITUTIONS.
+
+15.1
+
+NUMBER OF REGULAR GAME INTERRUPTIONS
+Each team may request a maximum of two time-outs and six substitutions per set.
+Volleyball Canada - For Volleyball Canada competitions in the 14U* and 15U (boys
+and girls), 12 substitutions is the maximum permitted per team per set. The 12
+substitutions are limited (Rule 15.6.1 and 15.6.2).
+*For Volleyball Canada 14U and younger competitions "Fair Play" rules apply, which
+are as follows: Substitutions are not permitted in the first or second set. In the case of
+injury, an Exceptional Substitution may be made. The injured/ill player may not return
+to the same set but may return to play in subsequent sets. If a player is expelled or
+disqualified, there must be a legal substitution allowed for the set to continue.
+If a player is expelled in the first set, the expelled player may not start the second set
+but would be allowed to start the third set. Any line up can be used at the start of the
+third set. In the third set, 12 "limited" substitutions are permitted.
+-35-
+
+15.2
+
+SEQUENCE OF REGULAR GAME INTERRUPTIONS
+
+15.2.1
+
+Request for one or two time-outs, and one request for substitution by either team may
+follow one another, within the same interruption.
+
+15.2.2
+
+However, a team is not authorized to make consecutive requests for substitution during
+the same interruption. Two or more players may be substituted at the same time within
+the same request.
+
+15.2.3
+
+There must be a completed rally between two separate substitution requests by the
+same team. (Exception: a forced substitution due to injury or expulsion/disqualification
+(15.5.2, 15.7, 15.8)).
+
+15.2.4
+
+It is not permitted to request any regular game interruption after having had a request
+rejected and sanctioned by a delay warning during the same interruption (i.e. before
+the end of the next completed rally)
+
+15.3
+
+REQUEST FOR REGULAR GAME INTERRUPTIONS
+
+15.3.1
+
+Regular game interruptions may be requested by the coach, or in the absence of the
+coach, by the assistant coach, or the game captain, and only by them.
+
+15.3.2
+
+Substitution before the start of a set is permitted and should be recorded as a regular
+substitution in that set.
+
+15.4
+
+TIME-OUTS
+
+15.4.1
+
+Time-out requests must be made by showing the corresponding hand signal, when the
+ball is out of play and before the whistle for service. All requested time-outs last for 30
+seconds.
+Volleyball Canada - All time-outs that are requested last for 60 seconds.
+
+15.4.2
+
+During all time-outs, the players in play must go to the free zone near their bench.
+
+15.5
+
+SUBSTITUTION
+
+15.5.1
+
+A substitution is the act by which a player, other than the Libero or his/her replacement
+player, after being recorded by the scorer, enters the game to occupy the position of
+another player, who must leave the court at that moment.
+
+15.5.2
+
+When the substitution is enforced through injury to a player in play, this may be
+accompanied by the coach (or game captain) showing the corresponding hand signal.
+
+15.6
+
+LIMITATION OF SUBSTITUTIONS
+
+15.6.1
+
+Limited Substitution - A player of the starting line-up may leave the game, but only
+once in a set, and re-enter, but only once in a set, and only to his/her previous position
+in the line-up.
+
+-36-
+
+15.6.2
+
+Limited Substitution - A substitute player may enter the game in place of a player of
+the starting line-up, but only once per set, and he/she can only be substituted by the
+same starting player.
+
+15.6.3
+
+Unlimited Substitution - A player of the starting line-up may leave the game multiple
+times in a set, and re-enter multiples times in a set, and only to his/her previous
+position in the line-up.
+
+15.6.4
+
+Unlimited Substitution - A substitute player may enter the game multiple times in the
+place of a player of the starting line-up and he/she can only be substituted by the same
+starting player.
+
+15.7
+
+EXCEPTIONAL SUBSTITUTION
+A player (except the Libero) who cannot continue playing due to injury/ illness, or
+expulsion/disqualification should be substituted legally. If this is not possible, the team
+is entitled to make an EXCEPTIONAL substitution, beyond the limits of Rule 15.6.
+An exceptional substitution means that any player who is not on the court at the time of
+the injury/illness/expulsion/disqualification, except the Libero, second Libero or their
+regular replacement player, may be substituted into the game for the
+injured/ill/expelled/disqualified player. The injured/ill/expelled player substituted via
+exceptional substitution is not allowed to re-enter the match.
+An exceptional substitution cannot be counted in any case as a regular substitution but
+should be recorded on the score sheet as part of the total of substitutions in the set
+and the match.
+
+15.8
+
+SUBSTITUTION FOR EXPULSION OR DISQUALIFICATION
+An EXPELLED or DISQUALIFIED player (Rules 21.3.2 & 21.3.3) must be substituted
+immediately through a legal substitution. If this is not possible, the team as the right to
+do an exceptional substitution. If this is not possible, the team is declared
+INCOMPLETE.
+
+15.9
+
+ILLEGAL SUBSTITUTION
+
+15.9.1
+
+A substitution is illegal, if it exceeds the limitations indicated in Rule 15.6 (except the
+case of Rule 15.7), or an unregistered player is involved.
+
+15.9.2
+
+When a team has made an illegal substitution and the play has been resumed (Rule
+8.1), the following procedure shall apply, in sequence:
+15.9.2.1 the team is penalized with a point and service to the opponent;
+15.9.2.2 the substitution must be rectified;
+15.9.2.3 the points scored by the team at fault since the fault was committed are
+cancelled. The opponent's points remain valid.
+
+-37-
+
+15.10
+
+SUBSTITUTION PROCEDURE
+
+15.10.1
+
+Substitution must be carried out within the substitution zone.
+
+15.10.2
+
+A substitution shall only last the time needed for recording the substitution on the score
+sheet and allowing entry and exit of the players.
+
+15.10.3
+
+a) The actual request for substitution starts at the moment of the entrance of the
+substitute player(s) into the substitution zone, ready to play, during an interruption. The
+coach does not need to make a substitution hand signal except if the substitution is for
+injury or before the start of the set.
+Volleyball Canada - if there is no buzzer, the referee will use his/her whistle to
+announce and authorize the request for a substitution.
+b) If the player is not ready in the moment of the request, the substitution is not
+granted, and the team is sanctioned for a delay.
+c) The request for substitution is acknowledged and announced by the scorer or 2nd
+referee, by use of the buzzer or whistle respectively. The 2nd referee authorizes the
+substitution.
+Where applicable, numbered paddles are used to facilitate the substitution (except
+when electronic devices are used to transit the data to the scorer).
+
+15.10.4
+
+If a team intends to make simultaneously more than one substitution, all substitute
+players must enter the substitution zone at the same time to be considered in the same
+request. In this case, substitutions must be made in succession, one pair of players
+after another. If one is illegal, the legal one(s) is/are granted and the illegal is rejected
+and subject to a delay sanction.
+
+15.11
+
+IMPROPER REQUESTS
+
+15.11.1
+
+It is improper to request any regular game interruption:
+15.11.1.1
+
+during a rally or at the moment of or after the whistle to serve (Rule 6.1.3 &
+15.2.1);
+
+15.11.1.2
+
+by a non-authorized team member (Rule 15.2.1);
+
+15.11.1.3
+
+for a second substitution by the same team during the same interruption
+(i.e. before the end of next completed rally), except in the case of injury/
+illness/expulsion/disqualification of a player in play;
+
+15.11.1.4
+
+after having exhausted the authorized number of time-outs and
+substitutions (Rule 15.1).
+
+15.11.1.5
+
+Volleyball Canada: By a coach that is not at the end of the bench nearest
+the scorer when sitting or from the extension of the attack line in the free
+zone when standing or walking
+-38-
+
+15.11.2
+
+The first improper request by a team in the match that does not affect or delay the
+game shall be rejected, but it must be recorded on the score sheet without any other
+consequences.
+
+15.11.3
+
+Any further improper request in the match by the same team constitutes a delay.
+
+16.
+
+GAME DELAYS
+
+16.1
+
+TYPES OF DELAYS
+An improper action of a team that defers resumption of the game is a delay and
+includes, among others:
+
+16.1.1
+
+delaying regular game interruptions;
+
+16.1.2
+
+prolonging interruptions, after having been instructed to resume the game;
+
+16.1.3
+
+requesting an illegal substitution (Rule 15.9);
+
+16.1.4
+
+repeating an improper request;
+
+16.1.5
+
+delaying the game by a team member.
+
+16.2
+
+DELAY SANCTIONS
+
+16.2.1
+
+“Delay warning” and “delay penalty” are team sanctions.
+16.2.1.1 Delay sanctions remain in force for the entire match.
+16.2.1.2 All delay sanctions are recorded on the score sheet.
+
+16.2.2
+
+The first delay in the match by a team member is sanctioned with a “DELAY
+WARNING”.
+
+16.2.3
+
+The second and subsequent delays of any type by any member of the same team in
+the same match constitute a fault and are sanctioned with a “DELAY PENALTY”: a
+point and service to the opponent.
+
+16.2.4
+
+Delay sanctions imposed before or between sets are applied in the following set.
+
+17.
+
+EXCEPTIONAL GAME INTERRUPTIONS
+
+17.1
+
+INJURY/ILLNESS
+
+17.1.1
+
+Should a serious accident occur while the ball is in play, the referee must stop the
+game immediately and permit medical assistance to enter the court.
+The rally is then replayed.
+
+17.1.2
+
+If an injured/ill player cannot be substituted legally or exceptionally, the player is given
+a 3-minute recovery time, but not more than once for the same player in the match
+(Rules 6.3, 15.6 & 15.7).
+-39-
+
+If the player does not recover, his/her team is declared incomplete (Rules 6.4.3 &
+7.3.1).
+17.2
+
+EXTERNAL INTERFERENCE
+If there is any external interference during the game, play has to be stopped and the
+rally is replayed.
+
+17.3
+
+PROLONGED INTERRUPTIONS
+
+17.3.1
+
+If unforeseen circumstances interrupt the match, the first referee, the organizer and the
+Control Committee, if there is one, shall decide the measures to be taken to reestablish normal conditions.
+
+17.3.2
+
+Should one or several interruptions occur, not exceeding 4 hours in total:
+17.3.2.1 if the match is resumed on the same playing court, the interrupted set shall
+continue normally with the same score, players (except expelled or
+disqualified ones) and positions. The sets already played will keep their
+scores;
+17.3.2.2 if the match is resumed on another playing court, the interrupted set is
+cancelled and replayed with the same team members and the same starting
+line-ups (except expelled or disqualified ones), and the record of all
+sanctions will be maintained. The sets already played will keep their scores.
+
+17.3.3
+
+Should one or several interruptions occur, exceeding 4 hours in total, the whole match
+shall be replayed.
+
+17.4
+
+VOLLEYBALL CANADA — WIPING OF THE FLOOR
+Referees must allow time for the wiping of the floor should it become too wet or
+slippery to play on. Towels should be placed on either side of the court. Once a proper
+request has been made and acknowledged by the officials, the players may take and
+use freely, either towel, to wipe the floor. Players may also carry their own “small” towel
+for this purpose. In such cases where wiping of the floor is considered unnecessary
+after a request has been made or should the action of wiping be deliberately delayed, a
+delay of game sanction may be imposed. Should quick moppers be available, they will
+perform the above tasks under the supervision of the referees.
+
+18.
+
+INTERVALS AND CHANGE OF COURTS
+
+18.1
+
+INTERVALS
+An interval is the time between sets. All intervals last three minutes.
+During this period of time, the change of courts and line-up registrations of the teams
+on the score sheet are made.
+The interval between the second and third sets can be extended up to 10 minutes by
+the competent body at the request of the organizer.
+
+-40-
+
+18.2
+
+CHANGE OF COURTS
+
+18.2.1
+
+After each set, the teams change courts, with the exception of the deciding set (Rule
+7.1).
+
+18.2.2
+
+In the deciding set, once the leading team reaches 8 points, the teams change courts
+without delay and the player positions remain the same.
+If the change is not made once the leading team reaches 8 points, it will take place as
+soon as the error is noticed. The score at the time that the change is made remains the
+same.
+
+Chapter Six
+THE LIBERO PLAYER
+19.
+
+THE LIBERO PLAYER
+
+19.1
+
+DESIGNATION OF THE LIBERO
+
+19.1.1
+
+Each team has the right to designate from the list of players on the score sheet up to
+two specialist defensive players: Liberos
+Volleyball Canada
+Teams competing the 14U and 15U age classifications are not permitted to use a
+Libero in competition
+Teams competing in the 16U, 17U and 18U age classifications are permitted to use
+only one (1) Libero per set
+•
+
+The Libero may be re-designated after each set
+
+•
+
+The number of the Libero must be on the line-up sheet for each set
+
+•
+
+If the coach decides to re-designate the Libero between sets, the new Libero
+may be any player registered on the scoresheet
+
+•
+
+The number of the uniform for the re-designated Libero must be the same as
+that player’s number recorded on the scoresheet
+
+•
+
+The replaced Libero can now act as a regular player, providing he/she has
+the correct uniform
+
+19.1.2
+
+All Liberos must be recorded on the score sheet in the special lines reserved for this.
+Volleyball Canada - The Libero is to be recorded on the score sheet with the team
+roster, not on the special line. The number of the Libero is to be recorded on the lineup sheet for all sets.
+
+19.1.3
+
+The Libero on court is the Acting Libero. If there is another Libero, he/she is the
+second Libero for the team.
+Only one Libero may be on court at any time.
+
+19.2
+
+EQUIPMENT
+The Libero player(s) must wear a uniform (or jacket/bib for the re-designated Libero)
+which has a different dominant colour from any colour of the rest of the team. The
+uniform must clearly contrast with the rest of the team. Both Liberos can be in
+uniforms different from each other and from the rest of the team.
+-41-
+
+The Libero uniforms must be numbered like the rest of the team.
+Volleyball Canada - The Libero must wear a uniform which has a different dominant
+colour from any dominant colour of the team jersey.
+19.3
+
+ACTIONS INVOLVING THE LIBERO
+
+19.3.1
+
+The playing actions
+19.3.1.1 The Libero is allowed to replace any player in a back-row position.
+19.3.1.2 He/she is restricted to perform as a back-row player and is not allowed to
+complete an attack hit from anywhere (including playing court and free zone)
+if at the moment of the contact, the ball is entirely higher than the top of the
+net.
+19.3.1.3 He/she may not serve, block, or attempt to block.
+19.3.1.4 A player may not complete an attack hit when the ball is entirely higher than
+the top of the net, if the ball is coming from an overhand finger pass by a
+Libero in his/her front zone. The ball may be freely attacked if the Libero
+makes the same action from outside his/her front zone.
+
+19.3.2
+
+Libero Replacements
+19.3.2.1 Libero Replacements are not counted as substitutions.
+They are unlimited but there must be a completed rally between two Libero
+replacements (unless a penalty causes the team to rotate and the Libero to
+move to position four, or the Acting Libero becomes unable to play, making
+the rally incomplete). (Also See Rules 15.5, 6.1.3)
+19.3.2.2 The regular replacement player may replace and be replaced by either
+Libero. The Acting Libero can only be replaced by the regular replacement
+player for that position or by the second Libero.
+19.3.2.3 At the start of each set, the Libero cannot enter the court until the second
+referee has checked the line-up and authorised a Libero replacement with a
+starting player.
+19.3.2.4 Other Libero replacements must only take place while the ball is out of play
+and before the whistle for service.
+19.3.2.5 A Libero replacement made after the whistle for service but before the
+service hit should not be rejected; however, at the end of the rally, the game
+captain must be informed that this is not a permitted procedure, and that
+repetition will be subject to delay sanctions.
+19.3.2.6 Subsequent late Libero replacements shall result in the play being
+interrupted immediately and the imposition of a delay sanction. The team to
+serve next will be determined by the level of the delay sanction.
+
+-42-
+
+19.3.2.7 The Libero and the replacing player may only enter or leave the court
+through the "Libero Replacement Zone" (Also see Rules 1.4.4, D.1b).
+19.3.2.8 Libero replacements must be recorded in the Libero Control Sheet (if one is
+used) or on the electronic score sheet.
+19.3.2.9 An illegal Libero replacement can involve (amongst others):
+- No completed rally between Libero replacements
+- The Libero being replaced by a player other than the second Libero or the
+regular replacement player.
+- An illegal Libero replacement should be considered in the same way as an
+illegal substitution:
+- should the illegal Libero replacement be noticed before the start of the next
+rally, then this is corrected by the referees, and the team is sanctioned for
+delay;
+- should the illegal Libero replacement be noticed after the service hit, the
+consequences are the same as for an illegal substitution.
+19.4
+
+RE-DESIGNATION OF A NEW LIBERO
+
+19.4.1
+
+The Libero becomes unable to play if injured, ill, expelled or disqualified.
+The Libero can be declared unable to play for any reason by the coach or, in the
+absence of a coach, by the game captain.
+
+19.4.2
+
+Team with one Libero
+19.4.2.1 When only one Libero is available for a team according to Rule 19.4.1, or the
+team has only one registered, and this Libero becomes or is declared unable
+to play, the coach (or game captain if no coach is present) may re-designate
+as Libero for the remainder of the match any other player (replacement
+player excepted) not on the court at the moment of the re-designation.
+19.4.2.2 If the Acting Libero becomes unable to play, he/she may be replaced by the
+regular replacement player or immediately and directly to court by a redesignated Libero. However, a Libero who is the subject of a re-designation
+may not play for the remainder of the match.
+If the Libero is not on court when declared unable to play, he/she may also
+be the subject of a re-designation. The Libero declared unable to play may
+not play for the remainder of the match.
+19.4.2.3 The coach, or game captain if no coach is present, contacts the second
+referee informing him/her about the re-designation.
+19.4.2.4 Should a re-designated Libero become or be declared unable to play, further
+re-designations are permitted.
+-43-
+
+19.4.2.5 If the coach requests the team captain to be re-designated as the new
+Libero, this will be permitted.
+19.4.2.6 In the case of a re-designated Libero, the number of the player redesignated as Libero
+must be recorded on the score sheet remarks section and on the Libero control sheet (or
+electronic score sheet if one is used).
+19.4.3
+
+Team with two Liberos
+Where a team has registered on the score sheet two Liberos, but one becomes unable to
+play the team has the right to play with only one Libero.
+No re-designation will be allowed, however, unless the remaining Libero is unable to
+continue playing for the match.
+
+19.5
+
+SUMMARY
+
+19.5.1
+
+If the Libero is expelled or disqualified, he/she may be replaced immediately by the
+team’s second Libero. Should the team have only one Libero, then it has the right to
+make a re-designation.
+
+Chapter Seven
+PARTICIPANTS’ CONDUCT
+20.
+
+REQUIREMENTS OF CONDUCT
+
+20.1
+
+SPORTSMANLIKE CONDUCT
+
+20.1.1
+
+Participants must know the “Official Volleyball Rules” and abide by them.
+
+20.1.2
+
+Participants must accept referees’ decisions with sportsmanlike conduct, without
+disputing them.
+In case of doubt, clarification may be requested only through the game captain.
+
+20.1.3
+
+Participants must refrain from actions or attitudes aimed at influencing the decisions of
+the referees or covering up faults committed by their team.
+
+20.2
+
+FAIR PLAY
+
+20.2.1
+
+Participants must behave respectfully and courteously in the spirit of FAIR PLAY, not
+only towards the referees, but also towards other officials, the opponents, team-mates,
+and spectators.
+
+20.2.2
+
+Communication between team members during the match is permitted (Rule 5.2.3.4).
+
+21.
+
+MISCONDUCT AND ITS SANCTIONS
+
+21.1
+
+MINOR MISCONDUCT
+Minor misconduct offences are not subject to sanctions. It is the first referee’s duty to
+prevent the teams from approaching the sanctioning level.
+This is done in two stages:
+Stage 1: by issuing a verbal warning through the game captain;
+-44-
+
+Stage 2: by use of a YELLOW CARD to the team member(s) concerned.
+This formal warning is not in itself a sanction but a symbol that the team member (and
+by extension the team) has reached the sanctioning level for the match. It is recorded
+on the score sheet but has no immediate consequences.
+21.2
+
+MISCONDUCT LEADING TO SANCTIONS
+Incorrect conduct by a team member towards officials, opponents, team-mates or
+spectators is classified in three categories according to the seriousness of the offence.
+
+21.2.1
+
+Rude Conduct: action contrary to good manners or moral principles.
+
+21.2.2
+
+Offensive Conduct: defamatory or insulting words or gestures or any action
+expressing contempt.
+
+21.2.3
+
+Aggression: actual physical attack or aggressive or threatening behaviour.
+
+21.3
+
+SANCTION SCALE
+According to the judgment of the first referee and depending on the seriousness of the
+offence, the sanctions to be applied and recorded on the score sheet are: Penalty,
+Expulsion or Disqualification.
+
+21.3.1
+
+Penalty
+The first rude conduct in the match by any team member is penalized with a point and
+service to the opponent.
+
+21.3.2
+
+Expulsion
+21.3.2.1 A team member who is sanctioned by expulsion shall not participate for the
+rest of the set, must be substituted legally/exceptionally and immediately if
+on court and must go the team’s dressing room until the completion of the
+ongoing set with no other consequences.
+An expelled coach loses his/her right to intervene in the set and must go to
+the team’s dressing room until the completion of the ongoing set.
+Volleyball Canada – in the absence of a team dressing room, an expelled or
+disqualified participant must leave the Competition Control Area which
+includes any viewing spaces (spectator seating, viewing boxes, or any area
+overseeing the playing area).
+21.3.2.2 The first offensive conduct by a team member is sanctioned by expulsion
+with no other consequences.
+21.3.2.3 The second rude conduct in the same match by the same team member is
+sanctioned by expulsion with no other consequences.
+
+-45-
+
+21.3.3
+
+Disqualification
+21.3.3.1 A team member who is sanctioned by disqualification must be substituted
+legally/exceptionally and immediately if on court and must go to the team’s
+dressing room for the rest of the match with no other consequences.
+21.3.3.2 The first physical attack or implied or threatened aggression is sanctioned by
+disqualification with no other consequences.
+21.3.3.3 A second offensive conduct in the same match by the same team member is
+sanctioned by disqualification with no other consequences.
+21.3.3.4 The third rude conduct in the same match by the same team member is
+sanctioned by disqualification with no other consequences.
+Volleyball Canada – in the absence of a team dressing room, an expelled or
+disqualified participant must leave the Competition Control Area which
+includes any viewing spaces (spectator seating, viewing boxes, or any area
+overseeing the playing area).
+The disqualified participant is not allowed to return to the Competition Area
+following the conclusion of the match.
+
+21.4
+
+APPLICATION OF MISCONDUCT SANCTIONS
+
+21.4.1
+
+All misconduct sanctions are individual sanctions, remain in force for the entire match
+and are recorded on the score sheet.
+
+21.4.2
+
+The repetition of misconduct by the same team member in the same match is
+sanctioned progressively (the team member receives a heavier sanction for each
+successive offence).
+
+21.4.3
+
+Expulsion or disqualification due to offensive conduct or aggression does not require a
+previous sanction.
+
+21.5
+
+MISCONDUCT BEFORE AND BETWEEN SETS
+Any misconduct occurring before or between sets is sanctioned according to Rule 21.3
+and sanctions apply in the following set.
+
+21.6
+
+SUMMARY OF MISCONDUCT AND CARDS USED
+Warning: no sanction – Stage 1: verbal warning
+Stage 2: symbol Yellow card
+Penalty: sanction – symbol Red card
+Expulsion: sanction – symbol Red + Yellow cards jointly
+Disqualification: sanction – symbol Red + Yellow cards separately
+-46-
+
+YOUTH RECREATIONAL RULES OF THE GAME
+The purpose of volleyball events in these stages is to support skill development, promote social
+inclusion and fun. It is about ‘engaging, not competing’.
+Competition rules may vary for Volleyball Canada and PTA events, which can be found in the
+Competition Guidelines for each event.
+12 – 14
+Volleyball
+
+8 – 12
+Volleyball
+
+6–8
+Volleyball
+
+6v6
+
+4v4
+
+3v3
+
+2v2
+
+VOLLEYBALL
+9m x 18m
+
+BADMINTON or
+VOLLEYBALL
+7m x 14m
+
+BADMINTON
+Full Court
+
+BADMINTON
+Half Court
+
+NET HEIGHT
+2.15m (women)
+2.20m (men)
+
+NET HEIGHT
+2.0m
+
+NET HEIGHT
+Reach of shortest
+player (wrist)
+
+NET HEIGHT
+Reach of shortest
+player (wrist)
+
+BALL
+Mikasa MVA-Lite
+
+BALL
+Mikasa 123L
+(Super Light)
+
+BALL
+Mikasa MVA-Lite
+
+BALL
+Mikasa MVA-Lite
+
+SERVE
+In Rotational
+Order
+
+SERVE
+In Rotational
+Order
+
+SERVE
+From Anywhere
+From any side
+
+SERVE
+From Anywhere
+From any side
+
+PASS
+Catch &
+Toss
+Permitted
+
+PASS
+Catch &
+Toss
+Permitted
+
+PASS
+Catch &
+Toss
+Permitted
+
+PASS
+Catch &
+Toss
+Permitted
+
+SET
+Catch, Toss
+to Self & Set
+Permitted
+
+SET
+Catch, Toss
+to Self & Set
+Permitted
+
+SET
+Catch, Toss
+to Self & Set
+Permitted
+
+SET
+Catch, Toss
+to Self & Set
+Permitted
+
+SPIKE
+
+SPIKE
+
+SPIKE
+Catch &
+One Hand
+Strike
+Permitted
+
+SPIKE
+Catch &
+Toss
+Permitted
+
+6 – 8 and 8 – 12 Volleyball categories allow for one bounce
+The Tripleball sequence may be used for 12 – 14 game formats
+
+12 – 14
+Volleyball
+
+-47-
+
+Additional Details for Youth Recreational Rules of the Game
+6 – 8 Volleyball
+This age category and LTD stage, Fundamentals, has no formal competitions. Volleyball
+programs can use Level 2 Smashball Rules of the game as a vehicle to have fun, develop skills,
+teach game concepts, and develop physical literacy.
+For more details ono Smashball, download the Smashball Trainer App.
+8 – 12 Volleyball
+The following recommendations are for schools, clubs or Provincial/Territorial Associations
+running an 8 – 12 year old jamboree/festival style event or recreational tournament within a
+local/regional area.
+•
+•
+•
+•
+•
+•
+
+•
+
+•
+
+•
+•
+
+10-minute timed games with a 3 – 5 minute transition period
+Be creative to indicate the end of a game, including music, time clock, or fun instructor
+statement
+Try to establish evenly skilled teams of 3. If uneven numbers, a 4th player can rotate
+into the game
+Have players create a team name
+Use a round robin or ladder style draw to help keep opponents evenly balanced.
+Net height should be based on the reach of the shortest player (wrist), however for
+safety reasons, the net height must not be lower than the top of the tallest player’s
+head
+Any player on any team may choose to catch & toss the first contact, or catch, self-toss
+& set the second contact
+If there are limited rallies, coaches can ask ‘Why do you think there are no rallies?’ or
+‘If we used a catch & toss for the first or second contact, would this be more fun?’
+After probing questions, coaches can leave it to the kids to decide how they want to
+play the ball
+Referee should not be used. Play is managed by the athletes. A knowledgeable lead
+should be available to support greater understanding of the concepts of the game and
+ensure all participants are having fun without dispute over rule interpretations
+Keeping score is not necessary. However, informal scores/skill level from games can
+be noted by the lead organizer to ensure teams are of even skill levels
+Coaching tips to support understanding the rules of the game:
+o
+Goal of the game: Make the ball bounce twice on the other side
+o
+Once the ball is in, it is always in (Ex: if the ball bounces in the court and
+goes beyond the boundary lines)
+o
+The lines and the players are all considered inside the court
+
+12 – 14 Volleyball
+4 v 4 Volleyball:
+•
+It is recommended there be no more than five (5) players per team and players rotate
+into the game after the serve
+•
+Referees should not be used. Players and coaches manage the match, including:
+o
+Using flip charts to track the score (if desired), but no scoresheets
+o
+If there is an injury or a ‘no show’, teams may play 3 v 4
+o
+Matches consist of two 12-minute timed sets
+6 v 6 Volleyball:
+•
+Fair Play rules apply
+•
+All players listed on the scoresheet must start the first or second set
+•
+Substitutions are not permitted in the first or second set:
+o
+In the case of injury, an Exceptional Substitution may be made
+o
+The injured/ill player may not return to the same set but may return to play in
+subsequent sets
+o
+If a player is expelled or disqualified, there must be a legal substitution for
+the set to continue.
+•
+Any line-up can be used at the start of the third set
+-48-
+
+6 v 6 Tripleball:
+•
+Request for substitution can only occur between a three-ball sequence
+•
+In the deciding set, teams switch sides once a team reaches 8 points. If this occurs
+during a three-ball sequence, then the change of court will be made after the sequence
+is complete
+Tripleball Sequence
+The goal of Tripleball is to promote better skill development through more rallies, increase
+participation, and encourage meaningful competition and fun.
+Overview of the Tripleball Sequence:
+a) The game follows a sequence of three rallies (service, tossed ball 1, tossed ball 2).
+- 1st rally – introduced by the server
+- 2nd rally – tossed ball given to the receiving team
+- 3rd rally – tossed ball given to the serving team
+b) The service rotates between teams after each three-ball sequence.
+c) A team must rotate and introduce a new server when it is their turn to serve.
+d) Every ball introduced is worth one point.
+
+Note:
+a)
+Time-outs cannot occur during a 3-ball sequence. These requests must be made before
+the introduction of serve.
+Guidelines for Tossers:
+a)
+The Head Coach, Assistant Coach or a volunteer may be the “Tosser” and introduce balls
+to their own team.
+b)
+Balls are tossed underhand with two hands, with little to no spin and above the height of
+the antennae to allow athletes time to play the ball.
+c)
+The Tosser can step into the court to introduce the ball but must immediately move a safe
+distance away from the court after the toss.
+d)
+The free ball must be tossed directly to the athlete in the centre back position (rotationally
+in position 6), otherwise a replay will occur.
+e)
+The free ball will be introduced when the front row players are at the net and ready to
+transition; the Tosser verbally cues the athletes by calling “Free Ball”.
+f)
+Tossers must encourage a fast-paced transition between an end of a rally and the next
+toss.
+Ball Retrievers:
+a)
+It is recommended to have volunteers or athletes who are not involved in the set, to be
+designated as Ball Retrievers. At the completion of each rally, athletes should be
+encouraged to quickly roll balls to the Ball Retrievers to speed up the pace of the game.
+
+-49-
+
+INDOOR VOLLEYBALL COED RULE VARIATIONS
+All of the rules outlined in the Volleyball Canada Rulebook apply to Coed Indoor Volleyball
+except where specific modifications, outlined below or specified by the event organizer, differ
+from them. In these cases, these rule modifications take precedence.
+28.2.2.1
+COED 6'S
+All VC rules are in effect except as follows:
+a) Team Composition:
+3 men and 3 women are on the court at all times.
+b) Net Height:
+Men's net height is used (2.43 m).
+c) Substitution:
+May only substitute players of the same sex (i.e. men for men and women for women).
+d) Uniform:
+Uniform tops must be matching and have a number, and all shorts must be the same
+colour.
+e) The Libero Player:
+Each team may identify one Libero. The Libero (male or female) can only substitute
+with a player of the same sex (i.e. men for men and women for women). The Libero
+(male or female) may change every set. See Rule 8.5 for Libero regulations.
+28.2.2.2
+COED 4'S
+All rule variations are the same as for Coed 6's except as follows:
+- There must be 2 men and 2 women on the court at all times.
+- There is no distinction between front and back row.
+(ie. Any player may attack and block.)
+- A service order must be established and maintained.
+28.2.2.3
+REVERSE COED 6'S AND 4’S
+All rule variations are the same as for Coed 6's and 4's except as follows:
+- Women's net height is used (2.24 m).
+- Men must hit from behind the attack line.
+28.2.2.4
+RECREATIONAL VARIATIONS
+The following other rule variations may be used for all Coed play (i.e. Coed 6's, 4's and
+Reverse Coed) if desired by the event organizer to promote participation:
+- A required starting rotation that alternates men and women.
+- Net height may be lowered to midget men's height (2.35 m) in Coed 6's and 4's.
+- In Coed and Reverse Coed 6's, teams may continue to play with 5 players when injuries
+occur.
+- Unlimited number of substitutions allowed. (However, men for men and women for
+women.)
+- Substitution for the server in each rotation before they have served. (Men for men,
+women for women.)
+- Timed games - games played to a time limit instead of a score limit.
+- In terms of uniform, players on the same team may have different shorts and tops as
+long as a number appears on each top.
+.
+
+-50-
+
+SECTION II
+
+The Referees,
+Their Responsibilities
+and Official Hand Signals
+
+-51-
+
+PROCEDURES AND RESPONSIBILITIES
+Chapter Eight
+REFEREES
+22.
+
+REFEREEING TEAM AND PROCEDURES
+
+22.1
+
+COMPOSITION
+The refereeing corps for a match is composed of the following officials:
+- the first referee (Rule 23)
+- the second referee (Rule 24)
+- the challenge referee (Rule 25)
+- the reserve referee Rule 26)
+- the scorer (Rule 27)
+- four (two) line judges (Rule 28)
+Their location is shown in Diagram 10.
+Volleyball Canada - For competitions using the Libero rule, an assistant scorer is
+necessary to monitor that the Libero replacement is legal.
+
+22.2
+
+PROCEDURES
+
+22.2.1
+
+Only the first and second referees may blow a whistle during the match:
+22.2.1.1 the first referee gives the signal for the service that begins the rally;
+22.2.1.2 the first or second referee signals the end of the rally, provided that they are
+sure that a fault has been committed and they have identified its nature.
+
+22.2.2
+
+They may blow the whistle when the ball is out of play to indicate that they authorize or
+reject a team request.
+
+22.2.3
+
+Immediately after the referee’s whistle to signal the completion of the rally, they have to
+indicate with the official hand signals (Rule 22.2.1.2, 28.1)
+22.2.3.1 If the fault is whistled by the first referee, he/she will indicate in order:
+a) the team to serve
+b) the nature of the fault
+c) the player(s) at fault (if necessary)
+Volleyball Canada – In domestic youth competition environment, the second referee
+will follow the first referee’s hand signals by repeating them.
+
+-52-
+
+22.2.3.2 If the fault is whistled by the second referee, he/she will indicate:
+a) the nature of the fault
+b) the player at fault (if necessary)
+c) the team to serve following the hand signal of the first referee.
+In this case, the first referee does not show either the nature of the fault or
+the player at fault, but only the team to serve.
+22.2.3.3 In the case of an attack hit fault or blocking fault by back row or Libero
+players, both referees indicate according to 22.2.3.1 and 22.2.3.2 above.
+22.2.3.4 In the case of a double fault both referees indicate in order:
+a) the nature of the fault
+b) the players at fault (if necessary).
+The team to serve next is then indicated by the first referee.
+23.
+
+FIRST REFEREE
+
+23.1
+
+LOCATION
+The first referee carries out his/her functions standing on a referee's stand located at
+one end of the net on the opposite side to the scorer.
+His/her view must be approximately 50 cm above the net.
+
+23.2
+
+AUTHORITY
+
+23.2.1
+
+The first referee directs the match from the start until the end. He/she has authority
+over all members of the refereeing team and the members of the teams.
+During the match the first referee’s decisions are final. He/she is authorized to overrule
+the decisions of other members of the refereeing team, if it is noticed that they are
+mistaken.
+The first referee may even replace a member of the refereeing team who is not
+performing his/her functions properly.
+
+23.2.2
+
+The first referee also controls the work of the ball retrievers and quick moppers.
+
+23.2.3
+
+The first referee has the power to decide any matters involving the game, including
+those not provided for in the Rules.
+
+23.2.4
+
+The first referee shall not permit any discussion about his/her decisions.
+However, at the request of the game captain, the first referee will give an explanation
+on the application or interpretation of the Rules upon which he/she has based the
+decision.
+If the game captain does not agree with this explanation and chooses to protest
+against such decision, he/she must immediately reserve the right to file and record this
+protest at the conclusion of the match. The first referee must authorize this right of the
+game captain (Rules 5.1.2.1 & 5.1.3 2).
+-53-
+
+23.2.5
+
+The first referee is responsible for determining before and during the match whether
+the playing area, equipment and the conditions meet playing requirements.
+
+23.3
+
+RESPONSIBILITIES
+
+23.3.1
+
+Prior to the match, the first referee:
+23.3.1.1 inspects the conditions of the playing area, the balls and other equipment
+23.3.1.2 performs the toss with the team captains
+23.3.1.3 controls the teams’ warming up.
+
+23.3.2
+
+During the match, the first referee is authorized:
+23.3.2.1 to issue warnings to the teams
+23.3.2.2 to sanction misconduct and delays
+23.3.2.3 to decide upon:
+a) the faults of the server and of the positions of the serving team, including
+the screen
+b) the faults in playing the ball
+c) the faults above the net, and the faulty contact of the player with the net,
+primarily (but not exclusively) on the attacker’s side
+d) the attack hit faults of the Libero and back-row players
+e) the completed attack hit made by a player on a ball above the net height
+coming from an overhand pass with fingers by the Libero in his/ her front
+zone
+f)
+
+the ball crossing completely the lower space under the net (Rule 8.4.5)
+
+g) the completed block by back row players or the attempted block by the
+Libero
+h) the ball that crosses the net totally or partly outside of the crossing space
+to the opponent’s court or contacts the antenna on his/her side of the
+playing court
+i)
+
+the served ball and the 3rd hit passing over or outside the antenna on
+his/ her side of the court.
+
+23.3.3
+
+At the end of the match, he/she checks the score sheet and signs it.
+
+-54-
+
+24.
+
+SECOND REFEREE
+
+24.1
+
+LOCATION
+The second referee performs his/her functions standing outside the playing court near
+the post, on the opposite side of and facing the first referee (Diagram 10).
+
+24.2
+
+AUTHORITY
+
+24.2.1
+
+The second referee is the assistant of the first referee but has also his/her own range
+of jurisdiction (Rule 24.3).
+Should the first referee become unable to continue his/her work, the second referee
+may replace the first referee.
+
+24.2.2
+
+The second referee may, without whistling, also signal faults outside his/her range of
+jurisdiction but may not insist on them to the first referee.
+
+24.2.3
+
+The second referee controls the work of the scorer(s).
+
+24.2.4
+
+The second referee supervises the team members on the team bench and reports their
+misconduct to the first referee.
+
+24.2.5
+
+The second referee controls the players in the warm-up areas (Rule 4.2.3).
+
+24.2.6
+
+He/she authorizes the regular game interruptions, controls their duration, and rejects
+improper requests.
+
+24.2.7
+
+The second referee controls the number of time-outs and substitutions used by each
+team and reports the 2nd time-out and 5th (11th) and 6th (12th) substitutions to the first
+referee and the coach concerned.
+
+24.2.8
+
+In the case of an injury of a player, the second referee authorizes an exceptional
+substitution (Rule 15.7) or grants a 3-minute recovery time (Rule 17.1.2).
+
+24.2.9
+
+The second referee checks the floor condition, mainly in the front zone. He/she also
+checks, during the match, that the balls still fulfill the regulations.
+
+24.3
+
+RESPONSIBILITIES
+
+24.3.1
+
+At the start of each set, at the change of courts in the deciding set, and whenever
+necessary, the second referee checks that the actual positions of the players on the
+court correspond to those on the line-up sheets.
+
+24.3.2
+
+During the match, the second referee decides, whistles and signals:
+24.3.2.1 penetration into the opponent’s court, and the space under the net (Rule
+11.2)
+24.3.2.2 positional faults of the receiving team (Rule 7.5)
+
+-55-
+
+24.3.2.3 the faulty contact of the player with the net primarily (but not exclusively) on
+the blocker’s side and with the antenna on his/her side of the court
+24.3.2.4 the completed block by back row players or the attempted block by the
+Libero; or the attack hit fault by back row players or by the Libero
+24.3.2.5 the contact of the ball with an outside object
+24.3.2.6 the contact of the ball with the floor when the first referee is not in position to
+see the contact
+24.3.2.7 the ball that crosses the net totally or partly outside of the crossing space to
+the opponent’s court or contacts the antenna on his/her side of the court
+24.3.2.8 the served ball and the 3rd hit passing over or outside the antenna on his/ her
+side of the court.
+24.3.3
+
+At the end of the match, he/she checks and signs the scoresheet.
+
+25.
+
+CHALLENGE REFEREE
+
+25.1
+
+LOCATION
+The Challenge referee carries out his/her functions in the challenge booth located in a
+separate position determined by the FIVB Technical Delegate.
+
+25.2
+
+RESPONSIBILITIES
+
+25.2.1
+
+He/she supervises the challenge process and ensures that it proceeds according to the
+challenge regulation in force.
+
+25.2.2
+
+The Challenge referee shall wear an official referee uniform while performing his/her
+functions
+
+25.2.3
+
+After the challenge process he/she advises the first referee of the nature of the fault
+
+25.2.4
+
+At the end of the match, he/she signs the score sheet
+
+26.
+
+RESERVE REFEREE
+
+26.1
+
+LOCATION
+The Reserve referee carries out his/her functions located in a separate position
+determined by the FIVB court layout
+
+26.2
+
+RESPONSIBILITIES
+The Reserve referee is obliged to:
+
+26.2.1
+
+Wear an official referee uniform while performing his/her functions
+
+-56-
+
+26.2.2
+
+Replace the second referee in case of absence or in case that he/she is unable to
+continue his/her work or in case that the second referee becomes the first referee
+
+26.2.3
+
+Control the substitution paddles (if they are in use), before the match and between sets
+
+26.2.4
+
+Check the operation of the bench tablets before and between the sets, if there is a
+problem
+
+26.2.5
+
+Assist the second referee in keeping the free zone clear
+
+26.2.6
+
+Assist the second referee in instructing the expelled/disqualified team member to leave
+to the team’s dressing room
+
+26.2.7
+
+Control the substitute players in the warm-up area and on the bench
+
+26.2.8
+
+Bring to the second referee four match balls, immediately after the presentation of the
+starting players and give the second referee a match ball after he/she has finished
+checking the player’s standing position
+
+26.2.9
+
+Assist the first referee with guiding the work of the moppers
+
+27.
+
+SCORER
+
+27.1
+
+LOCATION
+The scorer performs his/her functions seated at the scorer's table on the opposite side
+of the court from and facing the 1st referee. (Diagram 10).
+
+27.2
+
+RESPONSIBILITIES
+He/she fills the score sheet according to the Rules, co-operating with the second
+referee. He/she uses a buzzer or other sound device to notify irregularities or give
+signals to the referees on the basis of his/her responsibilities.
+
+27.2.1
+
+Prior to the match and set, the scorer:
+27.2.1.1 registers the data of the match and teams, including the names and numbers
+of the Liberos, according to the procedures in force, and obtains the
+signatures of the captains and the coaches;
+27.2.1.2 records the starting line-up of each team from the line-up sheet (or checks
+the data submitted electronically). If he/she fails to receive the line-up sheets
+on time, he/she immediately notifies this fact to the second referee.
+
+27.2.2
+
+During the match, the scorer:
+27.2.2.1 records the points scored;
+27.2.2.2 controls the serving order of each team and indicates any error to the
+referees immediately after the service hit;
+27.2.2.3 is empowered to acknowledge and announce requests for player
+substitutions by use of the buzzer, controlling their number, and records the
+-57-
+
+substitutions and time-outs, informing the 2nd referee;
+27.2.2.4 notifies the referees of a request for regular game interruption that is out of
+order;
+27.2.2.5 announces to the referees the ends of the sets and the scoring of the 8th
+point in the deciding set;
+27.2.2.6 records misconduct warnings, sanctions and improper requests;
+27.2.2.7 records all other events as instructed by the 2nd referee, i.e. exceptional
+substitutions, recovery time, prolonged interruptions, external interference,
+re-designation, etc.;
+27.2.2.8 controls the interval between sets.
+27.2.3
+
+At the end of the match, the scorer:
+27.2.3.1 records the final result;
+27.2.3.2 in the case of protest, with the previous authorization of the first referee,
+writes or permits the team/game captain to write on the score sheet a
+statement on the incident being protested;
+27.2.3.3 signs the score sheet him/herself, before obtaining the signatures of the
+team captains and then the referees.
+
+28.
+
+ASSISTANT SCORER
+
+28.1
+
+LOCATION
+The assistant scorer performs his/her functions seated beside the scorer at the
+scorer’s table.
+
+28.2
+
+RESPONSIBILITIES
+He/she records the replacements involving the Libero. He/she assists with the
+administrative duties of the scorer’s work. Should the scorer become unable to
+continue his/her work, the assistant scorer substitutes for the scorer.
+
+28.2.1
+
+Prior to the match and set, the assistant scorer:
+28.2.1.1 prepares the Libero control sheet;
+28.2.2.2 prepares the reserve score sheet.
+
+28.2.2
+
+During the match, the assistant scorer:
+28.2.2.1 Record the details of the Libero replacements / re-designations
+28.2.2.2 Notifies the referees of any fault of the Libero replacement, by using the
+buzzer
+28.2.2.3 Operates the manual scoreboard on the scorer’s table
+
+-58-
+
+28.2.2.4 Checks that the scoreboards agree
+28.2.2.5 If necessary, updates the reserve scoresheet and gives it to the scorer
+28.2.3
+
+At the end of the match, the assistant scorer:
+28.2.3.1 signs the Libero control sheet and submits it for checking;
+28.2.3.2 signs the score sheet.
+For any competitions which use an e-scoresheet, the Assistant Scorer acts with the
+Scorer to announce the substitutions, to direct the 2nd Referee to the team requesting
+an interruption and identify the Libero replacements.
+
+29.
+
+LINEJUDGES
+
+29.1
+
+LOCATION
+If only two-line judges are used, they stand at the corners of the court closest to the
+right hand of each referee, diagonally at 1 to 2 m from the corner. Each one of them
+controls both the end line and sideline on his/her side (Diagram 10).
+Where possible, it is recommended to have four-line judges. They stand in the free
+zone at 1 to 3 m from each corner of the court, on the imaginary extension of the line
+that they control (Diagram 10).
+
+29.2
+
+RESPONSIBILITIES
+
+29.2.1
+
+The line judges perform their functions by using flags (40 X 40 cm) as shown in
+Diagram 12 to signal:
+29.2.1.1 the ball “in” and “out” (Rules 8.3 & 8.4) whenever the ball lands near their
+line(s);
+29.2.1.2 the touches of “out” balls by the team receiving the ball;
+29.2.1.3 the ball touching the antenna, the served ball and the third hit of the team
+crossing the net outside the crossing space, etc.;
+29.2.1.4 any player (except the server) stepping outside of his/her playing court at the
+moment of the service hit;
+29.2.1.5 the foot faults of the server (Rule 12.4.3);
+29.2.1.6 any contact with the top 80 cm of the antenna on their side of the court by
+any player during his/her action of playing the ball or interfering with the play;
+29.2.1.7 ball crossing the net outside the crossing space into opponent's court or
+touching the antenna on his/her side of the court.
+
+29.2.2
+
+At the first referee’s request, a line judge must repeat his/her signal.
+
+-59-
+
+30.
+
+OFFICIAL SIGNALS
+
+30.1
+
+REFEREES’ HAND SIGNALS (Diagram 11)
+The referees must indicate with the official hand signal the reason of their whistle
+(nature of the fault whistled, or the purpose of the interruption authorized). The signal
+has to be maintained for a moment and, if it is indicated with one hand, the hand
+corresponds to the side of the team which has made the fault or the request.
+
+30.2
+
+LINEJUDGES’ FLAG SIGNALS (Diagram 12)
+The line judges must indicate with the official flag signal the nature of the fault called
+and maintain.
+
+31.
+
+VOLLEYBALL CANADA BLOOD POLICY FOR COMPETITION
+
+31.1
+
+BLEEDING
+If an athlete is bleeding and other participants are at risk of exposure to his/her blood,
+the athlete's participation in the match must be interrupted until the bleeding has
+stopped, and the wound has been cleaned with an antiseptic solution and securely
+covered. A one-minute technical time-out would be applied by the referee in order to
+rectify the situation and stop the bleeding before a legal substitution, exceptional
+substitution, or injury time-out would become necessary. The players are to remain on
+the court while the situation is being rectified. The technical time-out is not charged to
+either team. The technical time-out may occur only once for the same player in the
+match and is recorded on the scoresheet under remarks.
+
+31.1.1
+
+Legal Substitution
+If possible, a legal substitution would be used. The bleeding player may return to the
+set once the bleeding has stopped, and the wound has been cleaned and covered
+providing the return is legal. (Rule 15.6)
+
+31.1.2
+
+Exceptional Substitution
+If a legal substitution is not possible then the referee would authorize an exceptional
+substitution. The blood-injury player cannot return for the remainder of that set. The
+blood-injury player may play in subsequent sets providing the bleeding has stopped
+and the wound has been cleaned and covered. (Rule 15.7)
+Recovery Time
+If a blood-injury injured player cannot be substituted, legally or exceptionally, this
+player is given a three-minute recovery time in order to stop the bleeding and to cover
+the affected area. This may occur only once for the same player in the match. If the
+bleeding cannot be stopped, his/her team is declared incomplete. (Rule 17.1)
+
+31.2
+
+TEAM UNIFORMS
+All team uniforms soiled with blood must be either replaced or cleaned prior to the
+blood-injury athlete resuming the competition. Uniforms are to be cleaned until the
+stain is completely removed.
+
+-60-
+
+31.2.1
+
+Domestic Competition
+If a replacement uniform is not available, a player with a jersey soiled with blood would
+be allowed to wear a different numbered jersey or to change jerseys with a player on
+the bench. The referee would change the number(s) of the player(s) involved on the
+scoresheet. The procedure to be used would be Rule 15.6, Rule 15.7, Rule 17.1, or a
+time-out.
+- The one-minute technical time-out applies.
+- Record on the scoresheet under remarks.
+NOTE: This rule also applies to the Libero player if the team has an additional Libero
+uniform that can be used.
+
+32.
+
+VOLLEYBALL CANADA CONCUSSION POLICY FOR COMPETITION
+
+32.1
+
+CONCUSSION
+In the situation where an athlete is struck in the head and the coach requests a
+preliminary symptom check for concussion, a one-minute technical time out would be
+applied by the referee to rectify the situation before a legal substitution, exceptional
+substitution or recovery time would become necessary.
+The players are to remain on the court while the situation is being rectified. The
+technical time-out is not charged to either team. The technical time-out may occur only
+once for the same player in the match and is recorded on the scoresheet under
+remarks.
+If it is determined that the athlete should be removed for a complete concussion
+assessment, the athlete may not return to competition until the results of the
+assessment are known.
+
+32.1.1
+
+Legal Substitution
+If possible, a legal substitution would be used. The athlete undergoing concussion
+assessment may return to the set if deemed clear to continue, providing the return is
+legal. (Rule 15.6)
+
+32.1.2
+
+Exceptional Substitution
+If a legal substitution is not possible then the referee would authorize an exceptional
+substitution. The athlete undergoing concussion assessment cannot return to play for
+the remainder of that set. The athlete undergoing concussion assessment may play in
+subsequent sets providing the results of test deem them clear to continue. (Rule 15.7)
+
+32.1.3
+
+Recovery Time
+if an athlete requiring concussion assessment cannot be substituted legally or
+exceptionally, this player is given a three-minute recovery time. This may occur only
+once for the same player in the match. If the player is not able to return at the end of
+the recovery time, the team is declared incomplete. (Rule 17.1)
+
+-61-
+
+-62-
+
+SECTION III
+
+Diagrams
+
+-63-
+
+DIAGRAM 1a: COMPETITION / CONTROL AREA
+
+Relevant Rules: 1, 1.4.5, 4.2.1, 4.2.3.1, 15.4.2, 21.3.2.1, 21.3.3.1, 27.1, 28.1
+18.04.2019
+
+(...) Values are valid for FIVB, World and Official Competitions
+
+LED PANEL
+
+HEAD COACH
+TEAM
+TABLET
+
+QUICK
+MOPPER
+
+BALL
+RETRIEVER
+
+CAMERAMAN/ASST.
+
+TECHNICAL OFFICIALS
+
+Match Balls
+
+1.75 m
+
+HEAD COACH
+TEAM
+TABLET
+
+QUICK
+MOPPER
+
+BALL
+RETRIEVER
+
+15 cm
+
+5 cm
+
+20 cm
+
+20 cm
+
+WARM-UP
+AREA
+OPTION B
+
+ASST. COACHES
+
+5 cm
+
+SPORT PRESENTATION
+
+LED PANEL
+
+Free Zone
+
+5 cm
+
+5 cm
+
+MEDICAL DELEGATE
+COURT MANAGER
+RESERVE LINE JUDGE
+(COURT PERSONNEL MANAGER)
+
+WARM-UP
+AREA
+OPTION A
+
+QUICK
+MOPPER
+
+20 cm
+
+Other Material Needed
+
+– Bibs for Photographers /
+another colour for the HB
+
+ASST. COACHES
+
+WARM-UP
+AREA
+OPTION B
+
+TECHNICAL
+DELEGATE
+
+15 cm
+
+– Hygrometer
+– Thermometer
+– Clock or Chronograph
+– Manual Scoreboard
+– 2 rubber wheel trolleys
+– Net measuring rod
+– 6x1m long mops
+– 8 absorbent towels
+– 4 Linejudge‘s red or
+yellow flags 40x40cm
+– Pressure gauge
+– Ball measuring devices
+(weight & circumference)
+– TV Replay light
+– 1 set of post pads
+– 1 reserve net
+– 1 pair of reserve antennae
+– 2 bibs for Liberos
+
+– Official jacket for CC members
+
+Free Zone
+
+QUICK
+MOPPER
+
+WARM-UP
+AREA
+OPTION A
+
+1m
+
+E-SCORESHEET SCORER
+E-SCORESHEET ASSISTANT SCORER
+RESERVE REFEREE
+DATA PROJECT TECHNICIAN / VALIDATOR
+TV FLOOR MANAGER
+(BACKUP MANUAL SCORER)
+
+BALL
+RETRIEVER
+
+BALL
+RETRIEVER
+
+64
+
+BALL
+RETRIEVER
+
+BALL
+RETRIEVER
+
+LED PANEL
+
+LED PANEL
+
+PART 2 - SECTION 3: DIAGRAMS
+PART 2 - SECTION 3: DIAGRAMS
+
+DIAGRAM 1b: THE PLAYING AREA
+DIAGRAM 1b: THE PLAYING AREA
+Relevant Rules: 1, 1.4, 1.4.2, 1.4.3, 1.4.4, 1.4.5, 4.2.1, 4.2.3.1, 15.10.1, 19.3.1.4, 19.3.2.7, 23.1, 24.1,
+Relevant
+1, 1.4, 1.4.2, 1.4.3, 1.4.4, 1.4.5, 4.2.1, 4.2.3.1, 15.10.1, 19.3.1.4, 19.3.2.7, 23.1, 24.1,
+.1
+27.1, 28Rules:
+27.1,
+28.1 are valid for FIVB, World and Official Competitions
+(...) Values
+
+option 1
+
+9m
+
+warm-up area
+option 1
+
+COURT
+
+Back zone
+
+min. 24 m (31 m)
+
+A
+
+Free zone
+
+Front zone
+
+Playing court
+
+Front zone
+
+0.50 m-1 m
+
+1.75 m
+
+COURT
+
+Back zone
+
+1.75 m
+
+min. 3 m (5 m)
+
+min. 3 m (6.50 m)
+
+Libero replacement zone
+Substitution zone
+Libero replacement zone
+
+team bench
+Scorer's table
+team bench
+
+min. 3 m (6.50 m)
+
+Free zone
+
+Service zone
+
+min. 3 m (5 m)
+
+Free zone
+
+appr. 3 x 3 m
+
+warm-up area
+option 2
+
+TD table
+
+warm-up area
+option 2
+
+appr. 3 x 3 m
+
+warm-up area
+
+(...) Values are valid for FIVB, World and Official Competitions
+
+9m
+Service zone
+
+min. 15 m (19 m)
+OFFICIAL VOLLEYBALL RULES 2021-2024
+OFFICIAL VOLLEYBALL RULES 2021-2024
+
+65
+
+61
+
+66
+62
+
+0.05 m
+
+0.05 m
+
+Lines of the service zone
+
+End line
+
+0.05 m
+
+0.05 m
+
+Attack line
+
+Side line
+
+0.05 m
+
+Front zone
+Front zone
+0.05 m
+
+Centre line
+
+How to measure the Front zone
+
+0.05 m
+
+Attack line
+
+1.75 m
+
+0.20 m 0.15 m
+
+End line
+
+0.05 m
+
+Back zone
+0.15 m
+0.20 m
+0.15 m
+0.20 m
+0.15 m
+0.20 m
+0.15 m
+0.20 m
+0.15 m
+0.20 m
+0.05 m
+
+0.05 m
+
+rear edge
+of the attack line
+
+3m
+
+3m
+
+9m
+End line
+
+axis of the centre line
+
+3m
+
+18 m
+
+1,75 m
+
+Back zone
+
+Side line
+
+9m
+
+DIAGRAM2:
+2:THE
+THEPLAYING
+PLAYINGCOURT
+COURT
+DIAGRAM
+
+RelevantRules:
+Rules:1.1,
+1.1,1.3,
+1.3,1.3.3,
+1.3.3,1.3.4,
+1.3.4,1.4.1
+1.4.1
+Relevant
+9m
+
+0.05 m
+
+1,75 m
+
+PART
+PART22- -SECTION
+SECTION3:3:DIAGRAMS
+DIAGRAMS
+
+DIAGRAM
+DIAGRAM3:3:DESIGN
+DESIGNOF
+OFTHE
+THENET
+NET
+Relevant
+RelevantRules:
+Rules:2,2,2.2,
+2.2,2.3,
+2.3,2.4,
+2.4,2.5.1,
+2.5.1,11.3.1,
+11.3.1,11.3.2,
+11.3.2,29.2.1.6
+29.2.1.6
+
+9m
+
+0.80 m
+Cable
+
+0.07 m
+
+Cord
+
+2.43 m
+Men
+
+1m
+
+2.55 m
+
+2.24 m
+Women
+0.05 m
+
+Cord
+
+9.50 - 10 m
+
+0.50 m / 1 m
+
+Axis
+
+0.01 m
+
+0.10 m
+
+Top band
+
+Cable
+0.07 m
+Cord
+0.10
+x
+0.10 m
+Side band
+0.05 m
+
+OFFICIAL VOLLEYBALL RULES 2021-2024
+
+67
+
+DIAGRAM 4: POSITION OF PLAYERS
+DIAGRAM 4: POSITION OF PLAYERS
+Relevant Rules: 7.4, 7.4.3, 7.5, 23.3.2.3a, 24.3.2.2
+Relevant Rules: 7.4, 7.4.3, 7.5, 23.3.2.3a, 24.3.2.2
+
+Example A:
+Determination of the positions between
+a front-row player and the corresponding
+back-row player
+
+Front-row
+
+Front-row player
+
+player
+
+Front-row player
+
+Back-row player
+
+Back-row player
+
+Correct
+
+Back-row player
+
+Fault
+
+Fault
+
+Example B:
+Determination of the positions between
+players of the same row
+R (D)
+
+C (C)
+
+L (G)
+
+CCC
+(C)
+
+R (D)
+
+L (G)
+Correct
+
+Fault
+
+R (D)
+CC
+(C)
+
+L (G)
+
+Correct
+
+R (D)
+
+CC
+(C)
+
+Fault
+C (C) = Centre player
+R (D) = Right player
+L (G) = Left player
+
+68
+64
+
+L (G)
+
+PART 2 - SECTION 3: DIAGRAMS
+
+PART 2 - SECTION 3: DIAGRAMS
+
+DIAGRAM 5a: BALL CROSSING THE VERTICAL PLANE OF THE NET TO THE OPPONENT COURT
+
+DIAGRAM
+5a:2.4,
+BALL
+CROSSING
+THE
+VERTICAL
+PLANE OF
+TO THE OPPONENT COURT
+Relevant
+Rules:
+8.4.3,
+8.4.4, 8.4.5,
+10.1.1,
+10.1.3, 24.3.2.7,
+29.THE
+2.1.3,NET
+29.2.1.7
+Relevant Rules: 2.4, 8.4.3, 8.4.4, 8.4.5, 10.1.1, 10.1.3, 24.3.2.7, 29.2.1.3, 29.2.1.7
+
+External space
+
+Crossing space
+
+External space
+
+Lower space
+
+= Fault
+= Correct crossing
+
+OFFICIAL VOLLEYBALL RULES 2021-2024
+
+65
+
+OFFICIAL VOLLEYBALL RULES 2021-2024
+
+69
+
+DIAGRAM 5b: BALL CROSSING THE VERTICAL PLANE OF THE NET TO THE OPPONENT FREE ZONE
+Relevant Rules: 10.1.2, 10.1.2.2, 24.3.2.7
+
+70
+66
+
+PART
+SECTION
+3:
+DIAGRAMS
+PART222---SECTION
+SECTION3:
+3:DIAGRAMS
+DIAGRAMS
+PART
+
+DIAGRAM 6:
+6: COLLECTIVE
+COLLECTIVE SCREEN
+SCREEN
+DIAGRAM
+Relevant Rules:
+Rules: 12.5,
+12.5, 12.5.2,
+12.5.2, 23.3.2.3a
+23.3.2.3a
+Relevant
+
+Correct
+== Correct
+
+Fault
+== Fault
+
+DIAGRAM 7:
+7: COMPLETED
+COMPLETED BLOCK
+BLOCK
+DIAGRAM
+Relevant Rule:
+Rule: 14.1.3
+14.1.3
+Relevant
+
+net
+the net
+above the
+Ball above
+Ball
+
+than
+lower than
+Ball lower
+Ball
+net
+the net
+of the
+top of
+the top
+the
+
+net
+the net
+touches the
+Ball touches
+Ball
+
+net
+the net
+off the
+bounces off
+Ball bounces
+Ball
+
+OFFICIAL
+VOLLEYBALL
+RULES
+20
+1-20244
+OFFICIALVOLLEYBALL
+VOLLEYBALLRULES
+RULES20
+2021-2024
+OFFICIAL
+221-202
+
+67
+71
+67
+
+DIAGRAM 8: BACK ROW PLAYER’S ATTACK
+Relevant Rules: 13.2.2, 13.2.3, 23.3.2.3d, 24.3.2.4
+
+B
+
+A
+
+C
+Net
+
+Front Zone
+
+Attack Line
+
+C
+A
+
+B
+A
+= Correct
+B, C = Fault
+
+B
+A
+Net
+Height of the ball at the moment of the attack-hit
+
+A
+B
+
+72
+68
+
+= Correct
+= Fault
+
+PART 2 - SECTION 3: DIAGRAMS
+
+DIAGRAM 9: WARNINGS AND SANCTIONS SCALES AND THEIR CONSEQUENCES
+Relevant Rules: 16.2, 21.3, 21.4.2
+
+9a: MISCONDUCT WARNINGS AND SANCTIONS
+CATEGORIES
+
+OCCURRENCE OFFENDER
+
+SANCTION
+
+CARDS
+
+CONSEQUENCE
+
+MINOR
+MISCONDUCT
+
+Stage 1
+
+Not considered
+as sanction
+
+None
+
+Prevention only
+
+Any member
+
+Stage 2
+repetition
+any time
+
+RUDE
+CONDUCT
+
+OFFENSIVE
+CONDUCT
+
+AGGRESSION
+
+Yellow
+
+Penalty
+
+as below
+
+as below
+
+First
+
+Any member
+
+Penalty
+
+Red
+
+A point and service to the
+opponent
+
+Second
+
+Same member
+
+Expulsion
+
+Red + Yellow
+jointly
+
+Team member must go
+to the team’s dressing
+room for the remainder
+of the set
+
+Third
+
+Same member
+
+Disqualification
+
+Red + Yellow
+separately
+
+Team member must go to
+the team’s dressing room
+for the remainder of the
+match
+
+First
+
+Any member
+
+Expulsion
+
+Red + Yellow
+jointly
+
+Team member must go
+to the team’s dressing
+roon for the remainder
+of the set
+
+Second
+
+Same member
+
+Disqualification
+
+Red + Yellow
+separately
+
+Team member must go to
+the team’s dressing room
+for the remainder of the
+match
+
+First
+
+Any member
+
+Disqualification
+
+Red + Yellow
+separately
+
+Team member must go to
+the team’s dressing room
+for the remainder of the
+match
+
+9b: DELAY WARNING SYMBOLS AND SANCTIONS
+CATEGORIES
+
+OCCURRENCE
+
+OFFENDER
+
+DETERRENT or
+SANCTION
+
+CARDS
+
+CONSEQUENCE
+
+DELAY
+
+First
+
+Any member
+of the team
+
+Delay Warning
+
+Hand signal
+No. 25 with
+Yellow card
+
+Prevention – no penalty
+
+Second and
+subsequent
+
+Any member
+of the team
+
+Delay Penalty
+
+Hand signal
+No. 25 with
+Red card
+
+A point and service to the
+opponent
+
+OFFICIAL VOLLEYBALL RULES 2021-2024
+
+73
+
+DIAGRAM 10: LOCATION
+LOCATION OF
+OF REFEREEING
+REFEREEING TEAM
+TEAMAND
+ANDTHEIR
+THEIRASSISTANTS
+ASSISTANTS
+Relevant Rules: 3.3, 23.1, 24.1, 27.1,
+.1, 28.1,
+28.1,29.1
+29.1
+
+2
+
+1
+1
+
+L
+1
+
+L
+
+S/AS
+
+2
+
+3
+
+R1
+
+R2
+
+6
+
+4
+L
+
+2
+L
+
+3
+
+4
+
+5
+
+R1
+
+= First Referee
+
+R2
+
+= Second Referee
+
+S/AS = Scorer/Assistant Scorer
+2
+
+= Lines Judges (numbers 1-4 or 1-2)
+
+4
+
+= Ball Retrievers (numbers 1-6)
+= Floor Moppers
+
+74
+70
+
+PART 2 - SECTION 3: DIAGRAMS
+
+DIAGRAM 11: REFEREES’ OFFICIAL HAND SIGNALS
+Legend:
+
+FS Referee(s) who must show the signal according to their regular responsibilities
+Referee(s) who show the signal in special situations
+
+1
+
+AUTHORISATION TO SERVE
+Relevant Rules: 12.3, 22.2.1.1
+Move the hand to indicate direction of service
+
+F
+2
+
+TEAM TO SERVE
+Relevant Rules: 22.2.3.1, 22.2.3.2, 22.2.3.4
+Extend the arm to the side of team that will serve
+
+FS
+3
+
+CHANGE OF COURTS
+Relevant Rule: 18.2
+Raise the forearms front and back and
+twist them around the body
+
+F
+4
+
+TIME-OUT
+Relevant Rule: 15.4.1
+Place the palm of one hand over the fingers of
+the other, held vertically (forming a T) and then
+indicate the requesting team
+
+FS
+OFFICIAL VOLLEYBALL RULES 2021-2024
+
+75
+
+5
+
+SUBSTITUTION
+Relevant Rules: 15.5.1, 15.5.2, 15.8
+Circular motion of the forearms around each other
+
+FS
+6a MISCONDUCT WARNING
+Relevant Rules: 21.1, 21.6, 23.3.2.2
+Show a yellow card for warning
+
+F
+6b MISCONDUCT PENALTY
+Relevant Rules: 21.3.1, 21.6, 23.3.2.2
+Show a red card for penalty
+
+F
+7
+
+EXPULSION
+Relevant Rules: 21.3.2, 21.6, 23.3.2.2
+Show both cards jointly for expulsion
+
+F
+76
+
+PART 2 - SECTION 3: DIAGRAMS
+
+8
+
+DISQUALIFICATION
+Relevant Rules: 21.3.3, 21.6, 23.3.2.2
+Show red and yellow cards separately
+for disqualification
+
+F
+9
+
+END OF SET (OR MATCH)
+Relevant Rules: 6.2, 6.3
+Cross the forearms in front of the chest, hands open
+
+FS
+10 BALL NOT TOSSED OR RELEASED AT THE SERVICE HIT
+Relevant Rule: 12.4.1
+Lift the extended arm, the palm of the hand
+facing upwards
+
+F
+11 DELAY IN SERVICE
+Relevant Rule: 12.4.4
+Raise eight fingers, spread open
+
+F
+OFFICIAL VOLLEYBALL RULES 2021-2024
+
+77
+
+12 BLOCKING FAULT OR SCREENING
+Relevant Rules: 12.5, 12.6.2.3, 14.6.3, 19.3.1.3, 23.3.2.3a, g, 24.3.2.4
+Raise both arms vertically, palms forward
+
+FS
+13 POSITIONAL OR ROTATIONAL FAULT
+Relevant Rules: 7.5, 7.7, 23.3.2.3a, 24.3.2.2
+Make a circular motion with the forefinger
+
+FS
+14 BALL “IN”
+Relevant Rule: 8.3
+Point the arm and fingers toward the floor
+
+F
+15 BALL “OUT”
+Relevant Rules: 8.4.1, 8.4.2, 8.4.3, 8.4.4, 24.3.2.5, 24.3.2.7, 24.3.2.8
+Raise the forearms vertically, hands open,
+palms towards the body
+
+FS
+78
+
+PART 2 - SECTION 3: DIAGRAMS
+
+16 CATCH
+Relevant Rules: 9.2.2, 9.3.3, 23.3.2.3b
+Slowly lift the forearm, palm of the hand facing upwards
+
+F
+17 DOUBLE CONTACT
+Relevant Rules: 9.3.4, 23.3.2.3b
+Raise two fingers, spread open
+
+F
+18 FOUR HITS
+Relevant Rules: 9.3.1, 23.3.2.3b
+Raise four fingers, spread open
+
+F
+19 NET TOUCHED BY PLAYER – SERVED BALL TOUCHES THE NET BETWEEN THE ANTENNAE AND
+DOES NOT PASS THE VERTICAL PLANE OF THE NET
+
+Relevant Rules: 11.4.4, 12.6.2.1
+Indicate the relevant side of the net with the
+corresponding hand
+
+FS
+OFFICIAL VOLLEYBALL RULES 2021-2024
+
+79
+
+20 REACHING BEYOND THE NET
+Relevant Rules: 11.4.1, 13.3.1, 14.3, 14.6.1, 23.3.2.3c
+Place a hand above the net, palm facing downwards
+
+F
+21 ATTACK HIT FAULT
+Relevant Rules:
+– by a back-row player, by a libero or on the opponent’s service:
+
+13.3.3, 13.3.4, 13.3.5, 23.3.2.3d, e, 24.3.2.4
+
+– on an overhand finger pass by the libero in his/her front zone or its extension:
+13.3.6
+		
+
+Make a downward motion with the forearm, hand open
+
+FS
+22 PENETRATION INTO THE OPPONENT COURT
+
+BALL CROSSING THE LOWER SPACE OR
+THE SERVER TOUCHES THE COURT (END LINE) OR
+THE PLAYER STEPS OUTSIDE HIS/HER COURT AT THE MOMENT OF THE SERVICE HIT
+
+Relevant Rules: 8.4.5, 11.2.2, 12.4.3, 23.3.2.3a, f, 24.3.2.1
+Point to the center line or to the relevant line
+
+FS
+23 DOUBLE FAULT AND REPLAY
+Relevant Rules: 6.1.2.2, 17.2, 22.2.3.4
+Raise both thumbs vertically
+
+F
+80
+
+PART 2 - SECTION 3: DIAGRAMS
+
+24 BALL TOUCHED
+Relevant Rules: 23.3.2.3b, 24.2.2
+Brush with the palm of one hand the fingers
+of the other, held vertically
+
+F
+25 DELAY WARNING / DELAY PENALTY
+Relevant Rules: 15.11.3, 16.2.2, 16.2.3, 23.3.2.2
+Cover the wrist with a yellow card (warning)
+and with a red card (penalty)
+
+F
+
+OFFICIAL VOLLEYBALL RULES 2021-2024
+
+81
+
+DIAGRAM 12: LINE JUDGES’ OFFICIAL FLAG SIGNALS
+1
+
+BALL “IN”
+Relevant Rule: 8.3, 29.2.1.1
+Point down with flag
+
+L
+2
+
+BALL “OUT”
+Relevant Rules: 8.4.1, 29.2.1.1
+Raise flag vertically
+
+L
+3
+
+BALL TOUCHED
+Relevant Rule: 29.2.1.2
+Raise flag and touch the top with the palm of the free hand
+
+L
+4
+
+CROSSING SPACE FAULTS, BALL TOUCHED AN OUTSIDE OBJECT, OR FOOT FAULT BY ANY PLAYER DURING SERVICE
+
+Relevant Rules: 8.4.2, 8.4.3, 8.4.4, 12.4.3, 29.2.1.3,
+29.2.1.4, 29.2.1.6, 29.2.1.7
+Wave flag over the head and point to the antenna
+or the respective line
+
+L
+82
+
+PART 2 - SECTION 3: DIAGRAMS
+
+5
+
+JUDGEMENT IMPOSSIBLE
+Raise and cross both arms and hands in front of the chest
+
+L
+
+OFFICIAL VOLLEYBALL RULES 2021-2024
+
+83
+
+DIAGRAM 13:
+
+HOW TO CHECK THE DIMENSIONS OF THE COURT
+
+-84-
+
+DEFINITIONS
+Competition Control Area: The Competition Control Area is a corridor around the playing court
+and free zone, which includes all spaces up to the outer barriers or delimitation fence. (see
+diagram / fig 1a).
+Zones: These are sections within the playing area (i.e. playing court and free zone) as defined
+for a specific purpose (or with special restrictions) within the rule text. These include Front Zone,
+Service Zone, Substitution Zone, Free Zone, Back Zone, and Libero Replacement Zone.
+Areas: These are sections of the floor OUTSIDE the free zone, identified by the rules as having
+a specific function. These include Warm up Area and Penalty Area.
+Lower Space: This is the space defined at its upper part by the bottom of the net and the cord
+joining it to the posts, at the sides by the posts, and at the bottom by the playing surface.
+Crossing Space: The crossing space is defined by: - the horizontal band at the top of the net; the antennae and their extension; - the ceiling. The ball must cross to the opponent’s COURT
+through the crossing space.
+External Space: The external space is in the vertical plane of the net outside of the crossing and
+lower spaces.
+Substitution Zone: This is the part of the free zone through which substitutions are carried out.
+Unless by agreement of FIVB: This statement recognizes that while there are regulations on
+the standards and specification of equipment and facilities, there are occasions when special
+arrangements can be made by FIVB in order to promote the game of volleyball or to test new
+conditions.
+FIVB Standards: The technical specifications or limits as defined by FIVB to the manufacturers
+of equipment.
+Fault: (i) A playing action contrary to the rules. (ii) A rule violation other than a playing action.
+Dribbling: Dribbling means bouncing the ball (usually as a preparation to tossing and serving).
+Other preparatory actions could include (amongst others) moving the ball from hand to hand.
+Technical Time Out: This special mandatory time out is, in addition to time outs, to allow the
+promotion of volleyball by analysis of the play and to allow additional commercial opportunities.
+Technical Time Outs are mandatory for FIVB World and Official competitions.
+Ball Retrievers: These are personnel whose job it is to maintain the flow of the game by rolling
+the ball to the server between rallies.
+
+-85-
+
+Quick Moppers: are personnel whos’ job it is to keep the floor clean and dry, if necessary, after
+each rally using small towels.
+First Hit of the Team: There are four cases when the playing action is considered the first hit of
+the team:
+-
+
+Service Reception
+
+-
+
+Receiving an attack of the opponent team
+
+-
+
+Playing the ball rebounding from own block
+
+-
+
+Playing the ball rebounding from opponent’s block
+
+Rally Point: This is the system of scoring a point whenever a rally is won.
+Interval: The time between sets. The change of courts in the fifth (deciding) set is not to be
+regarded as an interval.
+Re-designation: This is the act by which a Libero, who cannot continue or is declared by the
+team “unable to play”, has his/her role taken by any other player (except the regular replacement
+player) not on the court at the moment of the re-designation.
+Replacement: This is the act by which a regular player leaves the court and either Libero (if
+more than one) takes his/her place. This can even include Libero for Libero exchanges. The
+regular player can then replace either Libero. There must be a completed rally between
+replacements involving any Libero.
+Interfering: Any action which will create an advantage against the opponent team or any action
+which prevents an opponent from playing the ball.
+Outside Object: An object or a person which while outside the playing court or close to the limit
+of the free playing space provides an obstruction to the flight of the ball. For example: overhead
+lights, the referee’s chair, TV equipment, scorer’s table, and net posts. Outside objects do not
+include the antennae since they are considered as the part of the net.
+Substitution: This is the act by which one regular player leaves the court and another regular
+player takes his/her place.
+Protocol: The series of events before the start of the match including the toss, the warming-up
+session, presentation of the teams and referees as described in the specific Competition
+Handbook.
+
+-86-
+
+SECTION IV
+
+FIVB Specific Rules
+
+-87-
+
+FIVB SPECIFIC RULES
+Chapter One
+FACILITIES AND EQUIPMENT
+1.1
+
+DIMENSIONS
+For FIVB, World and Official Competitions, the free zone shall measure a minimum of
+5 m from the side lines and 6.5 m from the end lines. The free playing space shall
+measure a minimum of 12.5 m in height from the playing surface.
+
+1.2
+
+PLAYING SURFACE
+
+1.2.1
+
+For FIVB, World and Official Competitions, only a wooden or synthetic surface is
+allowed. Any surface must be previously approved by the FIVB.
+
+1.2.2
+
+For FIVB, World and Official Competitions, white colours are required for the lines.
+Other colours, different from each other, are required for the playing court and the free
+zone.
+
+1.3
+
+LINES ON THE COURT
+
+1.3.4
+
+Attack line
+For FIVB, World and Official Competitions, the attack line is extended by the addition
+of broken lines from the sidelines, with five 15 cm short lines 5 cm wide, drawn 20 cm
+from each other to a total length of 1.75 m. The “coach’s restriction line” (a broken line
+which extends from the attack line to the end line of the court, parallel to the sideline
+and 1.75 metres from it) is composed of 15 cm short lines drawn 20 cm apart to mark
+the limit of the coach’s area of operation.
+
+1.4
+
+ZONES AND AREAS
+
+1.4.5
+
+Warm-up area
+For FIVB, World and Official Competitions, the warm-up areas, sized approximately 3
+X 3 m, are located in both of the bench-side corners, outside the free zone (Diagram
+1a, 1b).
+
+1.5
+
+TEMPERATURE
+For FIVB, World and Official Competitions, the maximum temperature shall not be
+higher than 25° C (77° F) and the minimum not lower than 16° C (61° F).
+
+1.6
+
+LIGHTING
+For FIVB, World and Official Competitions, the lighting on the playing area should be
+1000 to 1500 lux measured at 1 m above the surface of the playing area.
+
+2.2
+
+STRUCTURE
+For FIVB, World and Official Competitions, in conjunction with specific competition
+regulations, the mesh may be modified to facilitate advertising according to marketing
+agreements.
+
+-88-
+
+2.5
+
+POSTS
+For FIVB, World and Official Competitions, the posts supporting the net are placed at a
+distance of 1 m outside the sidelines and must be padded.
+
+3.1
+
+STANDARDS
+Its inside pressure shall be 0.30 to 0.325 kg/cm2 (4.26 to 4.61 psi) (294.3 – 318.82
+mbar or hPa).
+
+3.2
+
+UNIFORMITY OF BALLS
+For FIVB, World and Official Competitions, as well as National or League
+Championships must be played with FIVB approved balls, unless by agreement of
+FIVB.
+
+3.3
+
+FIVE-BALL SYSTEM
+For FIVB, World and Official Competitions, five balls shall be used. In this case, six ball
+retrievers are stationed, one at each corner of the free zone and one behind each
+referee (Diagram 10).
+
+Chapter Two
+PARTICIPANTS
+4.1
+
+TEAM COMPOSITION
+
+4.1.1
+
+For FIVB, World and Official competitions for Seniors, up to 14 players may be
+recorded on the score sheet and play in a match. The maximum five staff members on
+the bench (including the coach) are chosen by the coach him/herself but must be listed
+on the score sheet and be registered on the O-2 (bis). The Team Manager or Team
+Journalist may not sit on or behind the bench in the Control Area.
+Any medical doctor or team therapist used in FIVB, World and Official Competitions
+must be part of the official Delegation and accredited beforehand by the FIVB.
+However, for FIVB, World and Official Competitions for Seniors, if they are not included
+as members on the team bench, they must sit against the delimitation fence, inside the
+Competition Control Area or sit in a special place indicated in the specific competition
+handbook, and may only intervene if invited by the referees to deal with an emergency
+to the players. The team therapist (even if not on the bench) may assist with the
+warmup until the start of the official net warm up session.
+The Official Regulations for each event will be found in the Specific Competition
+Handbook.
+
+4.2
+
+LOCATION OF THE TEAM
+
+4.2.3
+
+Players not in play may warm-up without balls as follows:
+4.2.3.2
+
+during time-outs: in the free zone behind their court.
+
+-89-
+
+4.3
+
+EQUIPMENT
+A player's equipment consists of a jersey, shorts, socks (the uniform) and sport shoes.
+
+4.3.1
+
+The colour and the design for the jerseys and shorts must be uniform for the team
+(except for the Libero). The uniforms must be clean.
+
+4.3.3
+
+For FIVB, World and Official Competitions, players' jerseys must be numbered from 1 to
+20. In FIVB, World and Official Competitions for Seniors, where larger playing squads
+are used, numbers may be extended.
+
+4.5
+4.5.3
+
+FORBIDDEN OBJECTS
+For FIVB, World and Official competitions for seniors, these devices must be of the
+same colour as the corresponding part of the uniform. Black, white or neutral colours
+may also be used.
+
+5.2
+
+COACH
+
+5.2.3
+
+For FIVB, World and Official Competitions, the coach is restricted to performing his/her
+function behind the coach’s restriction line throughout the entire match.
+
+Chapter Three
+PLAYING FORMAT
+7.2
+
+OFFICIAL WARM-UP SESSION
+
+7.2.1
+
+For FIVB, World and Official competitions, teams will be entitled to a 10-minute warm
+up period together at the net.
+
+Chapter Five
+INTERRUPTIONS, DELAYS, AND INTERVALS
+15.1
+
+NUMBER OF REGULAR GAME INTERRUPTIONS
+For FIVB, World and Official competitions for Seniors, the FIVB may reduce, by one,
+the number of team Time Outs in accordance with sponsorship, marketing and
+broadcast agreements.
+
+15.4
+15.4.1
+
+TIME-OUTS AND TECHNICAL TIME-OUTS
+For FIVB, World and Official Competitions it is obligatory to use the buzzer and then
+the hand signal to request time-out.
+
+15.10
+15.10.3
+
+SUBSTITUTION PROCEDURE
+For FIVB, World and Official Competitions, numbered paddles are used to facilitate the
+substitution (except when electronic devices are used to transmit the data to the
+scorer).
+
+-90-
+
+Chapter Six
+THE LIBERO PLAYER
+19.1
+19.1.1
+
+DESIGNATION OF THE LIBERO
+Each team has the right to designate from the list of players on the score sheet up to
+two specialist defensive players: Liberos.
+In FIVB, World and Official competitions for Seniors, if a team has more than 12
+players recorded in the score sheet, TWO Liberos are mandatory in the team list.
+
+19.2
+
+EQUIPMENT
+For FIVB, World and Official competitions, the re-designated Libero should, if possible,
+wear the same style and colour of jersey as the original Libero, but should keep his/her
+own number.
+
+Chapter Eight
+REFEREES
+22.1
+
+COMPOSITION
+For FIVB, World or Official Competitions, an assistant scorer is compulsory.
+
+24.2
+
+AUTHORITY
+For FIVB, World and Official Competitions, the duty recorded under 24.2.5 is carried
+out by the Reserve Referee.
+
+28.2
+
+AUTHORITY
+For FIVB, World and Official Competitions which use an e-scoresheet, the Assistant
+Scorer acts with the Scorer to announce the substitutions, to direct the 2nd Referee to
+the team requesting an interruption and identify the Libero replacements.
+
+29.1
+
+LOCATION
+For FIVB World and Official Competitions, it is compulsory to have four line judges.
+They stand in the free zone at 1 to 3 m from each corner of the court, on the imaginary
+extension of the line that they control (Diagram 10).
+
+-91-
+
+SECTION V
+
+Procedures
+-92-
+
+GAME PROCEDURES
+A.
+
+BEFORE THE START OF THE MATCH
+1. The referees check the net and the court.
+2. The first referee calls the Team Captains and conducts the toss.
+3. The first referee controls the team warm-up.
+4. The second referee ensures that team rosters and lineups are submitted to the scorer.
+The number of the Libero (if used by the team) is to be recorded on the line-up sheet.
+5. The first referee indicates the end of the team warm-ups. All players leave the court.
+6. The referees and line judges take up their positions.
+7. The first referee requests the teams (the six starting players) to line up on the baseline.
+The first referee uses his whistle and a hand signal to direct the team members to
+enter the court and take up their positions. This applies to set one only. For all other
+sets, the teams will go directly onto the playing court.
+8. The second referee will check the rotational order of both teams.
+9. The second referee will hand the ball to the first server. If the three-ball system is used,
+the second referee will give two balls to the ball retrievers and then give a ball to the
+first server. Using the three-ball system, the second referee will only give the ball to the
+first server in set one and the deciding set.
+10. The second referee will indicate to the first referee that he/she and the scorer are
+ready to start the match.
+11. The first referee will authorize the first service (whistle and signal).
+
+B.
+
+DURING THE MATCH
+1. At the end of each set, the first referee uses his/her whistle and a hand signal for the
+teams to change court.
+2. Once the players cross outside of the poles they may go directly to their bench without
+lining up on the end line and without being dismissed by the referee. Players may now
+gather at their bench and speak with their coach.
+
+-93-
+
+3. The interval between sets is 3 minutes. After two minutes and thirty seconds the
+second referee blows his whistle to direct the teams on to the court. For set one the
+teams line up on the baseline. For all other sets, the players go directly on to the court.
+The second referee will then check that the six players for each team are the same as
+those registered on the line-up sheet. The second referee will also check that the
+number of the Libero (if used by the team) is recorded on the line-up sheet. After
+checking the team line-up, the second referee will authorize the Libero to enter the
+court.
+When using the three-ball system, the ball retriever will then give the server the ball.
+For the start of the deciding set the ball will be given to the server by the second
+referee. (In matches not using a three-ball system, the second referee will give the
+server the ball at the start of all sets).
+At the three-minute mark the first referee will authorize the service.
+4. At the end of the fourth set (second set for a best of three match), at the direction of
+the first referee, the teams go directly to their team bench.
+The Referees report to the scorer's table to conduct the toss.
+The captains report to the scorer's table for the toss.
+The procedures for the interval between sets listed above (point 4) remains the same.
+When using the three-ball system, the ball will be given to the server by the second
+referee for the start of the deciding set.
+5. During time outs the second referee asks the players to move close to the bench.
+C.
+
+AT THE END OF THE MATCH
+1. At the end of the match, at the first referee's signal, the two teams greet one another
+near the net, leave the playing court, and walk to their respective player's bench
+2. Both referees (and line judges) are to position themselves on the sideline
+corresponding to the first referee and, after the greetings, report to the score table for
+administrative purposes.
+
+D.
+
+BALL RETRIEVAL SYSTEM
+The second referee will give the ball to the first server at the start of set one and the
+deciding set. During the other intervals between sets, time outs, or delays, the referee does
+not handle the ball. This procedure is used only when the three-ball system is used. When
+the three-ball system is not used, the second referee handles the ball for the intervals
+between sets, time-outs, and delays.
+
+-94-
+
+TOURNAMENT RULES FOR COMPETITION
+The following may be duplicated for all VC sanctioned and/or National Championship
+tournaments.
+1.
+
+This tournament is sanctioned by Volleyball Canada.
+
+2.
+
+All participants must be registered with Volleyball Canada and be able to show proof of
+registration.
+
+3.
+
+Playing rules of the tournament will be those of the current year's Volleyball Canada
+rulebook.
+
+4.
+
+TIE-BREAKING PROCEDURES
+Two (2) teams tied: When two teams are tied, the winner of the head-to-head match during
+the round will be ranked higher.
+Three (3) teams or more: When three or more teams are tied, the tie-breaking criteria are
+applied one after the other until all of the tied teams have been ranked:
+a) the team having the best ratio of won/lost matches, considering all matches played during
+the round between the tied teams, will be ranked higher;
+b) The team having the best ratio of won/lost sets, considering all matches played during
+the round between the tied teams, will be ranked higher;
+c) The team having the best ratio of won/lost sets, considering all matches d u r i n g the
+round, will be ranked higher;
+d) The team having the best ratio of points for/against, considering sets played between the
+tied teams during the round, will be ranked higher;
+e) The team having the best ratio of points for/against, considering all sets played during
+the round, will be ranked higher;
+f)
+
+As determined by the Organizing Committee (e.g. extra set, toss of coin, etc.)
+
+NOTE: This means that if there is a tie among teams X, Y and Z and criteria “b” is able to
+determine X as first, Y as second and Z as third, then no further criteria are to be used. The
+tie is broken.
+However, if criteria ‘b’ determines the seeding/ranking of any of the tied teams, then the
+remaining teams which are still tied will use criteria ‘c’ and so on to determine their
+seeding/ranking. Do not start at ‘a’ again. Continue through the sequence of criteria using
+the results of teams x, y, and z for criteria ‘d’.
+
+-95-
+
+5.
+
+FORFEIT
+All matches shall start on time as scheduled. Failure of a team to be ready to play at the
+scheduled game time will be penalized by the loss of the first set by forfeit. A further 15
+minutes will be allowed before forfeiture of the second set. Forfeiture of the third set (if
+necessary) will occur after an additional 15 minutes. It is expected that every effort will be
+made to reschedule a match which might be forfeited because of unusual circumstances (i.e.
+transportation breakdown, etc.). In the event of a delay caused by a long previous match,
+teams will be allowed 10 minutes on the court for warming up.
+
+6.
+
+The rule on uniforms will be strictly enforced. All team members must have identical
+playing shirts and shorts in good condition and according to the regulations.
+Comment: Refer to Referees Guidelines or the Team Registration booklet for the
+procedure to be followed at Volleyball Canada National Championships.
+
+7.
+
+VC's approved ball will be the official tournament ball and will be supplied by the
+Organizing Committee.
+
+8.
+
+Air-horns operated with CO2 cartridges or any other mechanical means are prohibited to
+be used at all Volleyball Canada events.
+
+9.
+
+Any protest must be submitted to the Jury (protest committee - e.g. Tournament
+Committee, Referee Supervisor, Volleyball Canada Representative) by the referees
+immediately and its decision will be final.
+
+10.
+
+Any additional tournament regulations as deemed necessary by the tournament Organizing
+Committee will be distributed to the teams on the site.
+
+-96-
+
+PROTEST PROCEDURES
+Most tournaments are organized to allow the settling of a protest immediately, and the procedure
+is usually outlined in the tournament rules.
+If the protest occurs during league play, or any other time a protest committee is not on the site,
+the referee must know how to handle the situation.
+THE REFEREE’S DECISIONS REGARDING BALL HANDLING FAULTS ARE NOT OPEN TO
+PROTEST.
+A captain may legally protest only AN ERROR IN APPLYING A RULE OR RULE
+INTERPRETATION. The captain must lodge the protest immediately to the first referee who will
+then indicate to the scorekeeper that a protest has been lodged. Once the match has ended, the
+captain must describe the incident on the scoresheet or on a paper to be attached to the
+scoresheet before he signs off the scoresheet. This record includes game number, score, ball
+possession and player position on floor at time of protested decision, and reason for protest. The
+protest is then referred to the appropriate higher authority (i.e. league executive, jury) for
+acceptance or refusal. Refusal means that the game or match result stands as played.
+Acceptance involves replaying of the event in whole or in part depending on the judgment and in
+the next available gym space as allocated by the DCC Jury member.
+
+JUDGES’ CONFERENCE
+At Canadian Championships, the procedure for a judges’ conference can be used to rule on
+protests.
+The judges’ conference holds official authority to solve problems occurring during the game in
+order to correct an improper situation in accordance with Volleyball Canada rules and
+regulations.
+Only the following circumstances are protestable:
+a) an improper decision by the referee who did not apply the rules or regulations;
+b) an improper decision of the scorer who made a mistake on the rotational order or on the
+score.
+A referee’s decision regarding a playing action (i.e. ball handling or a misconduct) cannot be
+protested.
+The protest will be accepted or rejected prior to the resumption of play by the tournament jury.
+
+-97-
+
+DISCIPLINARY ACTION
+Violations of VC's Code of Conduct/Protest and/or competition rules and regulations may subject
+the offending player(s), coach(es), official(s), manager(s), administrator(s) or team(s) to
+disciplinary action as outlined under "Penalties”.
+PROCEDURES
+All violations of the Code of Conduct/Protest which occur during or as a result of a VC National
+Championship shall be reported immediately to the onsite National Indoor Committee (NIC)
+representative by the tournament director and shall be confirmed in writing. All violations will be
+investigated by the tournament jury.
+NOTE:
+
+Code of Conduct violations incurred at provincially sanctioned events and involving
+persons from the jurisdiction in which the infraction took place should be handled in an
+identical manner by the region. VC's Executive Committee would act solely in the role
+of appeal.
+
+All VC National Championships will be overseen by a jury which will be composed of:
+a)
+
+a member of the NIC or an approved designate who will act as chairperson of the jury;
+
+b)
+
+a representative of the National Championship Host Committee;
+
+c)
+
+a member of the National Referee Committee (NRC) or the Referee Supervisor.
+
+The jury is the highest authority in all aspects of the competition. Its decisions take precedence
+and cannot be appealed on site.
+The jury makes the final decision regarding complaints about tournament organization, results,
+technical matters, and breaches of the Code of Conduct, or any other related matter.
+Any person having knowledge of, or making allegation in respect to, a violation of the Code of
+Conduct during or as a result of a VC National Championships, shall report verbally and in
+writing, the alleged violation to the Tournament Director and Site Coordinator or any member of
+the jury.
+Upon receipts of the reports, the NIC representative will convene the jury to investigate the
+violation of the Code of Conduct.
+a)
+
+The tournament director or site coordinator shall determine the names and addresses of
+the alleged violator(s);
+
+b)
+
+The tournament director or site coordinator shall determine the circumstances of the
+alleged violation.
+
+The NIC representative shall notify the alleged violator(s) that the jury will be convened
+immediately
+
+to conduct a hearing into the alleged violation and would take action accordingly.
+
+.
+-98-
+
+The following steps will be taken:
+a)
+
+Notify both teams that there is a protest and hold both teams in the gym until the procedure
+is established.
+
+b)
+
+Chairperson of jury convenes the jury.
+
+c)
+
+The jury will interview and secure a statement from any witnesses to the alleged violation.
+
+d)
+
+If the violation occurred during a match, interviews will be held with the officials who
+conducted the match and with the coaches and captains of each team where necessary
+and appropriate.
+
+e)
+
+The jury will also interview and secure a statement from the person(s) accused of the
+violation.
+
+f)
+
+The jury would render a decision and possible penalty.
+
+g)
+
+The Chairperson of the jury would inform all parties concerned regarding the decision
+made. A full written report on the incident and the jury's decision would be completed at
+that time.
+
+The NIC representative shall immediately transmit the written report to the NCC Chairperson who
+shall confirm in writing the receipt of the written report.
+The NIC Chair shall examine the report of the Jury committee and may conduct further
+investigation as he/she deems necessary and prepare a record of the matter.
+The NIC Chairperson shall forward to VC's National Office the report from the jury Committee
+and any supplementary report containing the details and recommendations of his/her own
+investigation.
+HEARING
+All persons accused of a Code of Conduct violation must be given an opportunity for a hearing in
+the jurisdiction where the violation took place.
+-
+
+At a national championship, this hearing will be held on site with the NIC designate
+conducting the hearing.
+
+-
+
+In VC sanctioned events, the chairperson of the jury conducts the hearing. If an immediate
+hearing is not possible, the tournament director should collect all pertinent information and
+forward it to the NIC Chairperson for action.
+
+-99-
+
+NOTIFICATION
+Any person accused of a Code of Conduct violation must be notified in writing of the time, place
+and date of the hearing. Such person is entitled to an alternate date if for a good cause the
+original date is unacceptable. Should the accused person fail to attend the hearing, the person
+conducting the hearing may proceed and take the evidence of those in attendance. The hearing
+may accept or reject sworn statements provided by the witnesses.
+RULINGS
+After hearing all of the evidence, the person presiding at the hearing may take whatever action
+he/she deems appropriate or may refer the matter to VC's President or Executive.
+The accused person must then be advised in writing by VC's President and Chief Executive
+Officer of the "Notice of Ruling" taken and any penalties imposed, if it hasn't already been
+handled on site.
+RIGHT OF APPEAL
+Any person who has been penalized may appeal to VC's Board of Directors who shall determine
+if a fair hearing was held and an equitable solution reached. The decision of the Board of
+Directors shall be final. Any person desiring to appeal must notify the VC President and Chief
+Executive Officer in writing outlining his/her intention. Such appeal must be received in Ottawa
+within 60 days after mailing of the "Notice of Ruling" mentioned in "RULINGS" above. It is
+understood that any such appeal will be reviewed by the Board of Directors at their next meeting.
+PENALTIES
+Penalties shall be at the discretion of the special commissioner or Executive Committee as
+outlined below.
+1)
+
+Penalties imposed by VC may be in the form of a letter of censure, suspension, expulsion,
+fines, or a combination of these, or any other penalty considered more suitable depending on
+the offence.
+
+2)
+
+VC may impose penalties directly, notifying the regional association of the actions, or may
+have the regional association impose a penalty.
+
+3)
+
+An active member being considered for penalization shall receive 30 days notice of same,
+including reasons before any penalty is enacted.
+
+-100-
+
+CODE OF ETHICS
+This code is not intended as a moralistic prescription of desirable behaviour that would restrict
+the liberty of individual referees. Instead, it represents a list of positive recommendations based
+on a plan of conduct accepted by officials as a whole.
+It, therefore, consists of statements resembling rules of behaviour or maxims which those
+involved with the rules of the game will find immediately acceptable and with which tacit
+compliance is expected.
+The philosophy of refereeing is based on the reason for having a body of rules that may in turn
+be summed up in the following words:
+“THE PURPOSE OF THE RULES IS TO ADMINISTER THE GAME AND PENALIZE A
+PLAYER(S) WHO GAINS AN UNFAIR ADVANTAGE OVER HIS/HER OPPONENT AS THE
+RESULT OF AN ILLEGAL ACTION.”
+This realistic concept can serve as a basis for a uniform but intelligent application of the rules of
+the game, derived from the following main principles.
+FIRST PRINCIPLE
+Coaches, instructors and players shall accept official interpretations of the rules governing their
+sport as published by the Canadian Rules of the Game Commission.
+SECOND PRINCIPLE
+Officials are responsible for applying the rules of the game in accordance with the official
+interpretations and shall comply with the refereeing code adopted by the national refereeing
+commission.
+THIRD PRINCIPLE
+Officials shall intervene in respect to actions that have in fact occurred and have been observed
+by them, and not on the basis of information received through third parties.
+FOURTH PRINCIPLE
+The fairness of the official’s decisions is based on an overall view of the situation and his/her
+past experience of similar occurrences.
+FIFTH PRINCIPLE
+Except for situations in which a referee’s specific authority is stated in the rules of play or in the
+refereeing code, all the officials shall make decisions on every punishable offence or fault
+observed by them in competitive play.
+SIXTH PRINCIPLE
+Officials shall cooperate in developing discipline in the sport and in creating conditions for optimal
+player performance, without misinterpreting the rules of play and in an impartial manner.
+
+-101-
+
+Since refereeing is to be regarded as an opportunity for self-development and not as a means of
+working off individual frustrations, and since an individual acting as a referee should constantly
+be striving to perform to the best of his/her abilities, officials will, therefore, see their role in light
+of the spirit of the rules and will not attempt to use it to satisfy a craving for authority.
+The official will be aware of and will accept that the only reason for his/her existence is to help
+the players have a good match.
+With a view to entrenching this notion, the Board of Referees and its members have adopted the
+following principles.
+A.
+1.
+
+IN RELATION TO THE PLAYER
+The official shall ensure that the player has a reasonable opportunity to perform to the
+best of his/her ability, within the limits of the rules.
+
+2.
+
+The official’s main concern shall be the player’s safety. Any situation affecting this prime
+consideration of competition shall be avoided and/or terminated.
+
+3.
+
+During the game, the official is required to supervise; he/she must take all reasonable
+steps to maintain a spirit of healthy competition. Accordingly:
+a) He/she shall not permit intimidation of a player by other players or by team staff
+either by word or action;
+b) He/she shall not tolerate unacceptable conduct to officials, other players or
+spectators;
+c) He/she shall avoid pointless discussions with players in a match situation; only game
+captains are authorized to address him/her.
+
+4.
+
+In the heat of play the official, in his/her relations with players and team staff, shall make
+every effort to retain a presence of mind enabling him/her to direct the same with
+complete objectivity and the dignity required by his/her position.
+
+5.
+
+When working in tournaments including novice players, the official shall accept the
+educational role expected of him/her and shall adapt his/her conduct to this particular
+aspect of the competition.
+
+6.
+
+Away from the immediate environment of play, the official shall be open to discussion
+and contact with players, avoid any conduct suggesting self-importance, arrogance or
+sarcasm, show himself/herself receptive to constructive criticism and demonstrate due
+respect and consideration for different points of view and judgements.
+
+7.
+
+Outside the court, the official shall conduct himself/herself in such a way that his/her
+relationship with players does not prejudice his/her subsequent work and the impartiality
+that must be obvious in it.
+
+-102-
+
+B.
+
+IN RELATION TO THE COACH
+
+1.
+
+The official’s conduct toward the coach and any other team staff shall be governed by
+respect and courtesy.
+
+2.
+
+In a match situation the official shall intervene as required in order to facilitate the work of
+coaches within the framework of regular procedures and the limitations of the rules.
+
+3.
+
+The official shall prohibit any unacceptable conduct by team staff in their relations with
+officials, players, other team staff and spectators, and shall take action against any
+offence of this nature in accordance with the procedures provided in the rules.
+
+4.
+
+Outside the match context, the official shall adopt an attitude conducive to positive
+dialogue and calm communication with team staff. He/she will make a special effort to
+listen to constructive criticism, having due regard to the uninhibited spirit of competition
+prevailing in these circumstances, and shall demonstrate the necessary sense of proportion if subjected to the personal abuse that may result from such a situation.
+
+C.
+
+IN RELATION TO OTHER REFEREES
+
+1.
+
+Every official, in his/her relations with one or more other officials, shall consciously strive
+to create and/or cooperate in creating a friendly or at least pleasant working atmosphere
+governed by mutual respect, understanding, cordiality and, in particular, mutual
+encouragement.
+
+2.
+
+In performing their work, the members of a team of referees coming together to officiate
+in a match shall strive to create this working atmosphere conducive to confidence,
+cooperation and communication, with a view to optimal performance as a group.
+
+3.
+
+Every qualified minor or major official shall be accepted as a full member in a team of
+referees assigned to a match; the first referee shall ensure that this principle is complied
+with.
+
+4.
+
+The first referee of a match shall take the action required to involve each member of the
+team or referees in the action and shall thank them at the end of the match.
+
+5.
+
+When a particular situation is a difficult one for a referee to resolve and he/she is
+uncertain about his/her proposed solution, the official in question shall consult with the
+other officials with a view to finding a clearer solution.
+
+6.
+
+The official shall accept the duties attached to the specific role he/she is required
+to play in a match and shall not attempt to transfer his/her responsibilities to other
+officials.
+
+7.
+
+In a spirit of mutual help and development, each official shall accept the evaluation of
+other officials in the form of a review of a game. Such criticism shall be made in a spirit of
+honesty and received with all the attention due to it.
+
+-103-
+
+8.
+
+Experienced officials shall concern themselves with the development of less experienced
+officials by tactfully and clearly advising them as to how they may improve.
+
+9.
+
+Every official shall refrain from public discussion of decisions of other officials and shall
+avoid criticizing or judging them impulsively at all times and in every situation, but
+particularly when wearing an official’s uniform.
+
+D.
+
+IN RELATION TO HIS/HER WORK AND RESPONSIBILITIES AND HIS/HER
+GENERAL CONDUCT
+
+1.
+
+The official shall make the necessary efforts to reach a high standard of competence,
+encourage the atmosphere conducive to the conscientious performance of his/her duties
+and contribute to preventing inadequate refereeing standards. The official shall
+accordingly:
+a) Not perform any refereeing duties under false pretenses concerning his/her skills and
+qualifications, especially as regards the regularity of his/her registration with VC's
+Board of Referees.
+b) Not accept any present, benefit or favour that might subvert or appear to influence
+his/her subsequent decisions or actions in the performance of his/her duties.
+
+2.
+
+Every referee shall perform his/her duties at acceptable physical and functional levels.
+This includes the requirements that he/she:
+a) Take the necessary action to maintain physical condition sufficient to meet the
+organic and physical requirements of his/her duties;
+b) Avoid performing duties if his/her faculties are significantly impaired by illness.
+c) Rest sufficiently to be able to perform adequately.
+d) Refrain from officiating while under the influence of drugs or alcohol.
+
+3.
+
+When performing his/her duties, the official shall adopt an assured, dignified demeanor,
+in the knowledge that his/her actions as a referee should convey the sense of decorum
+inherent in the rules and procedures.
+
+REQUIREMENTS CONCERNING PERFORMANCE OF THE REFEREE’S DUTIES:
+4.
+
+Every official shall, while officiating, wear the uniform specified by Volleyball Canada and
+shall present a clean, well-groomed appearance personally and in his/her dress.
+
+5.
+
+Each official shall seek to gradually acquire relevant experience and improve his/her
+skills, without attempting to progress too fast, by studying the rules, confirming any
+doubtful interpretation with the competent authority and by participating in training
+courses available to him/her, in a spirit of continuous learning.
+
+PARTICIPATION IN COMPETITIONS:
+6.
+
+The official must demonstrate complete reliability in relation to his/her commitments,
+fulfill them without exception and faithfully keep formal oral promises to officiate.
+
+-104-
+
+7.
+
+In accepting assignments to matches in a tournament, the official shall demonstrate
+goodwill with a view to a division of work that is fair to all parties. The official will
+therefore:
+a) Be available throughout the tournament period.
+b) Devote his/her full attention to each match in which he/she is involved.
+c) Avoid making any conditions tending to limit his/her participation.
+
+The above considerations apply to all situations not involving circumstances beyond the control
+of the individual in question.
+INVOLVEMENT IN A MATCH:
+8.
+
+An official’s first concern shall be to maintain the unshakable and absolute integrity of the
+refereeing function, which should be especially evident in his/her most difficult decisions.
+In accordance with this consideration, the official shall:
+a) Not allow himself/herself to be advised or influenced by any player, team staff or
+spectator;
+b) In his/her actions be free of all partiality or prejudice toward either of the teams
+involved;
+c) Not make decisions with the intention of compensating for them in a decision
+concerning a subsequent unrelated situation.
+
+9.
+
+The official shall demonstrate total commitment in the match situation and adopt an
+appropriate attitude in his/her considered and discrete actions. He/she shall, for
+example, AVOID:
+a) Excessive fussiness in his/her judgements and stopping the game for insufficient
+reason;
+b) Dramatizing the seriousness of the events he/she is supervising.
+c) Making himself/herself the centre of attention in the game, since his/her only reason
+for being there is because of the players and to assist them.
+d) Noting the smallest details of a situation with a view to punishment.
+e) Allowing the game to continue without intervening when necessary, or pretending not
+to see;
+f)
+
+10.
+
+Taking the game lightly and not treating it seriously enough.
+
+Through actions devoid of self-importance or arrogance, the official shall make a
+conscious effort to supervise play in a calm manner and make decisions without
+hesitation; this applies especially to difficult decisions, which he/she should announce
+decisively, without being inhibited by the importance of the situation.
+
+11.
+
+The official should not, in an attempt to increase his/her standing or restore his/her
+reputation with a third person, seek to justify himself/herself or apologize in relation to
+difficult decisions made by him/her.
+
+-105-
+
+12.
+
+At the end of a match, after checking and signing the score sheet, the official shall quietly
+leave the court area without unnecessary delay.
+
+13.
+
+A referee shall, while officiating, refrain from any public statement concerning matches in
+which he/she is involved, especially a prediction of the outcome of one of these matches.
+
+E.
+
+IN RELATION TO DISCIPLINE, GAME ADMINISTRATORS, AND SPECTATORS
+
+1.
+
+All officials who are members of the Board of Referees of VC shall be expected to act as
+fitting representatives of volleyball and of VC.
+
+2.
+
+An official shall honour his/her word in regard to agreements made with VC and its
+representatives and fulfill his/her commitments in the agreed capacity as a referee,
+clinician, official, in charge of a specific task or any other duty specified.
+
+3.
+
+Officials shall cooperate in developing volleyball and shall participate through their
+practical and moral support, to the extent that their skills, interests and availability allow,
+in building a solid and forward-looking organization.
+These goals include an obligation on officials to:
+a)
+
+Contribute to the development or dissemination of training and development
+programs.
+
+b)
+
+Become involved with the work of the various administrative authorities or accept
+and encourage their work.
+
+c)
+
+Help with or take an interest in the physical arrangements for sporting or
+administrative events.
+
+4.
+
+Officials shall act in their manners and language display a reserved and dignified attitude
+to spectators of volleyball, but shall also show due courtesy and respect.
+
+5.
+
+In all situations not specifically covered in this document, officials shall act in accordance
+with the spirit of the Code of Ethics and the philosophy and guiding principles of
+refereeing.
+Written by Claude Huot
+Adopted by VC-NOC
+September 1986
+The Volleyball Canada Referee Committee would like to thank all
+those who have collaborated in the writing of the code of ethics.
+
+-106-
+
+CODE OF CONDUCT
+Volleyball, because of its regulations and its tradition, offers a philosophy of competition guided
+by the highest standards of good sportsmanship.
+For that reason, all participants (teams, players, coaches, officials, managers and administrators)
+in tournaments and meetings under the authority of VC, have a duty to conduct themselves in a
+reasonable and acceptable manner. They must avoid all unsportsmanlike conduct, acts or
+practices which are, in the opinion of VC, detrimental to the sport. Whenever a penalty occurs, a
+fine will be given and/or performance Bond will be lost. Such acts include but are not limited to:
+a)
+
+committing any act which is considered an offence under any duly promulgated law:
+Penalty - Suspension for one year plus.
+
+b)
+
+i. accepting money or other consideration for losing a match or winning by a particular
+margin:
+ii. being a party to any payment of money or other consideration to another person to lose a
+match or win by a particular margin.
+Penalty - Suspension for one year plus.
+
+c)
+
+i. betting or acting as a “bookmaker” on matches or tournaments:
+ii. associating with professional gamblers
+Penalty - Suspension from one month to one year.
+
+d)
+
+willfully damaging property:
+Penalty - Replacement and suspension from one month to one year.
+
+e)
+
+cheating:
+i. entering a competition and then failing to appear without valid reason and adequate
+notice;
+ii. defaulting a game or match in a competition except as a result of injuries or other valid
+reason;
+iii. withdrawing a team from a match except as a result of injuries or other valid reason;
+iv. playing in a competition under an assumed name, falsifying a team entry form or giving
+false information to a tournament official.
+Penalty - Forfeit for the tournament plus fine equal to registration fee and suspension from
+two weeks to one year for team or individual.
+
+f)
+
+violence:
+i. showing outward displays of temper;
+ii. deliberately throwing or hitting a ball in the direction of an official, spectator, or opponent;
+iii. threatening bodily injury to anyone.
+Penalty - Suspension from three months to life.
+
+-107-
+
+g)
+
+poor attitude:
+i. swearing at an official, lines judge, scorekeeper, spectator, or opponent;
+ii. using profanity or obscene language or gestures.
+Penalty - Suspension from two weeks to one year.
+
+h)
+
+illegal use of banned substances:
+Penalty - Replacement and suspension from one month to one year.
+
+ANTI-DOPING POLICY
+1.
+
+Volleyball Canada has adopted the 2015 Canadian Anti-Doping Program (CADP) as its
+primary domestic anti-doping policy. Administered on behalf of Volleyball Canada by the
+Canadian Centre for Ethics in Sport (CCES), the 2015 CADP is fully compliant with the 2015
+World Anti-Doping Code, International Standards and Guidelines as they may exist from
+time to time. To view or download the 2015 CADP, please visit www.cces.ca/canadian-antidoping-program.
+
+2.
+
+In addition, Volleyball Canada, as a member federation of the FIVB, must also be fully
+compliant with the FIVB anti-doping rules. The FIVB anti-doping rules may apply to certain
+members of Volleyball Canada in certain situations. The FIVB anti-doping rules are fully
+compliant with the 2015 World Anti-Doping Code, International Standards and Guidelines as
+they may exist from time to time. To view or download the FIVB anti-doping rules, please
+visit: In accordance with Volleyball Canada’s adoption of the Canadian Anti-Doping Program
+(CADP), the following prohibited substances and methods exist: http://www.fivb.org/en/
+Medical/AntiDopingProgramme.asp
+
+3.
+
+In the event of a conflict between other anti-doping policies established by Volleyball
+Canada and the 2015 CADP and/or the FIVB anti-doping rules, the rules of the 2015 CADP
+or the FIVB shall prevail, as applicable.
+
+Code of Conduct
+Every athlete and other person participating in the sport shall reasonably cooperate with the
+Canadian Centre for Ethics in Sport (CCES) or another anti-doping organization investigating antidoping rule violations and a failure to do so may be the basis for disciplinary action within the
+sport.
+For information on sanctions please visit: http://cces.ca/anti-doping-sanctions
+Please familiarize yourself with the rules of the CADP and be aware of your rights and
+responsibilities. For further information please contact the CCES at (800) 672-7775 or
+info@cces.ca.
+
+-108-
+
+HOW TO BECOME A REFEREE
+Volleyball referees in Canada are governed by policies set forth by VC through the National
+Referee Committee which in turn works in close co-operation with Regional Officials’ Chairpersons in each Region of the Association.
+In order to become a “LOCAL” volleyball referee, an individual proceeds as follows:
+a) Studies and learns the rules of the game;
+b) Avails himself/herself to call practice games and matches between school, club or other
+teams, in order to gain some practical experience;
+c) Attends a referees' clinic sponsored by the Regional Association;
+d) Submits to written and practical examinations set up by the Regional Officials’ Chairperson.
+If successful, the referee is rated as a “LOCAL” Referee and should make himself/herself
+available to officiate different types of volleyball matches as frequently as possible.
+The next level of officiating is “PROVINCIAL”. This usually requires at least one year of
+experience at the “LOCAL” level and a demonstrated advanced knowledge of the rules.
+The next stage of qualification of an official is a “REGIONAL” Referee, which entails the
+following:
+a) Being active as a Provincial Referee for at least one full season;
+b) Attending a Regional Referees' Clinic;
+c) Written and practical examination for a Regional referee’s certificate;
+d) Approval by National Officials’ Committee.
+The next level is qualification as a “NATIONAL” Referee, which requires:
+a) Being active as a Regional Referee for at least two years;
+b) Recommendations of the Regional Officials’ Chairperson for upgrading, based on activity,
+qualification and personal abilities;
+c) Keeping the National Referee Committee advised of assignments at major tournaments as
+specified;
+d) Attending the National Theory Clinic by the VC Referees Committee;
+e) Submitting to a written and practical examination administered by the National Referee
+Committee at the National Evaluation Clinic;
+f)
+
+Approval by National Referee Committee.
+
+If successful, the official is rated as a “NATIONAL” Referee of VC. To maintain this status, the
+official must remain active and submit for re-evaluation at regular intervals, as prescribed by VC's
+National Referee Committee.
+Additional information and details on procedures and requirements for becoming a certified
+volleyball official may be secured from the Regional Officials’ Chairperson or from the National
+Referee Committee Chairperson.
+
+-109-
+
+The highest qualification for a referee is the "INTERNATIONAL" rating. The requirements are
+currently under review. For more information regarding the International Referee Program,
+please contact Ryan Bunyan at rbunyan@volleyball.ca.
+
+REFEREE DEVELOPMENT MATRIX
+PROGRAMS
+
+CLINIC EMPHASIS
+
+THEMES
+
+LEVEL 1
+(LOCAL)
+
+-
+
+Knowledge of rules
+
+TECHNICAL ABILITY
+
+-
+
+Instruction in operating
+mechanisms
+
+-
+
+Application and
+interpretation of rules
+Mastery of operating mechanisms
+
+HUMAN ABILITY
+(awareness)
+
+-
+
+Code of ethics
+Introduction to evaluation
+Profile of the official
+
+TECHNICAL ABILITY
+(complement)
+
+-
+
+Mastery of interpretation of rules
+Ability to adjust to higher calibre
+
+-
+
+Personality and
+interaction
+Evaluation and
+self-evaluation
+
+TECHNICAL ABILITY
+LEVEL 2
+(PROVINCIAL)
+
+LEVEL 3
+(REGIONAL)
+
+HUMAN ABILITY
+
+-
+
+-
+
+Officiating structures and
+programs in own province
+Key factors of performance
+
+TECHNICAL ABILITY
+(mastery)
+
+-
+
+Excellence in performance
+
+HUMAN ABILITY
+(development)
+
+-
+
+Psychology of Officiating
+
+-
+
+Officiating structures and
+programs in Canada
+Study of performance in
+refereeing
+Principles for analysis of
+examination results (decimology)
+
+CONCEPTUAL ABILITY
+(introduction)
+
+LEVEL 4
+(NATIONAL)
+
+CONCEPTUAL ABILITY
+
+-
+
+-
+
+-110-
+
+NOTES
+
+-111-
+
+NOTES
+
+-112-
+
+
