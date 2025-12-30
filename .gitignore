@@ -27,3 +27,6 @@ yarn-error.log*
 *.swp
 *.swo
 *~
+
+# Large files
+public/rulebook.pdf
