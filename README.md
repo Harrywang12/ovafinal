@@ -49,6 +49,7 @@ Open `http://localhost:3000`.
 - `POST /api/chatbot` — `{ message }` grounded tutor responses with citations.
 - `POST /api/rag-search` — `{ query, limit }` direct vector search.
 - `POST /api/lessons` — `{ module }` returns lessons + micro-quiz for the module.
+- `GET/POST /api/videos` — `GET` lists videos (optionally filtered by difficulty); `POST` creates a new video entry.
 
 ## Uploading Rule PDFs and Videos
 1. Upload rulebook PDF via `curl`:
@@ -62,11 +63,26 @@ Open `http://localhost:3000`.
      -d '{"path":"rules/<returned-path>"}' \
      https://your-vercel-app.vercel.app/api/embed-rules
    ```
-3. Insert practice clips metadata (and upload MP4s to `practice-clips` bucket) via Supabase SQL/CSV:
-   ```
-   insert into videos (difficulty, video_url, correct_call, explanation, rule_reference)
-   values ('easy', 'https://.../clip.mp4', 'Out', 'Ball clearly lands outside sideline', 'Rule 8.4');
-   ```
+3. Upload practice clips:
+   - **Option A: Via API (Recommended)**
+     ```bash
+     curl -X POST https://your-vercel-app.vercel.app/api/videos \
+       -H "Content-Type: application/json" \
+       -d '{
+         "difficulty": "easy",
+         "video_url": "https://your-storage.com/clip.mp4",
+         "correct_call": "Out",
+         "explanation": "Ball clearly lands outside sideline",
+         "rule_reference": "Rule 8.4"
+       }'
+     ```
+   - **Option B: Via Supabase SQL**
+     ```sql
+     insert into videos (difficulty, video_url, correct_call, explanation, rule_reference)
+     values ('easy', 'https://.../clip.mp4', 'Out', 'Ball clearly lands outside sideline', 'Rule 8.4');
+     ```
+   
+   **Note:** Upload MP4 files to your storage bucket (e.g., `practice-clips` in Supabase Storage) first, then use the public URL in the `video_url` field.
 
 ## Managing Migrations
 - Use Supabase migration tooling or run `supabase.sql` directly.

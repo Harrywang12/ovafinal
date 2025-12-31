@@ -23,7 +23,12 @@ const dmSans = DM_Sans({
 
 export const metadata: Metadata = {
   title: "Volley Ref Lab | Master the Whistle",
-  description: "AI-powered volleyball referee training. Master calls, rulings, and game situations with adaptive quizzes and real-time video analysis."
+  description: "AI-powered volleyball referee training. Master calls, rulings, and game situations with adaptive quizzes and real-time video analysis.",
+  icons: {
+    icon: "/logo.png",
+    shortcut: "/logo.png",
+    apple: "/logo.png",
+  },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

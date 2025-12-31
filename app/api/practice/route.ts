@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { getServerSupabase } from "../../../lib/supabase";
 import { assertEnv, difficultyToDuration } from "../../../lib/utils";
+import { evaluateVideoRuling } from "../../../lib/video-evaluation";
 
 export const runtime = "nodejs";
 
@@ -40,23 +41,64 @@ export async function GET(request: Request) {
 }
 
 export async function POST(request: Request) {
-  assertEnv(["SUPABASE_URL", "SUPABASE_SERVICE_KEY"]);
+  assertEnv(["SUPABASE_URL", "SUPABASE_SERVICE_KEY", "OPENAI_API_KEY"]);
   const supabase = getServerSupabase();
   const body = await request.json();
-  const { video_id, user_id, correct, time_taken } = body;
+  const { video_id, user_id, userAnswer, time_taken } = body;
+  
   if (!video_id) {
     return NextResponse.json({ error: "video_id required" }, { status: 400 });
   }
+  
+  if (!userAnswer || typeof userAnswer !== "string" || !userAnswer.trim()) {
+    return NextResponse.json({ error: "userAnswer (string) required" }, { status: 400 });
+  }
 
-  const { error } = await supabase.from("video_attempts").insert({
+  // Retrieve video metadata to get correct_call and difficulty
+  const { data: video, error: videoError } = await supabase
+    .from("videos")
+    .select("correct_call, difficulty")
+    .eq("id", video_id)
+    .single();
+
+  if (videoError || !video) {
+    return NextResponse.json({ error: "Video not found" }, { status: 404 });
+  }
+
+  // Evaluate the user's ruling using AI
+  let evaluation;
+  try {
+    evaluation = await evaluateVideoRuling(
+      userAnswer.trim(),
+      video.correct_call,
+      video.difficulty
+    );
+  } catch (error) {
+    console.error("Error evaluating video ruling:", error);
+    return NextResponse.json(
+      { error: "Failed to evaluate ruling. Please try again." },
+      { status: 500 }
+    );
+  }
+
+  // Store the attempt with the evaluated correctness
+  const { error: insertError } = await supabase.from("video_attempts").insert({
     video_id,
     user_id,
-    correct,
+    correct: evaluation.is_correct,
     time_taken
   });
 
-  if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+  if (insertError) {
+    return NextResponse.json({ error: insertError.message }, { status: 500 });
   }
-  return NextResponse.json({ ok: true });
+
+  // Return the evaluation result with AI-generated explanation
+  return NextResponse.json({
+    ok: true,
+    is_correct: evaluation.is_correct,
+    normalized_call: evaluation.normalized_call,
+    explanation: evaluation.explanation,
+    rule_reference: evaluation.rule_reference
+  });
 }

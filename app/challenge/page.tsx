@@ -1,9 +1,9 @@
 "use client";
 
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Trophy, RefreshCcw, Medal, Crown, Send, Loader2, Video } from "lucide-react";
+import { Trophy, RefreshCcw, Medal, Crown, Send, Loader2, Video, Timer, CheckCircle2, XCircle } from "lucide-react";
 import { AuthGuard } from "../../components/auth-guard";
 import { fadeInUp, staggerContainer, staggerItem, scaleIn } from "../../lib/animations";
 
@@ -16,8 +16,18 @@ const rankColors = [
 const rankIcons = [Crown, Medal, Medal];
 
 export default function ChallengePage() {
-  const [score, setScore] = useState(0);
+  const [userAnswer, setUserAnswer] = useState("");
   const [userId, setUserId] = useState("");
+  const [timeLeft, setTimeLeft] = useState<number | null>(null);
+  const [timeTaken, setTimeTaken] = useState<number | null>(null);
+  const [evaluationResult, setEvaluationResult] = useState<{
+    is_correct: boolean;
+    normalized_call: string;
+    explanation: string;
+    rule_reference: string;
+    score: number;
+  } | null>(null);
+  const [evaluationError, setEvaluationError] = useState<string | null>(null);
 
   const challengeQuery = useQuery({
     queryKey: ["challenge"],
@@ -28,21 +38,74 @@ export default function ChallengePage() {
     }
   });
 
+  // Initialize timer when video loads (extreme difficulty = 6 seconds)
+  useEffect(() => {
+    if (challengeQuery.data?.video && !evaluationResult) {
+      setTimeLeft(6);
+      setTimeTaken(null);
+      setUserAnswer("");
+      setEvaluationResult(null);
+      setEvaluationError(null);
+    }
+  }, [challengeQuery.data?.video?.id, evaluationResult]);
+
+  // Timer countdown
+  useEffect(() => {
+    if (timeLeft === null || timeLeft <= 0 || evaluationResult) return;
+    
+    const timer = setInterval(() => {
+      setTimeLeft((prev) => {
+        if (prev === null || prev <= 1) {
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+    
+    return () => clearInterval(timer);
+  }, [timeLeft, evaluationResult]);
+
   const submitMutation = useMutation({
     mutationFn: async () => {
+      if (!userAnswer.trim()) {
+        throw new Error("Please enter your ruling before submitting");
+      }
+      
       const res = await fetch("/api/challenge", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           user_id: userId || undefined,
           video_id: challengeQuery.data?.video?.id,
-          score
+          userAnswer: userAnswer.trim(),
+          time_taken: timeTaken !== null ? timeTaken : (timeLeft !== null ? 6 - timeLeft : undefined)
         })
       });
-      if (!res.ok) throw new Error("Failed to submit");
+      
+      if (!res.ok) {
+        const errorData = await res.json().catch(() => ({}));
+        throw new Error(errorData.error || "Failed to submit");
+      }
       return res.json();
     },
-    onSuccess: () => challengeQuery.refetch()
+    onSuccess: (data) => {
+      setEvaluationResult({
+        is_correct: data.is_correct,
+        normalized_call: data.normalized_call,
+        explanation: data.explanation,
+        rule_reference: data.rule_reference,
+        score: data.score
+      });
+      setEvaluationError(null);
+      if (timeLeft !== null) {
+        setTimeTaken(6 - timeLeft);
+      }
+      // Refresh leaderboard after successful submission
+      challengeQuery.refetch();
+    },
+    onError: (error: Error) => {
+      setEvaluationError(error.message);
+    }
   });
 
   const video = challengeQuery.data?.video;
@@ -127,6 +190,26 @@ export default function ChallengePage() {
                 
                 {video ? (
                   <div className="space-y-4">
+                    {/* Timer */}
+                    {timeLeft !== null && !evaluationResult && (
+                      <div className="flex items-center justify-between">
+                        <span className="text-xs font-semibold uppercase tracking-wider text-muted">
+                          Time to decide
+                        </span>
+                        <motion.div
+                          animate={timeLeft <= 2 ? { scale: [1, 1.1, 1] } : {}}
+                          transition={{ duration: 0.5, repeat: timeLeft <= 2 ? Infinity : 0 }}
+                          className={`flex items-center gap-2 px-4 py-2 rounded-full font-bold ${
+                            timeLeft <= 2
+                              ? "bg-red-100 text-red-600"
+                              : "bg-surface text-primary"
+                          }`}
+                        >
+                          <Timer size={18} />
+                          {timeLeft}s
+                        </motion.div>
+                      </div>
+                    )}
                     <div className="relative rounded-xl overflow-hidden bg-black aspect-video">
                       <video
                         src={video.video_url}
@@ -139,7 +222,7 @@ export default function ChallengePage() {
                         </span>
                       </div>
                     </div>
-                    {video.rule_reference && (
+                    {video.rule_reference && !evaluationResult && (
                       <p className="text-sm text-muted">
                         📖 Rule: {video.rule_reference}
                       </p>
@@ -173,56 +256,133 @@ export default function ChallengePage() {
                       Your Submission
                     </p>
                     <h3 className="text-lg font-display font-bold text-primary">
-                      Submit Score
+                      {evaluationResult ? "Your Result" : "Submit Ruling"}
                     </h3>
                   </div>
                 </div>
                 
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-muted mb-2">
-                      User ID (Optional)
-                    </label>
-                    <input
-                      value={userId}
-                      onChange={(e) => setUserId(e.target.value)}
-                      placeholder="Your name"
-                      className="w-full px-4 py-3 rounded-xl bg-surface border border-border text-ink placeholder:text-muted focus:outline-none focus:ring-2 focus:ring-accent/30"
-                    />
+                {!evaluationResult ? (
+                  <>
+                    <div className="space-y-4">
+                      <div>
+                        <label className="block text-sm font-medium text-muted mb-2">
+                          User ID (Optional)
+                        </label>
+                        <input
+                          value={userId}
+                          onChange={(e) => setUserId(e.target.value)}
+                          placeholder="Your name"
+                          className="w-full px-4 py-3 rounded-xl bg-surface border border-border text-ink placeholder:text-muted focus:outline-none focus:ring-2 focus:ring-accent/30"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-muted mb-2">
+                          Your Ruling <span className="text-red-500">*</span>
+                        </label>
+                        <input
+                          value={userAnswer}
+                          onChange={(e) => setUserAnswer(e.target.value)}
+                          placeholder="e.g., Fault: Net touch on blocker"
+                          className="w-full px-4 py-3 rounded-xl bg-surface border border-border text-ink placeholder:text-muted focus:outline-none focus:ring-2 focus:ring-accent/30"
+                        />
+                      </div>
+                    </div>
+                    
+                    {evaluationError && (
+                      <div className="mt-4 p-3 rounded-xl bg-red-100 border border-red-200">
+                        <p className="text-sm text-red-700">{evaluationError}</p>
+                      </div>
+                    )}
+                    
+                    <motion.button
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                      onClick={() => submitMutation.mutate()}
+                      disabled={submitMutation.isPending || !video || !userAnswer.trim()}
+                      className="pill text-white w-full justify-center mt-4 disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      {submitMutation.isPending ? (
+                        <>
+                          <Loader2 size={18} className="animate-spin" />
+                          Evaluating...
+                        </>
+                      ) : (
+                        <>
+                          <Send size={18} />
+                          Submit Ruling
+                        </>
+                      )}
+                    </motion.button>
+                  </>
+                ) : (
+                  <div className="space-y-4">
+                    {/* Result Banner */}
+                    <div className={`p-4 rounded-xl ${
+                      evaluationResult.is_correct
+                        ? "bg-green-100 border border-green-200"
+                        : "bg-red-100 border border-red-200"
+                    }`}>
+                      <div className="flex items-center gap-3">
+                        {evaluationResult.is_correct ? (
+                          <CheckCircle2 className="text-green-600" size={24} />
+                        ) : (
+                          <XCircle className="text-red-600" size={24} />
+                        )}
+                        <div>
+                          <span className={`font-bold text-lg ${
+                            evaluationResult.is_correct ? "text-green-700" : "text-red-700"
+                          }`}>
+                            {evaluationResult.is_correct ? "Correct Decision!" : "Incorrect Decision"}
+                          </span>
+                          <p className="text-sm font-bold text-primary mt-1">
+                            Score: {evaluationResult.score} points
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Explanation */}
+                    <div className="p-4 rounded-xl bg-surface border border-border space-y-3">
+                      {evaluationResult.normalized_call && 
+                       evaluationResult.normalized_call.toLowerCase() !== userAnswer.trim().toLowerCase() && (
+                        <div>
+                          <p className="text-xs font-semibold uppercase tracking-wider text-muted mb-1">
+                            Your Call (Normalized)
+                          </p>
+                          <p className="text-ink">{evaluationResult.normalized_call}</p>
+                        </div>
+                      )}
+                      <div>
+                        <p className="text-xs font-semibold uppercase tracking-wider text-muted mb-1">
+                          Explanation
+                        </p>
+                        <p className="text-ink">{evaluationResult.explanation}</p>
+                      </div>
+                      {evaluationResult.rule_reference && (
+                        <p className="text-sm text-accent font-medium">
+                          📖 Rule: {evaluationResult.rule_reference}
+                        </p>
+                      )}
+                    </div>
+
+                    {/* Reset Button */}
+                    <motion.button
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                      onClick={() => {
+                        setEvaluationResult(null);
+                        setUserAnswer("");
+                        setTimeLeft(6);
+                        setTimeTaken(null);
+                        setEvaluationError(null);
+                      }}
+                      className="pill text-white w-full justify-center"
+                    >
+                      <RefreshCcw size={18} />
+                      Try Again
+                    </motion.button>
                   </div>
-                  <div>
-                    <label className="block text-sm font-medium text-muted mb-2">
-                      Score
-                    </label>
-                    <input
-                      type="number"
-                      value={score}
-                      onChange={(e) => setScore(Number(e.target.value))}
-                      placeholder="0"
-                      className="w-full px-4 py-3 rounded-xl bg-surface border border-border text-ink placeholder:text-muted focus:outline-none focus:ring-2 focus:ring-accent/30"
-                    />
-                  </div>
-                </div>
-                
-                <motion.button
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                  onClick={() => submitMutation.mutate()}
-                  disabled={submitMutation.isPending || !video}
-                  className="pill text-white w-full justify-center mt-4 disabled:opacity-50"
-                >
-                  {submitMutation.isPending ? (
-                    <>
-                      <Loader2 size={18} className="animate-spin" />
-                      Submitting...
-                    </>
-                  ) : (
-                    <>
-                      <Send size={18} />
-                      Submit Score
-                    </>
-                  )}
-                </motion.button>
+                )}
               </motion.div>
             </div>
 

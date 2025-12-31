@@ -30,12 +30,24 @@ export default function PracticePage() {
   const [call, setCall] = useState("");
   const [result, setResult] = useState<string | null>(null);
   const [timeLeft, setTimeLeft] = useState<number | null>(null);
+  const [evaluationResult, setEvaluationResult] = useState<{
+    is_correct: boolean;
+    normalized_call: string;
+    explanation: string;
+    rule_reference: string;
+  } | null>(null);
+  const [evaluationError, setEvaluationError] = useState<string | null>(null);
 
   const clipQuery = useQuery({
     queryKey: ["practice", difficulty],
     queryFn: async () => {
       const res = await fetch(`/api/practice?difficulty=${difficulty}`);
-      if (!res.ok) throw new Error("Failed to load practice clip");
+      if (!res.ok) {
+        if (res.status === 404) {
+          throw new Error("NO_VIDEOS");
+        }
+        throw new Error("Failed to load practice clip");
+      }
       return res.json();
     },
   });
@@ -46,6 +58,8 @@ export default function PracticePage() {
       setResult(null);
       setCall("");
       setTimeLeft(clipQuery.data.duration_seconds);
+      setEvaluationResult(null);
+      setEvaluationError(null);
     }
   }, [clipQuery.data]);
 
@@ -72,18 +86,34 @@ export default function PracticePage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload)
       });
-      if (!res.ok) throw new Error("Failed to save attempt");
+      if (!res.ok) {
+        const errorData = await res.json().catch(() => ({}));
+        throw new Error(errorData.error || "Failed to evaluate ruling");
+      }
       return res.json();
+    },
+    onSuccess: (data) => {
+      setResult(data.is_correct ? "correct" : "incorrect");
+      setEvaluationResult({
+        is_correct: data.is_correct,
+        normalized_call: data.normalized_call,
+        explanation: data.explanation,
+        rule_reference: data.rule_reference
+      });
+      setEvaluationError(null);
+    },
+    onError: (error: Error) => {
+      setEvaluationError(error.message);
+      setResult("error");
     }
   });
 
   const checkCall = () => {
-    if (!clip) return;
-    const correct = call.trim().toLowerCase() === clip.correct_call.trim().toLowerCase();
-    setResult(correct ? "correct" : "incorrect");
+    if (!clip || !call.trim()) return;
+    setEvaluationError(null);
     attemptMutation.mutate({
       video_id: clip.video_id,
-      correct,
+      userAnswer: call.trim(),
       time_taken: clip.duration_seconds - (timeLeft || 0)
     });
   };
@@ -254,11 +284,25 @@ export default function PracticePage() {
                       whileHover={{ scale: 1.02 }}
                       whileTap={{ scale: 0.98 }}
                       onClick={checkCall}
-                      disabled={!call.trim()}
+                      disabled={!call.trim() || attemptMutation.isPending}
                       className="pill text-white w-full justify-center disabled:opacity-50 disabled:cursor-not-allowed"
                     >
-                      Submit Call
-                      <ArrowRight size={18} />
+                      {attemptMutation.isPending ? (
+                        <>
+                          <motion.span
+                            animate={{ rotate: 360 }}
+                            transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                          >
+                            <Zap size={18} />
+                          </motion.span>
+                          Evaluating...
+                        </>
+                      ) : (
+                        <>
+                          Submit Call
+                          <ArrowRight size={18} />
+                        </>
+                      )}
                     </motion.button>
                   </div>
                 )}
@@ -271,46 +315,73 @@ export default function PracticePage() {
                       animate={{ opacity: 1, y: 0 }}
                       className="space-y-4"
                     >
-                      {/* Result Banner */}
-                      <div className={`p-4 rounded-xl ${
-                        result === "correct"
-                          ? "bg-green-100 border border-green-200"
-                          : "bg-red-100 border border-red-200"
-                      }`}>
-                        <div className="flex items-center gap-3">
-                          {result === "correct" ? (
-                            <CheckCircle2 className="text-green-600" size={24} />
-                          ) : (
+                      {/* Error State */}
+                      {result === "error" && evaluationError && (
+                        <div className="p-4 rounded-xl bg-red-100 border border-red-200">
+                          <div className="flex items-center gap-3">
                             <XCircle className="text-red-600" size={24} />
-                          )}
-                          <span className={`font-bold text-lg ${
-                            result === "correct" ? "text-green-700" : "text-red-700"
-                          }`}>
-                            {result === "correct" ? "Correct Decision!" : "Incorrect Decision"}
-                          </span>
+                            <div>
+                              <p className="font-bold text-lg text-red-700">Evaluation Error</p>
+                              <p className="text-sm text-red-600 mt-1">{evaluationError}</p>
+                            </div>
+                          </div>
                         </div>
-                      </div>
+                      )}
 
-                      {/* Correct Call & Explanation */}
-                      <div className="p-4 rounded-xl bg-surface border border-border space-y-3">
-                        <div>
-                          <p className="text-xs font-semibold uppercase tracking-wider text-muted mb-1">
-                            Correct Call
-                          </p>
-                          <p className="text-ink font-semibold">{clip.correct_call}</p>
-                        </div>
-                        <div>
-                          <p className="text-xs font-semibold uppercase tracking-wider text-muted mb-1">
-                            Explanation
-                          </p>
-                          <p className="text-ink">{clip.explanation}</p>
-                        </div>
-                        {clip.rule_reference && (
-                          <p className="text-sm text-accent font-medium">
-                            📖 Rule: {clip.rule_reference}
-                          </p>
-                        )}
-                      </div>
+                      {/* Success Result */}
+                      {result !== "error" && evaluationResult && (
+                        <>
+                          {/* Result Banner */}
+                          <div className={`p-4 rounded-xl ${
+                            evaluationResult.is_correct
+                              ? "bg-green-100 border border-green-200"
+                              : "bg-red-100 border border-red-200"
+                          }`}>
+                            <div className="flex items-center gap-3">
+                              {evaluationResult.is_correct ? (
+                                <CheckCircle2 className="text-green-600" size={24} />
+                              ) : (
+                                <XCircle className="text-red-600" size={24} />
+                              )}
+                              <span className={`font-bold text-lg ${
+                                evaluationResult.is_correct ? "text-green-700" : "text-red-700"
+                              }`}>
+                                {evaluationResult.is_correct ? "Correct Decision!" : "Incorrect Decision"}
+                              </span>
+                            </div>
+                          </div>
+
+                          {/* Correct Call & Explanation */}
+                          <div className="p-4 rounded-xl bg-surface border border-border space-y-3">
+                            <div>
+                              <p className="text-xs font-semibold uppercase tracking-wider text-muted mb-1">
+                                Correct Call
+                              </p>
+                              <p className="text-ink font-semibold">{clip.correct_call}</p>
+                            </div>
+                            {evaluationResult.normalized_call && 
+                             evaluationResult.normalized_call.toLowerCase() !== call.trim().toLowerCase() && (
+                              <div>
+                                <p className="text-xs font-semibold uppercase tracking-wider text-muted mb-1">
+                                  Your Call (Normalized)
+                                </p>
+                                <p className="text-ink">{evaluationResult.normalized_call}</p>
+                              </div>
+                            )}
+                            <div>
+                              <p className="text-xs font-semibold uppercase tracking-wider text-muted mb-1">
+                                Explanation
+                              </p>
+                              <p className="text-ink">{evaluationResult.explanation}</p>
+                            </div>
+                            {evaluationResult.rule_reference && (
+                              <p className="text-sm text-accent font-medium">
+                                📖 Rule: {evaluationResult.rule_reference}
+                              </p>
+                            )}
+                          </div>
+                        </>
+                      )}
 
                       {/* Next Clip Button */}
                       <motion.button
@@ -325,6 +396,51 @@ export default function PracticePage() {
                     </motion.div>
                   )}
                 </AnimatePresence>
+              </motion.div>
+            ) : clipQuery.error?.message === "NO_VIDEOS" ? (
+              <motion.div
+                variants={fadeInUp}
+                initial="hidden"
+                animate="visible"
+                className="card text-center py-16"
+              >
+                <motion.div
+                  animate={{ 
+                    scale: [1, 1.1, 1],
+                  }}
+                  transition={{ 
+                    duration: 2,
+                    repeat: Infinity,
+                    repeatType: "reverse"
+                  }}
+                  className="inline-flex items-center justify-center w-20 h-20 rounded-2xl bg-green-100 text-green-600 mb-6"
+                >
+                  <CheckCircle2 size={40} />
+                </motion.div>
+                <h3 className="text-xl font-display font-bold text-primary mb-2">
+                  🎉 You&apos;ve Finished All Practice Clips!
+                </h3>
+                <p className="text-muted mb-4">
+                  Great job completing all the {difficulty} difficulty practice clips. 
+                  Try a different difficulty level or check back later for new content.
+                </p>
+                <div className="flex flex-wrap gap-3 justify-center">
+                  {difficulties.map((d) => (
+                    <motion.button
+                      key={d}
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.98 }}
+                      onClick={() => setDifficulty(d)}
+                      className={`px-4 py-2 rounded-full text-sm font-semibold capitalize transition-all ${
+                        difficulty === d
+                          ? `${difficultyColors[d]} text-white shadow-lg`
+                          : "bg-white border border-border text-ink hover:border-accent/40"
+                      }`}
+                    >
+                      {d}
+                    </motion.button>
+                  ))}
+                </div>
               </motion.div>
             ) : (
               <motion.div
@@ -356,10 +472,25 @@ export default function PracticePage() {
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.98 }}
                   onClick={() => clipQuery.refetch()}
-                  className="pill text-white"
+                  disabled={clipQuery.isLoading}
+                  className="pill text-white disabled:opacity-50"
                 >
-                  <Play size={18} />
-                  Load Clip
+                  {clipQuery.isLoading ? (
+                    <>
+                      <motion.span
+                        animate={{ rotate: 360 }}
+                        transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                      >
+                        <Zap size={18} />
+                      </motion.span>
+                      Loading...
+                    </>
+                  ) : (
+                    <>
+                      <Play size={18} />
+                      Load Clip
+                    </>
+                  )}
                 </motion.button>
               </motion.div>
             )}
