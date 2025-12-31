@@ -29,6 +29,10 @@ export default function QuizPage() {
   const [selected, setSelected] = useState<string | null>(null);
   const [result, setResult] = useState<"correct" | "incorrect" | null>(null);
   const [recommendation, setRecommendation] = useState<string | null>(null);
+  // Store questions by difficulty to restore when switching back
+  const [questionsByDifficulty, setQuestionsByDifficulty] = useState<Record<string, Question>>({});
+  // Track which difficulty the current question belongs to
+  const [currentQuestionDifficulty, setCurrentQuestionDifficulty] = useState<string | null>(null);
 
   const generateMutation = useMutation({
     mutationFn: async (diff: string) => {
@@ -40,12 +44,37 @@ export default function QuizPage() {
       if (!res.ok) throw new Error("Failed to generate question");
       return res.json();
     },
-    onSuccess: (data) => {
+    onSuccess: (data, diff) => {
       setCurrent(data);
+      setCurrentQuestionDifficulty(diff);
+      // Store the question for this difficulty
+      setQuestionsByDifficulty(prev => ({ ...prev, [diff]: data }));
       setSelected(null);
       setResult(null);
     }
   });
+
+  // Handle difficulty change: restore question if exists, otherwise clear
+  const handleDifficultyChange = (newDifficulty: (typeof difficulties)[number]) => {
+    setDifficulty(newDifficulty);
+    
+    // If there's a question stored for this difficulty, restore it
+    if (questionsByDifficulty[newDifficulty]) {
+      setCurrent(questionsByDifficulty[newDifficulty]);
+      setCurrentQuestionDifficulty(newDifficulty);
+      // Reset answer state when restoring
+      setSelected(null);
+      setResult(null);
+      setRecommendation(null);
+    } else {
+      // No question for this difficulty, clear the display
+      setCurrent(null);
+      setCurrentQuestionDifficulty(null);
+      setSelected(null);
+      setResult(null);
+      setRecommendation(null);
+    }
+  };
 
   const saveAttempt = useMutation({
     mutationFn: async (payload: object) => {
@@ -123,7 +152,7 @@ export default function QuizPage() {
                 variants={staggerItem}
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.98 }}
-                onClick={() => setDifficulty(d)}
+                onClick={() => handleDifficultyChange(d)}
                 className={`px-5 py-2.5 rounded-full text-sm font-semibold capitalize transition-all ${
                   difficulty === d
                     ? `${difficultyColors[d]} text-white shadow-lg`
@@ -198,9 +227,9 @@ export default function QuizPage() {
                 {/* Question */}
                 <div>
                   <div className="flex items-center gap-2 mb-3">
-                    <span className={`w-2 h-2 rounded-full ${difficultyColors[difficulty]}`} />
+                    <span className={`w-2 h-2 rounded-full ${difficultyColors[(currentQuestionDifficulty as typeof difficulties[number]) || difficulty]}`} />
                     <span className="text-xs font-semibold uppercase tracking-wider text-muted">
-                      {difficulty} Question
+                      {(currentQuestionDifficulty || difficulty)} Question
                     </span>
                   </div>
                   <h2 className="text-xl md:text-2xl font-display font-bold text-primary">
