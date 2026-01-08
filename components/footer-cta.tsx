@@ -20,9 +20,7 @@ const footerLinks = [
   {
     title: "Resources",
     links: [
-      { label: "Rulebook", href: "#" },
-      { label: "Signals Guide", href: "#" },
-      { label: "FAQ", href: "#" },
+      { label: "Rulebook", href: "/rulebook" },
     ],
   },
 ];
@@ -120,29 +118,6 @@ export function FooterCta() {
                 </ul>
               </motion.div>
             ))}
-            
-            {/* Newsletter */}
-            <motion.div variants={staggerItem}>
-              <p className="text-white font-semibold mb-4">Stay Updated</p>
-              <p className="text-white/60 text-sm mb-4">
-                Get weekly training tips and new features.
-              </p>
-              <form className="flex gap-2" onSubmit={(e) => e.preventDefault()}>
-                <input
-                  type="email"
-                  placeholder="your@email.com"
-                  className="flex-1 px-4 py-2 rounded-lg bg-white/10 border border-white/10 text-white placeholder:text-white/40 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50"
-                />
-                <motion.button
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.98 }}
-                  type="submit"
-                  className="px-4 py-2 rounded-lg bg-primary text-white font-medium text-sm"
-                >
-                  Join
-                </motion.button>
-              </form>
-            </motion.div>
           </motion.div>
           
           {/* Bottom Bar */}
@@ -155,10 +130,10 @@ export function FooterCta() {
           >
             <p>© {new Date().getFullYear()} Volley Ref Lab. All rights reserved.</p>
             <div className="flex items-center gap-6">
-              <Link href="#" className="hover:text-white transition-colors">
+              <Link href="/privacy" className="hover:text-white transition-colors">
                 Privacy
               </Link>
-              <Link href="#" className="hover:text-white transition-colors">
+              <Link href="/terms" className="hover:text-white transition-colors">
                 Terms
               </Link>
             </div>
