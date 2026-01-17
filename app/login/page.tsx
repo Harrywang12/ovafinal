@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useMemo, useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
@@ -330,11 +331,14 @@ export default function LoginPage() {
         className="hidden lg:flex lg:w-1/2 relative"
       >
         <div className="absolute inset-0">
-          <img
-            src={heroImage}
-            alt="Volleyball action"
-            className="w-full h-full object-cover"
-          />
+            <Image
+              src={heroImage}
+              alt="Volleyball action"
+              fill
+              priority
+              sizes="(min-width: 1024px) 50vw, 100vw"
+              className="object-cover"
+            />
           <div className="absolute inset-0 bg-gradient-to-r from-primary/90 via-primary/70 to-transparent" />
         </div>
 

@@ -72,10 +72,8 @@ export function Navbar() {
                     whileHover={{ scale: 1.05 }}
                     className={`relative px-4 py-2 rounded-full text-sm font-medium transition-colors ${
                       isActive
-                        ? "text-primary"
-                        : scrolled || !isHome
-                          ? "text-ink/70 hover:text-ink"
-                          : "text-ink/70 hover:text-ink"
+                        ? "text-ink"
+                        : "text-ink hover:text-ink"
                     }`}
                   >
                     {link.label}
@@ -111,8 +109,8 @@ export function Navbar() {
                   onClick={handleLogout}
                   className={`text-sm font-medium px-4 py-2 rounded-full transition-colors ${
                     scrolled || !isHome
-                      ? "text-muted hover:text-ink hover:bg-ink/5"
-                      : "text-muted hover:text-ink hover:bg-white/20"
+                      ? "text-ink hover:bg-ink/5"
+                      : "text-ink hover:bg-white/20"
                   }`}
                 >
                   Sign out

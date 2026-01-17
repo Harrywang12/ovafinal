@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight, Play, ChevronDown, Zap, Target, Trophy, BookOpen } from "lucide-react";
 import { motion, useScroll, useTransform } from "framer-motion";
@@ -136,10 +137,13 @@ export default function HomePage() {
           style={{ y: heroY, scale: heroScale }}
         >
           <div className="absolute inset-0 bg-gradient-to-b from-surface/30 via-surface/60 to-surface z-10" />
-          <img
+          <Image
             src={images.hero}
             alt="Volleyball action"
-            className="w-full h-full object-cover"
+            fill
+            priority
+            sizes="100vw"
+            className="object-cover"
           />
         </motion.div>
         
@@ -181,7 +185,7 @@ export default function HomePage() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.9 }}
-            className="text-lg md:text-xl text-muted max-w-2xl mx-auto mb-10"
+            className="text-lg md:text-xl text-secondary max-w-2xl mx-auto mb-10"
           >
             Train like the pros. Adaptive quizzes, real game footage, and rulebook-grounded 
             explanations—all in one powerful platform.
@@ -238,10 +242,12 @@ export default function HomePage() {
               className="col-span-12 md:col-span-7 relative"
             >
               <div className="relative rounded-3xl overflow-hidden shadow-2xl aspect-[4/3]">
-                <img
+                <Image
                   src={images.action}
                   alt="Volleyball spike"
-                  className="w-full h-full object-cover"
+                  fill
+                  sizes="(min-width: 768px) 58vw, 100vw"
+                  className="object-cover"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-primary/60 via-transparent to-transparent" />
                 <div className="absolute bottom-6 left-6 right-6">
@@ -259,10 +265,12 @@ export default function HomePage() {
                 variants={fadeInRight}
                 className="relative rounded-2xl overflow-hidden shadow-xl aspect-[3/2]"
               >
-                <img
+                <Image
                   src={images.court}
                   alt="Volleyball court"
-                  className="w-full h-full object-cover"
+                  fill
+                  sizes="(min-width: 768px) 42vw, 100vw"
+                  className="object-cover"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-primary/40 to-transparent" />
                 <div className="absolute bottom-4 left-4">
@@ -274,10 +282,12 @@ export default function HomePage() {
                 variants={fadeInRight}
                 className="relative rounded-2xl overflow-hidden shadow-xl aspect-[3/2]"
               >
-                <img
+                <Image
                   src={images.team}
                   alt="Volleyball team"
-                  className="w-full h-full object-cover"
+                  fill
+                  sizes="(min-width: 768px) 42vw, 100vw"
+                  className="object-cover"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-primary/40 to-transparent" />
                 <div className="absolute bottom-4 left-4">
@@ -364,10 +374,12 @@ export default function HomePage() {
                       whileHover={{ scale: 1.02 }}
                       className="relative rounded-2xl overflow-hidden shadow-xl aspect-video"
                     >
-                      <img
+                      <Image
                         src={step.image}
                         alt={step.title}
-                        className="w-full h-full object-cover"
+                        fill
+                        sizes="(min-width: 768px) 50vw, 100vw"
+                        className="object-cover"
                       />
                       <div className="absolute inset-0 bg-gradient-to-t from-primary/50 to-transparent" />
                       <div className="absolute top-4 left-4">
@@ -473,10 +485,12 @@ export default function HomePage() {
       <section className="relative py-32 overflow-hidden">
         {/* Background Image */}
         <div className="absolute inset-0 z-0">
-          <img
+          <Image
             src={images.celebrate}
             alt="Volleyball celebration"
-            className="w-full h-full object-cover"
+            fill
+            sizes="100vw"
+            className="object-cover"
           />
           <div className="absolute inset-0 bg-primary/85" />
         </div>
