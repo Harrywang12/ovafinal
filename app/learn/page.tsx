@@ -4,7 +4,7 @@ import { motion } from "framer-motion";
 import Link from "next/link";
 import { 
   BookOpen, Clock, ChevronRight, GraduationCap, Target, Zap,
-  Layout, Users, Trophy, Activity, Timer, Shield, Scale, Radio
+  Layout, Users, Trophy, Activity, Timer, Shield, Scale, Radio, ClipboardList
 } from "lucide-react";
 import { AuthGuard } from "../../components/auth-guard";
 import { getAllModules } from "../../lib/module-content";
@@ -19,7 +19,8 @@ const moduleIcons: Record<string, React.ReactNode> = {
   interruptions: <Timer size={24} />,
   libero: <Shield size={24} />,
   conduct: <Scale size={24} />,
-  referees: <Radio size={24} />
+  referees: <Radio size={24} />,
+  scorekeeping: <ClipboardList size={24} />
 };
 
 export default function LearnPage() {
@@ -131,7 +132,7 @@ export default function LearnPage() {
             >
               <p className="section-tag mb-3">Complete Curriculum</p>
               <h2 className="text-3xl md:text-4xl font-display font-bold text-primary">
-                8 Chapters • 25 Lessons • Rules 1-32
+                9 Chapters • 32 Lessons • Rules 1-32 + Scorekeeping
               </h2>
             </motion.div>
             
@@ -318,8 +319,8 @@ export default function LearnPage() {
               className="grid grid-cols-2 md:grid-cols-4 gap-4"
             >
               {[
-                { value: "8", label: "Chapters" },
-                { value: "25", label: "Lessons" },
+                { value: "9", label: "Chapters" },
+                { value: "32", label: "Lessons" },
                 { value: "32", label: "Official Rules" },
                 { value: "25+", label: "Hand Signals" }
               ].map((stat, idx) => (

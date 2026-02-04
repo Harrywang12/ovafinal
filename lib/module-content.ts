@@ -669,6 +669,7 @@ export const moduleContent: Record<string, Module> = {
     heroImage: "https://images.unsplash.com/photo-1578763363228-6e8428de69b2?w=1200&q=80",
     estimatedTime: "20 min",
     ruleRange: "Rules 22-32",
+    nextModule: "scorekeeping",
     lessons: [
       {
         id: "refereeing-corps",
@@ -755,6 +756,169 @@ export const moduleContent: Record<string, Module> = {
         ruleRef: "Rules 30.1-30.2",
         diagram: "hand-signals",
         image: "https://images.unsplash.com/photo-1578763363228-6e8428de69b2?w=800&q=80"
+      }
+    ]
+  },
+  scorekeeping: {
+    id: "scorekeeping",
+    chapter: 9,
+    title: "Scorekeeping",
+    description: "Learn how to complete the official volleyball score sheet, record points, substitutions, timeouts, and sanctions.",
+    icon: "📋",
+    color: "#0ea5e9",
+    colorClass: "bg-sky-500",
+    heroImage: "https://images.unsplash.com/photo-1606925797300-0b35e9d1794e?w=1200&q=80",
+    estimatedTime: "20 min",
+    ruleRange: "Score Sheet",
+    lessons: [
+      {
+        id: "before-match",
+        title: "Before the Match",
+        subtitle: "Setting up the score sheet correctly",
+        content: [
+          "The scorer must check that all identifying information for the match has been properly filled in. This includes the name of the competition, city, country code, date, time, gymnasium name, and division.",
+          "Record the round to be played (Elimination, Play-Off, or Final), match number, division (Men/Women), and category (Masters, Senior, Junior, or age group). Teams are listed according to the programme order.",
+          "In the lower right-hand part of the form, record team names, player numbers and names (with a circle around the team captain's number), and the Libero player on the special line marked 'L'.",
+          "Record the Head Coach name and registration number, Assistant Coach, Trainer, and Medical Doctor for each team. Obtain signatures from both team captains and coaches after they verify the information.",
+          "In the 'APPROVAL' section, print the names and countries of the 1st Referee, 2nd Referee, Scorer, Assistant Scorer, and Line Judges."
+        ],
+        keyPoints: [
+          "Verify all match information is complete",
+          "Circle the captain's number on roster",
+          "Libero recorded on special 'L' line",
+          "Get captain and coach signatures",
+          "Record all officials in APPROVAL section"
+        ],
+        ruleRef: "Score Sheet Sections 1.1-1.20",
+        diagram: "court-layout"
+      },
+      {
+        id: "after-toss",
+        title: "After the Toss",
+        subtitle: "Recording toss results and starting lineups",
+        content: [
+          "From the 1st Referee, obtain which side of the court each team begins on and which team serves first. From the 2nd Referee, obtain the line-up sheet for the 1st set with player positions I-VI and the Libero number.",
+          "In the 'Set 1' square, record the team codes 'A' and 'B' in boxes corresponding to their sides (team 'A' on scorer's left, 'B' on right). Mark 'S' for the serving team and 'R' for the receiving team.",
+          "For Set 2, the teams switch sides, so record team 'A' on the right and team 'B' on the left. The team that received first in Set 1 now serves first in Set 2.",
+          "Record starting player numbers under Roman numerals I to VI on the 'STARTING PLAYERS' line, following the order from the line-up sheet obtained from the 2nd referee.",
+          "The same pattern alternates for subsequent sets: Set 3 follows Set 1's arrangement, Set 4 follows Set 2's arrangement."
+        ],
+        keyPoints: [
+          "Team 'A' = scorer's left, 'B' = scorer's right",
+          "Mark 'S' for serving team, 'R' for receiving",
+          "Teams switch sides each set",
+          "Service alternates each set",
+          "Record positions I-VI from line-up sheet"
+        ],
+        ruleRef: "Score Sheet Sections 2.1-2.4",
+        diagram: "court-layout"
+      },
+      {
+        id: "recording-points",
+        title: "Recording Points & Service",
+        subtitle: "Tracking the score during the match",
+        content: [
+          "At match start, record the time in the 'START time' box. The 'POINTS' column (numbered 1-48) is used to record points by slashing (/) each number as points are scored.",
+          "When a team serves, tick (✓) the service box number in that player's column. When they lose service, record the total points scored during that service in the same box.",
+          "Example: If Team A's player #8 serves first and wins 4 points before losing service, slash numbers 1-4 in the POINTS column, then write '4' in box 1 of player #8's column.",
+          "When service changes to the other team, mark an X in their column I (they must rotate), then tick the box in column II for the new server. Continue this pattern throughout the set.",
+          "At set end, record the time in 'END time', circle the final point in the last server's box, and cancel any unused numbers in the POINTS column."
+        ],
+        keyPoints: [
+          "Slash (/) points as they're scored",
+          "Tick (✓) service box when player serves",
+          "Write total points when service lost",
+          "X marks rotation before new server",
+          "Circle (O) final point at set end"
+        ],
+        ruleRef: "Score Sheet Sections 3.1-3.4",
+        diagram: "court-layout"
+      },
+      {
+        id: "deciding-set",
+        title: "The Deciding Set",
+        subtitle: "Special procedures for Set 5",
+        content: [
+          "In the deciding set (5th set), after the toss, record team letters 'A' or 'B' in the blank circles, placing the team on the scorer's left in the left section.",
+          "Follow the same procedure as Set 1 using the first two sections of the 'SET 5' square until the 8th point is scored.",
+          "When either team reaches 8 points, teams change courts. The scorer continues recording in the third (far right) section for the team originally in the left section.",
+          "Record the points at the moment of change in the 'POINTS AT CHANGE' box. Continue marking points in the far right 'POINTS' column after the court change.",
+          "The deciding set is played to 15 points (not 25), but still requires a 2-point lead. If tied at 14-14, play continues until one team leads by 2."
+        ],
+        keyPoints: [
+          "Court change at 8 points",
+          "Record 'POINTS AT CHANGE' in box",
+          "Continue in third section after change",
+          "Played to 15 points (not 25)",
+          "Still requires 2-point lead"
+        ],
+        ruleRef: "Score Sheet Section 3.5",
+        diagram: "court-layout"
+      },
+      {
+        id: "substitutions-timeouts",
+        title: "Substitutions & Timeouts",
+        subtitle: "Recording player changes and breaks",
+        content: [
+          "For substitutions, write the substitute's number in the box below the player leaving the court. In the 'SUBSTITUTES SCORE' box above, record both teams' scores at that moment (substituting team's score first).",
+          "When the original player returns, verify their number matches the one above the substitute. Circle the substitute's number to show they cannot re-enter. Record the score in the lower 'SUBSTITUTES SCORE' box.",
+          "Each team gets TWO timeouts per set. Record timeouts in the boxes marked 'T' below the POINTS column. Write both teams' scores (requesting team's score first).",
+          "Example: Team B's first timeout at score 7:12 would show '7:12' in the upper T box. Their second timeout at 21:23 would show '21:23' in the lower T box.",
+          "Exceptional substitutions for injured players or Libero replacements must be noted in the 'REMARKS' section with set number, team name, player numbers/names, and score."
+        ],
+        keyPoints: [
+          "Substitute number goes BELOW departing player",
+          "Record score at each substitution",
+          "Circle player who cannot re-enter",
+          "Two timeout boxes per team per set",
+          "Note exceptional subs in REMARKS"
+        ],
+        ruleRef: "Score Sheet Sections 3.6-3.7",
+        diagram: "court-layout"
+      },
+      {
+        id: "sanctions-recording",
+        title: "Recording Sanctions",
+        subtitle: "Documenting warnings, penalties, and expulsions",
+        content: [
+          "All misconduct sanctions are recorded in the lower left square of the score sheet. Mark the player number or official's initial (C=Coach, AC=Assistant Coach, T=Trainer, Med=Medical).",
+          "Use column letters: 'W' for Warning, 'P' for Penalty, 'E' for Expulsion, 'D' for Disqualification. Also record 'A' or 'B' for the team, set number, and score at the sanction.",
+          "Points scored due to opponent misconduct penalties must be circled (O) in the POINTS column to distinguish them from regular points.",
+          "Delay sanctions use 'D' in the first column, then 'W' for delay warning or 'P' for delay penalty. Delay penalties result in loss of rally - record and circle the point.",
+          "All sanctions remain in effect for the entire match once issued. First warning carries forward; subsequent misconduct by same team member escalates the sanction."
+        ],
+        keyPoints: [
+          "W=Warning, P=Penalty, E=Expulsion, D=Disqualification",
+          "Circle penalty points in POINTS column",
+          "Record player number or official initial",
+          "Include set number and score",
+          "Sanctions carry forward through match"
+        ],
+        ruleRef: "Score Sheet Section 3.8",
+        diagram: "sanction-cards",
+        image: "https://images.unsplash.com/photo-1552674605-db6ffd4facb5?w=800&q=80"
+      },
+      {
+        id: "after-match",
+        title: "After the Match",
+        subtitle: "Completing the RESULTS section",
+        content: [
+          "In the RESULTS square, record team 'A' on the left and team 'B' on the right. For each set, record the duration in brackets and mark 'W' for the winning team.",
+          "Record the points scored by each team in each set, and calculate totals. Also total the substitutions (S) and timeouts (T) used by each team across all sets.",
+          "Calculate and record: Total Set Duration (sum of all set times), Match Starting Time, Match Ending Time, and Total Match Duration.",
+          "Record the winning team's name and the final set score (e.g., '3:1'). Any protests must be recorded in the REMARKS section, dictated or written by the team captain.",
+          "Obtain signatures in order: Assistant Scorer and/or Scorer, both Team Captains, 2nd Referee, then 1st Referee. This completes the official match record."
+        ],
+        keyPoints: [
+          "Record set duration in brackets",
+          "Mark 'W' for set winner",
+          "Total all points, subs, and timeouts",
+          "Calculate total match duration",
+          "Get all signatures in correct order"
+        ],
+        ruleRef: "Score Sheet Section 4.1-4.10",
+        vcNote: "For a video tutorial on scorekeeping, watch the Saskatchewan Volleyball scoresheet tutorial: https://www.youtube.com/watch?v=EyB7ji_LwT0 — Note: The Ontario Volleyball Association uses the same score sheet format as Saskatchewan Volleyball.",
+        diagram: "court-layout"
       }
     ]
   }

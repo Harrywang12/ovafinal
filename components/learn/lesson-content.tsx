@@ -166,7 +166,21 @@ export function LessonContent({ lesson, moduleColor, onNext, hasNext }: LessonCo
                   <p className="text-xs font-semibold uppercase tracking-wider text-emerald-700 mb-1">
                     Volleyball Canada Modification
                   </p>
-                  <p className="text-sm text-emerald-800">{lesson.vcNote}</p>
+                  <p className="text-sm text-emerald-800">
+                    {lesson.vcNote.split(/(https?:\/\/[^\s]+)/g).map((part, i) => 
+                      part.match(/^https?:\/\//) ? (
+                        <a 
+                          key={i} 
+                          href={part} 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          className="text-emerald-600 underline hover:text-emerald-800"
+                        >
+                          {part}
+                        </a>
+                      ) : part
+                    )}
+                  </p>
                 </div>
               </motion.div>
             )}
