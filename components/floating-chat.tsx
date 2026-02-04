@@ -129,7 +129,21 @@ export function FloatingChat() {
                         : "bg-white border border-border text-ink rounded-bl-md"
                     }`}
                   >
-                    {m.content}
+                    {m.role === "user" ? (
+                      m.content
+                    ) : (
+                      <div 
+                        className="prose prose-sm max-w-none prose-p:my-2 prose-headings:my-2 prose-ul:my-2 prose-ol:my-2"
+                        dangerouslySetInnerHTML={{ 
+                          __html: m.content
+                            .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+                            .replace(/\n\n/g, '</p><p>')
+                            .replace(/\n/g, '<br/>')
+                            .replace(/^(.+)$/, '<p>$1</p>')
+                            .replace(/(\d+)\.\s/g, '<br/>$1. ')
+                        }}
+                      />
+                    )}
                   </div>
                 </motion.div>
               ))}
