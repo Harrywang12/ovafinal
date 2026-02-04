@@ -1,11 +1,12 @@
 "use client";
 
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Trophy, RefreshCcw, Medal, Crown, Send, Loader2, Video, Timer, CheckCircle2, XCircle } from "lucide-react";
 import { AuthGuard } from "../../components/auth-guard";
 import { fadeInUp, staggerContainer, staggerItem, scaleIn } from "../../lib/animations";
+import { useSupabaseAuth } from "../../lib/useSupabaseAuth";
 
 const rankColors = [
   "from-yellow-400 to-amber-500", // Gold
@@ -16,72 +17,94 @@ const rankColors = [
 const rankIcons = [Crown, Medal, Medal];
 
 export default function ChallengePage() {
-  const [userAnswer, setUserAnswer] = useState("");
-  const [userId, setUserId] = useState("");
-  const [timeLeft, setTimeLeft] = useState<number | null>(null);
-  const [timeTaken, setTimeTaken] = useState<number | null>(null);
+  const { session } = useSupabaseAuth();
+  const [phase, setPhase] = useState<"idle" | "question" | "resuming" | "done">("idle");
+  const [timeLeftMs, setTimeLeftMs] = useState<number | null>(null);
+  const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
   const [evaluationResult, setEvaluationResult] = useState<{
     is_correct: boolean;
-    normalized_call: string;
-    explanation: string;
-    rule_reference: string;
+    correct_option_index: number;
+    explanation: string | null;
+    rule_reference: string | null;
     score: number;
   } | null>(null);
   const [evaluationError, setEvaluationError] = useState<string | null>(null);
 
+  const videoRef = useRef<HTMLVideoElement | null>(null);
+  const hasPausedRef = useRef(false);
+  const submittedRef = useRef(false);
+  const questionStartMsRef = useRef<number | null>(null);
+
+  const isAnswered = useMemo(() => evaluationResult !== null || evaluationError !== null, [evaluationResult, evaluationError]);
+
   const challengeQuery = useQuery({
     queryKey: ["challenge"],
+    enabled: !!session?.access_token,
     queryFn: async () => {
-      const res = await fetch("/api/challenge");
+      const res = await fetch("/api/challenge", {
+        headers: session?.access_token ? { Authorization: `Bearer ${session.access_token}` } : undefined,
+      });
       if (!res.ok) throw new Error("Failed to load challenge");
       return res.json();
     }
   });
 
-  // Initialize timer when video loads (extreme difficulty = 6 seconds)
   useEffect(() => {
-    if (challengeQuery.data?.video && !evaluationResult) {
-      setTimeLeft(6);
-      setTimeTaken(null);
-      setUserAnswer("");
+    if (challengeQuery.data?.question) {
+      setPhase("idle");
+      setTimeLeftMs(null);
+      setSelectedIndex(null);
       setEvaluationResult(null);
       setEvaluationError(null);
-    }
-  }, [challengeQuery.data?.video?.id, evaluationResult]);
 
-  // Timer countdown
-  useEffect(() => {
-    if (timeLeft === null || timeLeft <= 0 || evaluationResult) return;
-    
-    const timer = setInterval(() => {
-      setTimeLeft((prev) => {
-        if (prev === null || prev <= 1) {
-          return 0;
+      hasPausedRef.current = false;
+      submittedRef.current = false;
+      questionStartMsRef.current = null;
+
+      const v = videoRef.current;
+      if (v) {
+        try {
+          v.pause();
+          v.currentTime = 0;
+        } catch {
+          // ignore
         }
-        return prev - 1;
-      });
-    }, 1000);
-    
-    return () => clearInterval(timer);
-  }, [timeLeft, evaluationResult]);
+      }
+    }
+  }, [challengeQuery.data?.question?.id]);
+
+  // Answer-window countdown (ms precision)
+  useEffect(() => {
+    const q = challengeQuery.data?.question;
+    if (!q || phase !== "question") return;
+
+    const totalMs = (q.answer_window_seconds as number) * 1000;
+    const start = performance.now();
+    questionStartMsRef.current = start;
+    setTimeLeftMs(totalMs);
+
+    const interval = window.setInterval(() => {
+      const elapsed = performance.now() - start;
+      const remaining = Math.max(0, totalMs - elapsed);
+      setTimeLeftMs(remaining);
+      if (remaining <= 0) {
+        window.clearInterval(interval);
+      }
+    }, 50);
+
+    return () => window.clearInterval(interval);
+  }, [challengeQuery.data?.question, phase]);
 
   const submitMutation = useMutation({
-    mutationFn: async () => {
-      if (!userAnswer.trim()) {
-        throw new Error("Please enter your ruling before submitting");
-      }
-      
+    mutationFn: async (payload: object) => {
       const res = await fetch("/api/challenge", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          user_id: userId || undefined,
-          video_id: challengeQuery.data?.video?.id,
-          userAnswer: userAnswer.trim(),
-          time_taken: timeTaken !== null ? timeTaken : (timeLeft !== null ? 6 - timeLeft : undefined)
-        })
+        headers: {
+          "Content-Type": "application/json",
+          ...(session?.access_token ? { Authorization: `Bearer ${session.access_token}` } : {})
+        },
+        body: JSON.stringify(payload)
       });
-      
       if (!res.ok) {
         const errorData = await res.json().catch(() => ({}));
         throw new Error(errorData.error || "Failed to submit");
@@ -91,15 +114,21 @@ export default function ChallengePage() {
     onSuccess: (data) => {
       setEvaluationResult({
         is_correct: data.is_correct,
-        normalized_call: data.normalized_call,
+        correct_option_index: data.correct_option_index,
         explanation: data.explanation,
         rule_reference: data.rule_reference,
         score: data.score
       });
       setEvaluationError(null);
-      if (timeLeft !== null) {
-        setTimeTaken(6 - timeLeft);
+
+      const v = videoRef.current;
+      if (v) {
+        v.play().catch(() => {
+          // autoplay may be blocked
+        });
       }
+      setPhase("resuming");
+
       // Refresh leaderboard after successful submission
       challengeQuery.refetch();
     },
@@ -108,8 +137,59 @@ export default function ChallengePage() {
     }
   });
 
-  const video = challengeQuery.data?.video;
+  const question = challengeQuery.data?.question;
   const leaderboard = challengeQuery.data?.leaderboard || [];
+  const alreadyAttempted = challengeQuery.data?.already_attempted === true;
+
+  const maybePauseAtMarker = () => {
+    const v = videoRef.current;
+    if (!v || !question) return;
+    if (hasPausedRef.current) return;
+    if (v.currentTime >= question.pause_at_seconds) {
+      hasPausedRef.current = true;
+      try {
+        v.pause();
+        v.currentTime = question.pause_at_seconds;
+      } catch {
+        // ignore
+      }
+      setPhase("question");
+    }
+  };
+
+  useEffect(() => {
+    if (!question || phase !== "question") return;
+    if (timeLeftMs === null) return;
+    if (timeLeftMs > 0) return;
+    if (submittedRef.current) return;
+
+    submittedRef.current = true;
+    setEvaluationError(null);
+    submitMutation.mutate({
+      question_id: question.id,
+      selected_option_index: null,
+      timed_out: true,
+      time_taken_ms: question.answer_window_seconds * 1000,
+    });
+  }, [question, phase, timeLeftMs, submitMutation, session?.user?.id]);
+
+  const submitSelection = (idx: number) => {
+    if (!question) return;
+    if (submittedRef.current) return;
+    submittedRef.current = true;
+    setSelectedIndex(idx);
+    setEvaluationError(null);
+
+    const started = questionStartMsRef.current;
+    const timeTakenMs = started ? Math.max(0, Math.floor(performance.now() - started)) : undefined;
+
+    submitMutation.mutate({
+      question_id: question.id,
+      selected_option_index: idx,
+      timed_out: false,
+      time_taken_ms: timeTakenMs,
+    });
+  };
 
   return (
     <AuthGuard>
@@ -183,50 +263,60 @@ export default function ChallengePage() {
                       This Week&apos;s Challenge
                     </p>
                     <h3 className="text-lg font-display font-bold text-primary">
-                      Extreme Clip
+                      {question ? `${question.difficulty[0].toUpperCase()}${question.difficulty.slice(1)} Clip` : "Weekly Clip"}
                     </h3>
                   </div>
                 </div>
                 
-                {video ? (
+                {question ? (
                   <div className="space-y-4">
                     {/* Timer */}
-                    {timeLeft !== null && !evaluationResult && (
+                    {phase === "question" && timeLeftMs !== null && !evaluationResult && (
                       <div className="flex items-center justify-between">
                         <span className="text-xs font-semibold uppercase tracking-wider text-muted">
                           Time to decide
                         </span>
                         <motion.div
-                          animate={timeLeft <= 2 ? { scale: [1, 1.1, 1] } : {}}
-                          transition={{ duration: 0.5, repeat: timeLeft <= 2 ? Infinity : 0 }}
+                          animate={timeLeftMs <= 2000 ? { scale: [1, 1.1, 1] } : {}}
+                          transition={{ duration: 0.5, repeat: timeLeftMs <= 2000 ? Infinity : 0 }}
                           className={`flex items-center gap-2 px-4 py-2 rounded-full font-bold ${
-                            timeLeft <= 2
+                            timeLeftMs <= 2000
                               ? "bg-red-100 text-red-600"
                               : "bg-surface text-primary"
                           }`}
                         >
                           <Timer size={18} />
-                          {timeLeft}s
+                          {Math.ceil(timeLeftMs / 1000)}s
                         </motion.div>
                       </div>
                     )}
                     <div className="relative rounded-xl overflow-hidden bg-black aspect-video">
                       <video
-                        src={video.video_url}
+                        src={question.video_url}
                         className="w-full h-full object-cover"
                         controls
+                        ref={videoRef}
+                        onTimeUpdate={maybePauseAtMarker}
+                        onSeeked={maybePauseAtMarker}
+                        onEnded={() => setPhase("done")}
                       />
                       <div className="absolute top-4 left-4">
                         <span className="px-3 py-1 rounded-full text-xs font-semibold text-white bg-accent">
                           Challenge
                         </span>
                       </div>
+                      {phase === "question" && (
+                        <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
+                          <span className="px-4 py-2 rounded-full bg-white/90 text-ink font-semibold">
+                            Paused — choose an option
+                          </span>
+                        </div>
+                      )}
                     </div>
-                    {video.rule_reference && !evaluationResult && (
-                      <p className="text-sm text-muted">
-                        📖 Rule: {video.rule_reference}
-                      </p>
-                    )}
+                    <p className="text-xs text-muted">
+                      Pause point: <span className="font-semibold">{question.pause_at_seconds}s</span> · Difficulty:{" "}
+                      <span className="font-semibold capitalize">{question.difficulty}</span>
+                    </p>
                   </div>
                 ) : (
                   <div className="text-center py-12">
@@ -237,7 +327,9 @@ export default function ChallengePage() {
                     >
                       <Video size={32} />
                     </motion.div>
-                    <p className="text-muted">No challenge video this week</p>
+                    <p className="text-muted">
+                      {alreadyAttempted ? "You already completed this week's challenge." : "No challenge video this week"}
+                    </p>
                   </div>
                 )}
               </motion.div>
@@ -262,58 +354,53 @@ export default function ChallengePage() {
                 </div>
                 
                 {!evaluationResult ? (
-                  <>
-                    <div className="space-y-4">
-                      <div>
-                        <label className="block text-sm font-medium text-muted mb-2">
-                          User ID (Optional)
-                        </label>
-                        <input
-                          value={userId}
-                          onChange={(e) => setUserId(e.target.value)}
-                          placeholder="Your name"
-                          className="w-full px-4 py-3 rounded-xl bg-surface border border-border text-ink placeholder:text-muted focus:outline-none focus:ring-2 focus:ring-accent/30"
-                        />
+                  <div className="space-y-4">
+                    {!question ? (
+                      <p className="text-muted">No weekly challenge is configured yet.</p>
+                    ) : phase !== "question" ? (
+                      <div className="p-4 rounded-xl bg-surface border border-border">
+                        <p className="text-primary font-semibold">Watch until the pause.</p>
+                        <p className="text-muted text-sm mt-1">
+                          The video will pause at {question.pause_at_seconds}s, then you’ll have a short window to select one of 4 options.
+                        </p>
                       </div>
-                      <div>
-                        <label className="block text-sm font-medium text-muted mb-2">
-                          Your Ruling <span className="text-red-500">*</span>
-                        </label>
-                        <input
-                          value={userAnswer}
-                          onChange={(e) => setUserAnswer(e.target.value)}
-                          placeholder="e.g., Fault: Net touch on blocker"
-                          className="w-full px-4 py-3 rounded-xl bg-surface border border-border text-ink placeholder:text-muted focus:outline-none focus:ring-2 focus:ring-accent/30"
-                        />
+                    ) : (
+                      <div className="space-y-3">
+                        <p className="text-sm font-semibold text-primary">Choose the correct option</p>
+                        <div className="grid gap-3">
+                          {question.options.map((opt: string, idx: number) => {
+                            const isPicked = selectedIndex === idx;
+                            return (
+                              <motion.button
+                                key={idx}
+                                whileHover={{ scale: 1.01 }}
+                                whileTap={{ scale: 0.99 }}
+                                onClick={() => submitSelection(idx)}
+                                disabled={submitMutation.isPending || submittedRef.current}
+                                className={`w-full text-left px-4 py-3 rounded-xl border transition-colors ${
+                                  isPicked
+                                    ? "border-accent bg-accent/10 text-ink"
+                                    : "border-border bg-white hover:border-accent/40"
+                                } disabled:opacity-60 disabled:cursor-not-allowed`}
+                              >
+                                <span className="text-xs font-semibold uppercase tracking-wider text-muted">Option {idx + 1}</span>
+                                <p className="text-ink font-semibold mt-1">{opt}</p>
+                              </motion.button>
+                            );
+                          })}
+                        </div>
+                        <p className="text-xs text-muted">
+                          Time window: {question.answer_window_seconds}s
+                        </p>
                       </div>
-                    </div>
-                    
+                    )}
+
                     {evaluationError && (
-                      <div className="mt-4 p-3 rounded-xl bg-red-100 border border-red-200">
+                      <div className="p-3 rounded-xl bg-red-100 border border-red-200">
                         <p className="text-sm text-red-700">{evaluationError}</p>
                       </div>
                     )}
-                    
-                    <motion.button
-                      whileHover={{ scale: 1.02 }}
-                      whileTap={{ scale: 0.98 }}
-                      onClick={() => submitMutation.mutate()}
-                      disabled={submitMutation.isPending || !video || !userAnswer.trim()}
-                      className="pill text-white w-full justify-center mt-4 disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                      {submitMutation.isPending ? (
-                        <>
-                          <Loader2 size={18} className="animate-spin" />
-                          Evaluating...
-                        </>
-                      ) : (
-                        <>
-                          <Send size={18} />
-                          Submit Ruling
-                        </>
-                      )}
-                    </motion.button>
-                  </>
+                  </div>
                 ) : (
                   <div className="space-y-4">
                     {/* Result Banner */}
@@ -343,21 +430,20 @@ export default function ChallengePage() {
 
                     {/* Explanation */}
                     <div className="p-4 rounded-xl bg-surface border border-border space-y-3">
-                      {evaluationResult.normalized_call && 
-                       evaluationResult.normalized_call.toLowerCase() !== userAnswer.trim().toLowerCase() && (
-                        <div>
-                          <p className="text-xs font-semibold uppercase tracking-wider text-muted mb-1">
-                            Your Call (Normalized)
-                          </p>
-                          <p className="text-ink">{evaluationResult.normalized_call}</p>
-                        </div>
-                      )}
                       <div>
                         <p className="text-xs font-semibold uppercase tracking-wider text-muted mb-1">
-                          Explanation
+                          Correct Option
                         </p>
-                        <p className="text-ink">{evaluationResult.explanation}</p>
+                        <p className="text-ink">#{evaluationResult.correct_option_index + 1}</p>
                       </div>
+                      {evaluationResult.explanation && (
+                        <div>
+                          <p className="text-xs font-semibold uppercase tracking-wider text-muted mb-1">
+                            Explanation
+                          </p>
+                          <p className="text-ink">{evaluationResult.explanation}</p>
+                        </div>
+                      )}
                       {evaluationResult.rule_reference && (
                         <p className="text-sm text-accent font-medium">
                           📖 Rule: {evaluationResult.rule_reference}
@@ -371,10 +457,22 @@ export default function ChallengePage() {
                       whileTap={{ scale: 0.98 }}
                       onClick={() => {
                         setEvaluationResult(null);
-                        setUserAnswer("");
-                        setTimeLeft(6);
-                        setTimeTaken(null);
                         setEvaluationError(null);
+                        setSelectedIndex(null);
+                        setTimeLeftMs(null);
+                        submittedRef.current = false;
+                        hasPausedRef.current = false;
+                        setPhase("idle");
+
+                        const v = videoRef.current;
+                        if (v) {
+                          try {
+                            v.pause();
+                            v.currentTime = 0;
+                          } catch {
+                            // ignore
+                          }
+                        }
                       }}
                       className="pill text-white w-full justify-center"
                     >

@@ -11,6 +11,7 @@ const footerLinks = [
   {
     title: "Training",
     links: [
+      { label: "Dashboard", href: "/dashboard" },
       { label: "Learn", href: "/learn" },
       { label: "Quiz", href: "/quiz" },
       { label: "Practice", href: "/practice" },
@@ -27,8 +28,8 @@ const footerLinks = [
 
 export function FooterCta() {
   const { session } = useSupabaseAuth();
-  const href = session ? "/quiz" : "/login?next=/quiz";
-  const label = session ? "Continue Training" : "Start Training Free";
+  const href = session ? "/dashboard" : "/login?next=/dashboard";
+  const label = session ? "Go to Dashboard" : "Start Training Free";
 
   return (
     <footer className="relative mt-auto">

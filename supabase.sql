@@ -97,6 +97,64 @@ end;
 $$;
 
 -- ---------------------------------------------------------------------------
+-- Admin helper
+-- ---------------------------------------------------------------------------
+
+create or replace function public.is_admin()
+returns boolean
+language sql
+stable
+as $$
+  select coalesce((auth.jwt() ->> 'email'), '') = 'yixuanwang2009@gmail.com';
+$$;
+
+-- ---------------------------------------------------------------------------
+-- MCQ Video Challenges (Admin-authored)
+-- ---------------------------------------------------------------------------
+
+create table if not exists public.video_questions (
+  id uuid primary key default gen_random_uuid(),
+  kind text not null check (kind in ('practice','challenge')),
+  difficulty text not null check (difficulty in ('easy','medium','hard')),
+  video_url text not null,
+  pause_at_seconds integer not null check (pause_at_seconds > 0),
+  options jsonb not null,
+  correct_option_index integer not null check (correct_option_index between 0 and 3),
+  explanation text,
+  rule_reference text,
+  is_weekly boolean not null default false,
+  created_at timestamp with time zone default timezone('utc'::text, now())
+);
+
+create table if not exists public.video_question_attempts (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid,
+  question_id uuid references public.video_questions(id) on delete cascade,
+  selected_option_index integer,
+  correct boolean,
+  timed_out boolean not null default false,
+  time_taken_ms integer,
+  created_at timestamp with time zone default timezone('utc'::text, now())
+);
+
+create table if not exists public.mcq_challenge_entries (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid,
+  question_id uuid references public.video_questions(id) on delete cascade,
+  score numeric,
+  created_at timestamp with time zone default timezone('utc'::text, now())
+);
+
+create view public.weekly_leaderboard_mcq as
+select user_id, max(score) as best_score
+from public.mcq_challenge_entries
+where created_at >= date_trunc('week', now())
+group by user_id
+order by best_score desc;
+
+alter view public.weekly_leaderboard_mcq set (security_invoker = true);
+
+-- ---------------------------------------------------------------------------
 -- Row Level Security (RLS) and Policies
 -- ---------------------------------------------------------------------------
 
@@ -139,5 +197,29 @@ create policy "auth read challenge_entries"
   using (auth.role() = 'authenticated');
 create policy "user manage challenge_entries"
   on public.challenge_entries for all
+  using (auth.uid() = user_id)
+  with check (auth.uid() = user_id);
+
+alter table if exists public.video_questions enable row level security;
+create policy "auth read video_questions"
+  on public.video_questions for select
+  using (auth.role() = 'authenticated');
+create policy "admin manage video_questions"
+  on public.video_questions for all
+  using (public.is_admin())
+  with check (public.is_admin());
+
+alter table if exists public.video_question_attempts enable row level security;
+create policy "user manage video_question_attempts"
+  on public.video_question_attempts for all
+  using (auth.uid() = user_id)
+  with check (auth.uid() = user_id);
+
+alter table if exists public.mcq_challenge_entries enable row level security;
+create policy "auth read mcq_challenge_entries"
+  on public.mcq_challenge_entries for select
+  using (auth.role() = 'authenticated');
+create policy "user manage mcq_challenge_entries"
+  on public.mcq_challenge_entries for all
   using (auth.uid() = user_id)
   with check (auth.uid() = user_id);

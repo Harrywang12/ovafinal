@@ -112,7 +112,7 @@ function ScrollIndicator() {
 
 export default function HomePage() {
   const { session } = useSupabaseAuth();
-  const primaryCtaHref = session ? "/quiz" : "/login?next=/quiz";
+  const primaryCtaHref = session ? "/dashboard" : "/login?next=/dashboard";
   const practiceHref = session ? "/practice" : "/login?next=/practice";
   
   const heroRef = useRef<HTMLDivElement>(null);

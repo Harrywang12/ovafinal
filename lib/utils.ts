@@ -1,13 +1,13 @@
 export function difficultyToDuration(difficulty: "easy" | "medium" | "hard" | "extreme") {
   switch (difficulty) {
     case "easy":
-      return 3;
+      return 6;
     case "medium":
       return 4;
     case "hard":
-      return 5;
+      return 3;
     default:
-      return 6;
+      return 3;
   }
 }
 

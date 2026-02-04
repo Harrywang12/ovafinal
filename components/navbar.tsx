@@ -15,11 +15,16 @@ const links = [
   { href: "/practice", label: "Practice" },
   { href: "/challenge", label: "Challenge" },
 ];
+const ADMIN_EMAIL = "yixuanwang2009@gmail.com";
 
 export function Navbar() {
   const router = useRouter();
   const pathname = usePathname();
   const { session } = useSupabaseAuth();
+  const isAdmin = useMemo(() => {
+    const email = session?.user?.email?.toLowerCase() || "";
+    return email === ADMIN_EMAIL.toLowerCase();
+  }, [session?.user?.email]);
   const supabase = useMemo(() => getBrowserSupabase(), []);
   
   const [scrolled, setScrolled] = useState(false);
@@ -88,13 +93,32 @@ export function Navbar() {
                 </Link>
               );
             })}
+            {isAdmin && (
+              <Link href="/admin">
+                <motion.span
+                  whileHover={{ scale: 1.05 }}
+                  className={`relative px-4 py-2 rounded-full text-sm font-medium transition-colors ${
+                    pathname === "/admin" ? "text-ink" : "text-ink hover:text-ink"
+                  }`}
+                >
+                  Admin
+                  {pathname === "/admin" && (
+                    <motion.div
+                      layoutId="navbar-indicator"
+                      className="absolute inset-0 bg-primary/10 rounded-full"
+                      transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
+                    />
+                  )}
+                </motion.span>
+              </Link>
+            )}
           </nav>
           
           {/* Auth Buttons */}
           <div className="hidden md:flex items-center gap-3">
             {session ? (
               <>
-                <Link href="/quiz">
+                <Link href="/dashboard">
                   <motion.span
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.98 }}
@@ -179,6 +203,26 @@ export function Navbar() {
                   </motion.div>
                 );
               })}
+
+              {isAdmin && (
+                <motion.div
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: links.length * 0.1 }}
+                >
+                  <Link
+                    href="/admin"
+                    onClick={() => setMobileMenuOpen(false)}
+                    className={`block px-4 py-3 rounded-xl text-lg font-medium transition-colors ${
+                      pathname === "/admin"
+                        ? "bg-primary/10 text-primary"
+                        : "text-ink hover:bg-ink/5"
+                    }`}
+                  >
+                    Admin
+                  </Link>
+                </motion.div>
+              )}
               
               <motion.div
                 initial={{ opacity: 0, x: -20 }}
@@ -189,7 +233,7 @@ export function Navbar() {
                 {session ? (
                   <div className="space-y-3">
                     <Link
-                      href="/quiz"
+                      href="/dashboard"
                       onClick={() => setMobileMenuOpen(false)}
                       className="block"
                     >
