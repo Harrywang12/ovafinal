@@ -30,3 +30,20 @@ yarn-error.log*
 
 # Large files
 public/rulebook.pdf
+
+# Supabase
+supabase/.temp/
+.supabase/
+
+# Local databases
+*.sqlite
+*.sqlite3
+*.db
+
+# Tooling / caches
+.cache/
+.parcel-cache/
+coverage/
+.turbo/
+.vercel/
+.netlify/
