@@ -5,17 +5,6 @@ import { assertEnv } from "../../../../lib/utils";
 import { requireAdminFromRequest } from "../../../../lib/admin";
 
 export const runtime = "nodejs";
-
-// Allow large file uploads (50MB)
-export const config = {
-  api: {
-    bodyParser: {
-      sizeLimit: "50mb",
-    },
-  },
-};
-
-// Next.js 13+ App Router config
 export const maxDuration = 60; // 60 seconds for upload processing
 
 /**
