@@ -31,13 +31,19 @@ export async function POST(request: Request) {
     console.warn("RAG search unavailable, using static content:", e);
   }
 
-  // Combine contexts, preferring RAG when available
-  const finalContext = ragContext || lessonsContext || `General volleyball ${module} rules and scenarios.`;
+  // Combine contexts — always include static content, supplement with RAG when available
+  const contextParts = [lessonsContext, ragContext].filter(Boolean);
+  const finalContext = contextParts.join("\n\n---\n\n") || `General volleyball ${module} rules and scenarios.`;
+
+  // Generate a random seed to encourage question variety on each request
+  const randomSeed = Math.floor(Math.random() * 10000);
+  const randomLessonIdx = moduleData ? Math.floor(Math.random() * moduleData.lessons.length) : 0;
+  const focusLesson = moduleData?.lessons[randomLessonIdx];
 
   const quiz = await llmChat([
     {
       role: "system",
-      content: `You are a volleyball officiating quiz generator. Create a micro-quiz for volleyball referees.
+      content: `You are a volleyball quiz generator. Create a multiple-choice quiz question.
 You MUST respond with ONLY valid JSON in this exact format:
 {
   "question": "Your question here?",
@@ -45,10 +51,11 @@ You MUST respond with ONLY valid JSON in this exact format:
   "answer": "The correct option text exactly as in options array",
   "explanation": "Brief explanation of why this is correct, citing rules."
 }
-Do not include any text before or after the JSON.`
+Do not include any text before or after the JSON.
+IMPORTANT: Generate a UNIQUE question every time. Do NOT repeat previous questions.`
     },
-    { role: "user", content: `Create a quiz question for the "${module}" module based on this context:\n\n${finalContext}` }
-  ]);
+    { role: "user", content: `Create a quiz question for the "${module}" module. Focus especially on the topic "${focusLesson?.title || 'general rules'}". Randomization seed: ${randomSeed}\n\nContext:\n${finalContext}` }
+  ], "gpt-4o-mini", { temperature: 0.9 });
 
   // Return lessons from static content (for backwards compatibility)
   const lessons = moduleData?.lessons.map(l => ({

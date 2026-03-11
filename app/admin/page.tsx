@@ -19,6 +19,7 @@ type VideoQuestionRow = {
   correct_option_index: number;
   rule_reference: string | null;
   is_weekly: boolean;
+  category: "indoor" | "beach";
   created_at: string;
 };
 
@@ -170,7 +171,8 @@ export default function AdminPage() {
                         <thead>
                           <tr className="text-left text-muted border-b border-border">
                             <th className="py-3 pr-4">Kind</th>
-                            <th className="py-3 pr-4">Difficulty</th>
+                             <th className="py-3 pr-4">Category</th>
+                             <th className="py-3 pr-4">Difficulty</th>
                             <th className="py-3 pr-4">Pause</th>
                             <th className="py-3 pr-4">Weekly</th>
                             <th className="py-3 pr-4">Rule</th>
@@ -182,7 +184,14 @@ export default function AdminPage() {
                           {listQuery.data!.questions.map((q) => (
                             <tr key={q.id} className="border-b border-border/60">
                               <td className="py-3 pr-4 font-semibold text-primary capitalize">{q.kind}</td>
-                              <td className="py-3 pr-4 capitalize">{q.difficulty}</td>
+                               <td className="py-3 pr-4">
+                                <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold ${
+                                  q.category === "beach" ? "bg-cyan-100 text-cyan-700" : "bg-blue-100 text-blue-700"
+                                }`}>
+                                  {q.category === "beach" ? "🏖️ Beach" : "🏐 Indoor"}
+                                </span>
+                              </td>
+                               <td className="py-3 pr-4 capitalize">{q.difficulty}</td>
                               <td className="py-3 pr-4">{q.pause_at_seconds}s</td>
                               <td className="py-3 pr-4">{q.is_weekly ? "Yes" : "No"}</td>
                               <td className="py-3 pr-4">{q.rule_reference || "—"}</td>

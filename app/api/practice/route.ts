@@ -30,12 +30,14 @@ export async function GET(request: Request) {
   const supabase = getServerSupabase();
   const { searchParams } = new URL(request.url);
   const difficulty = (searchParams.get("difficulty") as "easy" | "medium" | "hard") || "medium";
+  const category = searchParams.get("category") || "indoor";
 
   const { data, error } = await supabase
     .from("video_questions")
     .select("id, kind, difficulty, video_url, pause_at_seconds, options")
     .eq("kind", "practice")
     .eq("difficulty", difficulty)
+    .eq("category", category)
     .limit(50);
 
   if (error) {

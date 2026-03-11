@@ -15,6 +15,7 @@ type CreatePayload = {
   explanation?: string;
   rule_reference?: string;
   is_weekly?: boolean;
+  category?: "indoor" | "beach";
 };
 
 export async function GET(request: Request) {
@@ -67,6 +68,7 @@ export async function POST(request: Request) {
     explanation,
     rule_reference,
     is_weekly,
+    category,
   } = body;
 
   if (!kind || !difficulty || !video_url || !pause_at_seconds || !options) {
@@ -97,6 +99,7 @@ export async function POST(request: Request) {
       explanation: explanation || null,
       rule_reference: rule_reference || null,
       is_weekly: !!is_weekly,
+      category: category || "indoor",
     })
     .select()
     .single();

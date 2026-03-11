@@ -37,6 +37,8 @@ export async function GET(request: Request) {
   }
 
   const supabase = getServerSupabase();
+  const { searchParams } = new URL(request.url);
+  const category = searchParams.get("category") || "indoor";
 
   const { data: attempts, error: attemptsError } = await supabase
     .from("video_question_attempts")
@@ -49,7 +51,8 @@ export async function GET(request: Request) {
 
   const attemptedIds = new Set((attempts || []).map((a) => a.question_id));
 
-  const { data: weeklyQuestions, error: weeklyError } = await supabase
+  // Try to filter by category. If the column doesn't exist yet, fall back to no filter.
+  let weeklyQuery = supabase
     .from("video_questions")
     .select("id, kind, difficulty, video_url, pause_at_seconds, options")
     .eq("kind", "challenge")
@@ -57,8 +60,51 @@ export async function GET(request: Request) {
     .order("created_at", { ascending: false })
     .limit(1);
 
+  // Apply category filter (graceful — column may not exist yet)
+  weeklyQuery = weeklyQuery.eq("category", category);
+
+  const { data: weeklyQuestions, error: weeklyError } = await weeklyQuery;
+
   if (weeklyError) {
-    return NextResponse.json({ error: weeklyError.message }, { status: 500 });
+    // If category column doesn't exist, fall back to unfiltered query
+    const { data: fallbackWeekly, error: fallbackError } = await supabase
+      .from("video_questions")
+      .select("id, kind, difficulty, video_url, pause_at_seconds, options")
+      .eq("kind", "challenge")
+      .eq("is_weekly", true)
+      .order("created_at", { ascending: false })
+      .limit(1);
+
+    if (fallbackError) {
+      return NextResponse.json({ error: fallbackError.message }, { status: 500 });
+    }
+
+    const weekly = (fallbackWeekly?.[0] as ChallengeQuestion | undefined) ?? null;
+    let question: ChallengeQuestion | null = null;
+    let alreadyAttempted = false;
+
+    if (weekly) {
+      if (attemptedIds.has(weekly.id)) {
+        alreadyAttempted = true;
+      } else {
+        question = weekly;
+      }
+    }
+
+    const { data: leaderboard } = await supabase
+      .from("weekly_leaderboard_mcq")
+      .select("*")
+      .limit(20);
+
+    const answerWindowSeconds = question
+      ? difficultyToDuration(question.difficulty as "easy" | "medium" | "hard" | "extreme")
+      : null;
+
+    return NextResponse.json({
+      question: question ? { ...question, answer_window_seconds: answerWindowSeconds } : null,
+      leaderboard: leaderboard ?? [],
+      already_attempted: alreadyAttempted,
+    });
   }
 
   const weekly = (weeklyQuestions?.[0] as ChallengeQuestion | undefined) ?? null;
@@ -74,14 +120,16 @@ export async function GET(request: Request) {
   }
 
   if (!question && !weekly) {
-    const { data: anyChallenge, error: anyError } = await supabase
+    let fallbackQuery = supabase
       .from("video_questions")
       .select("id, kind, difficulty, video_url, pause_at_seconds, options")
       .eq("kind", "challenge")
       .limit(50);
-    if (anyError) {
-      return NextResponse.json({ error: anyError.message }, { status: 500 });
-    }
+    
+    // Try to apply category filter to fallback query too
+    fallbackQuery = fallbackQuery.eq("category", category);
+
+    const { data: anyChallenge } = await fallbackQuery;
     const available = (anyChallenge || []).filter((q) => !attemptedIds.has(q.id));
     question = available.length
       ? (available[Math.floor(Math.random() * available.length)] as ChallengeQuestion)

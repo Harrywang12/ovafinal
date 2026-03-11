@@ -21,6 +21,7 @@ export default function NewVideoQuestionPage() {
 
   const [kind, setKind] = useState<"practice" | "challenge">("practice");
   const [difficulty, setDifficulty] = useState<Difficulty>("medium");
+  const [category, setCategory] = useState<"indoor" | "beach">("indoor");
   const [pauseAtSeconds, setPauseAtSeconds] = useState<number>(6);
   const [isWeekly, setIsWeekly] = useState<boolean>(false);
 
@@ -69,6 +70,7 @@ export default function NewVideoQuestionPage() {
         body: JSON.stringify({
           kind,
           difficulty,
+          category,
           video_url: videoUrl,
           pause_at_seconds: pauseAtSeconds,
           options,
@@ -126,7 +128,7 @@ export default function NewVideoQuestionPage() {
               </div>
 
               {/* Basics */}
-              <div className="grid md:grid-cols-3 gap-4">
+              <div className="grid md:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-muted mb-2">Type</label>
                   <select
@@ -136,6 +138,17 @@ export default function NewVideoQuestionPage() {
                   >
                     <option value="practice">Practice</option>
                     <option value="challenge">Challenge</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-muted mb-2">Category</label>
+                  <select
+                    value={category}
+                    onChange={(e) => setCategory(e.target.value as "indoor" | "beach")}
+                    className="w-full px-4 py-3 rounded-xl bg-surface border border-border text-ink focus:outline-none focus:ring-2 focus:ring-accent/30"
+                  >
+                    <option value="indoor">🏐 Indoor</option>
+                    <option value="beach">🏖️ Beach</option>
                   </select>
                 </div>
                 <div>

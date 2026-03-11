@@ -85,7 +85,7 @@ export function ModuleHero({ module, lessonCount }: ModuleHeroProps) {
                   className="px-3 py-1.5 rounded-lg text-white text-xs font-bold uppercase tracking-wider"
                   style={{ backgroundColor: module.color }}
                 >
-                  Chapter {module.chapter}
+                  {module.chapterLabel || `Chapter ${module.chapter}`}
                 </div>
                 <div className="mt-2 px-2 py-1 rounded bg-white/10 text-white/80 text-xs font-mono">
                   {module.ruleRange}

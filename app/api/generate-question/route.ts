@@ -2,8 +2,24 @@ import { NextResponse } from "next/server";
 import { searchRules } from "../../../lib/rag";
 import { llmChat } from "../../../lib/llm";
 import { assertEnv, formatRuleContext } from "../../../lib/utils";
+import { moduleContent } from "../../../lib/module-content";
 
 export const runtime = "nodejs";
+
+// Helper to get static module content as context string
+function getStaticModuleContext(category?: string): string {
+  const modules = Object.values(moduleContent).filter(
+    m => !category || m.category === category
+  );
+  return modules
+    .map(mod =>
+      `[${mod.category.toUpperCase()}] ${mod.title}\n` +
+      mod.lessons
+        .map(l => `${l.title}: ${l.content.join(" ")}`)
+        .join("\n\n")
+    )
+    .join("\n\n---\n\n");
+}
 
 // Topic categories for varied question generation
 const REFEREE_TOPICS = [
@@ -81,7 +97,46 @@ const REFEREE_TOPICS = [
   "volleyball replay situations circumstances",
   "volleyball interference external objects rules",
   "volleyball ball becomes dead situations",
-  "volleyball rally interruption circumstances"
+  "volleyball rally interruption circumstances",
+
+  // 4v4 Rallyball Topics
+  "4v4 rallyball tripleball sequence three rally system",
+  "4v4 rallyball court dimensions 7m 14m badminton",
+  "4v4 rallyball overhand serve receive fault",
+  "4v4 rallyball diamond square formation designated setter",
+  "4v4 rallyball rotational substitution no specialization",
+  "4v4 rallyball sets to 15 points no cap",
+  "4v4 rallyball back court attack no attack line restriction",
+  "4v4 rallyball no libero single referee",
+  "4v4 rallyball roster size player rotation rules",
+  "4v4 rallyball net height 2.15m girls 2.20m boys",
+
+  // 6v6 Rallyball Topics
+  "6v6 rallyball tripleball sequence service rotation",
+  "6v6 rallyball designated setter position scoresheet",
+  "6v6 rallyball overhand serve receive fault point",
+  "6v6 rallyball serve reception configuration same throughout set",
+  "6v6 rallyball position switching after serve restrictions",
+  "6v6 rallyball free ball tosser guidelines position 5 6",
+  "6v6 rallyball forearm pass free ball reception",
+  "6v6 rallyball no libero full court 9m 18m",
+  "6v6 rallyball substitution between tripleball sequences",
+  "6v6 rallyball setter position 1 2 3 front row",
+
+  // Beach Volleyball Topics
+  "beach volleyball block counts team hit three hits",
+  "beach volleyball no open hand tips dinks cobra knuckles",
+  "beach volleyball overhand set perpendicular shoulders square",
+  "beach volleyball court 16m 8m sand no centre line",
+  "beach volleyball two players no substitutions",
+  "beach volleyball sets to 21 points deciding set 15",
+  "beach volleyball court switch every 7 points 5 deciding",
+  "beach volleyball server alternate each time gain serve",
+  "beach volleyball no positional faults free positioning",
+  "beach volleyball one timeout per set 30 seconds",
+  "beach volleyball ball lower pressure 0.175 waterproof",
+  "beach volleyball play barefoot jerseys numbered 1 2",
+  "beach volleyball injury player team incomplete loses"
 ];
 
 // Question scenario types for variety
@@ -136,13 +191,30 @@ export async function POST(request: Request) {
       }
     }
   } catch (searchError) {
-    return NextResponse.json(
-      { error: "Failed to search rules", details: (searchError as Error).message },
-      { status: 500 }
-    );
+    // RAG search failed — fall back to static content
   }
 
-  if (allChunks.length === 0) {
+  // Detect if selected topics involve 4v4, 6v6, or beach formats
+  const topicStr = selectedTopics.join(" ").toLowerCase();
+  const is4v4 = topicStr.includes("4v4");
+  const is6v6 = topicStr.includes("6v6");
+  const isBeach = topicStr.includes("beach");
+
+  // Always supplement with static module content for format-specific topics
+  let staticContext = "";
+  if (is4v4) {
+    staticContext = getStaticModuleContext("rallyball-4v4");
+  } else if (is6v6) {
+    staticContext = getStaticModuleContext("rallyball-6v6");
+  } else if (isBeach) {
+    staticContext = getStaticModuleContext("beach");
+  }
+
+  // If RAG returned nothing, fall back entirely to static content
+  if (allChunks.length === 0 && !staticContext) {
+    staticContext = getStaticModuleContext();
+  }
+  if (allChunks.length === 0 && !staticContext) {
     return NextResponse.json(
       { 
         error: "No rules found in database", 
@@ -181,14 +253,21 @@ export async function POST(request: Request) {
       - Examples: simultaneous faults, replay vs point decisions, sanction escalation`
   };
 
-  const system = `You are an elite volleyball referee trainer and FIVB rules expert. Your task is to create ONE highly specific, practical quiz question that will genuinely help referees improve their officiating skills.
+  const system = `You are an elite volleyball rules expert covering FOUR formats: Indoor 6v6, 4v4 Rallyball (OVA), 6v6 Rallyball (OVA), and Beach Volleyball (FIVB). Your task is to create ONE highly specific, practical quiz question that will genuinely help players and referees improve their knowledge.
+
+IMPORTANT FORMAT AWARENESS:
+- If the context mentions "4v4 Rallyball" or "Tripleball" or "diamond/square formation", create a question about 4v4 Rallyball rules specifically.
+- If the context mentions "6v6 Rallyball" or "designated setter position" or "free ball tosser", create a question about 6v6 Rallyball rules specifically.
+- If the context mentions "beach volleyball" or "sand court" or "2-player team" or "block counts as hit", create a question about Beach Volleyball rules specifically.
+- Otherwise, create a question about standard Indoor Volleyball rules.
+- ALWAYS clearly indicate which format the question is about in the question text.
 
 CRITICAL REQUIREMENTS:
-1. The question MUST be based on a realistic game situation that a referee would actually encounter
+1. The question MUST be based on a realistic game situation
 2. Include specific details: player positions, game score context if relevant, exact actions
 3. All 4 options must be plausible - no obviously wrong answers
 4. The correct answer MUST be one of the exact option strings you provide
-5. The explanation must cite the specific rule number/section from FIVB rules
+5. The explanation must cite the specific rule or regulation
 
 QUESTION FOCUS AREA: ${focusArea}
 SCENARIO TYPE: ${randomScenarioType}
@@ -217,13 +296,14 @@ QUALITY CHECKLIST:
 - Does the explanation teach something valuable?
 - Are the wrong options realistic mistakes a referee might make?`;
 
-  const context = formatRuleContext(finalChunks);
+  const ragContext = finalChunks.length > 0 ? formatRuleContext(finalChunks) : "";
+  const combinedContext = [ragContext, staticContext].filter(Boolean).join("\n\n---\n\n");
 
   let content: string;
   try {
     content = await llmChat([
       { role: "system", content: system },
-      { role: "user", content: `Based on these official volleyball rules, create a ${safeDifficulty} difficulty question:\n\n${context}\n\nRemember: Return ONLY valid JSON. The "answer" field must be the COMPLETE text of one of your options, including the letter prefix (e.g., "Option A - The correct answer text").` }
+      { role: "user", content: `Based on these official volleyball rules, create a ${safeDifficulty} difficulty question:\n\n${combinedContext}\n\nRemember: Return ONLY valid JSON. The "answer" field must be the COMPLETE text of one of your options, including the letter prefix (e.g., "Option A - The correct answer text").` }
     ], "gpt-4o", { temperature: 0.85 }); // Higher temperature for more variety
   } catch (llmError) {
     return NextResponse.json(

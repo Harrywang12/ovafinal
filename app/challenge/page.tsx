@@ -3,7 +3,7 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { useState, useEffect, useMemo, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Trophy, RefreshCcw, Medal, Crown, Send, Loader2, Video, Timer, CheckCircle2, XCircle } from "lucide-react";
+import { Trophy, RefreshCcw, Medal, Crown, Send, Loader2, Video, Timer, CheckCircle2, XCircle, Palmtree, Building2 } from "lucide-react";
 import { AuthGuard } from "../../components/auth-guard";
 import { fadeInUp, staggerContainer, staggerItem, scaleIn } from "../../lib/animations";
 import { useSupabaseAuth } from "../../lib/useSupabaseAuth";
@@ -29,6 +29,7 @@ export default function ChallengePage() {
     score: number;
   } | null>(null);
   const [evaluationError, setEvaluationError] = useState<string | null>(null);
+  const [videoCategory, setVideoCategory] = useState<"indoor" | "beach">("indoor");
 
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const hasPausedRef = useRef(false);
@@ -38,10 +39,10 @@ export default function ChallengePage() {
   const isAnswered = useMemo(() => evaluationResult !== null || evaluationError !== null, [evaluationResult, evaluationError]);
 
   const challengeQuery = useQuery({
-    queryKey: ["challenge"],
+    queryKey: ["challenge", videoCategory],
     enabled: !!session?.access_token,
     queryFn: async () => {
-      const res = await fetch("/api/challenge", {
+      const res = await fetch(`/api/challenge?category=${videoCategory}`, {
         headers: session?.access_token ? { Authorization: `Bearer ${session.access_token}` } : undefined,
       });
       if (!res.ok) throw new Error("Failed to load challenge");
@@ -213,9 +214,39 @@ export default function ChallengePage() {
             <h1 className="text-4xl md:text-5xl font-display font-bold text-primary mb-4">
               Weekly Challenge
             </h1>
-            <p className="text-muted text-lg max-w-xl mx-auto">
+            <p className="text-muted text-lg max-w-xl mx-auto mb-6">
               One brutal rally per week. Submit your ruling, climb the leaderboard, claim bragging rights.
             </p>
+
+            {/* Indoor / Beach Toggle */}
+            <div className="inline-flex items-center rounded-full bg-white border border-border shadow-sm p-1 gap-1">
+              <motion.button
+                whileHover={{ scale: 1.03 }}
+                whileTap={{ scale: 0.97 }}
+                onClick={() => setVideoCategory("indoor")}
+                className={`flex items-center gap-2 px-5 py-2 rounded-full text-sm font-semibold transition-all duration-300 ${
+                  videoCategory === "indoor"
+                    ? "bg-primary text-white shadow-md"
+                    : "text-muted hover:text-ink"
+                }`}
+              >
+                <Building2 size={16} />
+                Indoor
+              </motion.button>
+              <motion.button
+                whileHover={{ scale: 1.03 }}
+                whileTap={{ scale: 0.97 }}
+                onClick={() => setVideoCategory("beach")}
+                className={`flex items-center gap-2 px-5 py-2 rounded-full text-sm font-semibold transition-all duration-300 ${
+                  videoCategory === "beach"
+                    ? "bg-cyan-500 text-white shadow-md"
+                    : "text-muted hover:text-ink"
+                }`}
+              >
+                <Palmtree size={16} />
+                Beach
+              </motion.button>
+            </div>
           </motion.div>
 
           {/* Refresh Button */}

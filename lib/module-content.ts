@@ -24,6 +24,8 @@ export interface Module {
   heroImage: string;
   estimatedTime: string;
   ruleRange: string;
+  category: "indoor" | "rallyball-4v4" | "rallyball-6v6" | "beach";
+  chapterLabel?: string; // Optional override for display (e.g., "4v4" instead of "Ch. 1")
   lessons: Lesson[];
   nextModule?: string;
 }
@@ -39,6 +41,7 @@ export const moduleContent: Record<string, Module> = {
     colorClass: "bg-blue-500",
     heroImage: "https://images.unsplash.com/photo-1612872087720-bb876e2e67d1?w=1200&q=80",
     estimatedTime: "12 min",
+    category: "indoor",
     ruleRange: "Rules 1-3",
     nextModule: "participants",
     lessons: [
@@ -143,6 +146,7 @@ export const moduleContent: Record<string, Module> = {
     colorClass: "bg-purple-500",
     heroImage: "https://images.unsplash.com/photo-1515523110800-9415d13b84a8?w=1200&q=80",
     estimatedTime: "10 min",
+    category: "indoor",
     ruleRange: "Rules 4-5",
     nextModule: "format",
     lessons: [
@@ -203,6 +207,7 @@ export const moduleContent: Record<string, Module> = {
     colorClass: "bg-green-500",
     heroImage: "https://images.unsplash.com/photo-1580692475446-c2fabbbbf835?w=1200&q=80",
     estimatedTime: "15 min",
+    category: "indoor",
     ruleRange: "Rules 6-7",
     nextModule: "actions",
     lessons: [
@@ -282,6 +287,7 @@ export const moduleContent: Record<string, Module> = {
     colorClass: "bg-amber-500",
     heroImage: "https://images.unsplash.com/photo-1574629810360-7efbbe195018?w=1200&q=80",
     estimatedTime: "25 min",
+    category: "indoor",
     ruleRange: "Rules 8-14",
     nextModule: "interruptions",
     lessons: [
@@ -448,6 +454,7 @@ export const moduleContent: Record<string, Module> = {
     colorClass: "bg-indigo-500",
     heroImage: "https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?w=1200&q=80",
     estimatedTime: "15 min",
+    category: "indoor",
     ruleRange: "Rules 15-18",
     nextModule: "libero",
     lessons: [
@@ -550,6 +557,7 @@ export const moduleContent: Record<string, Module> = {
     colorClass: "bg-yellow-500",
     heroImage: "https://images.unsplash.com/photo-1588492069485-d05b56b2831d?w=1200&q=80",
     estimatedTime: "12 min",
+    category: "indoor",
     ruleRange: "Rule 19",
     nextModule: "conduct",
     lessons: [
@@ -609,6 +617,7 @@ export const moduleContent: Record<string, Module> = {
     colorClass: "bg-red-500",
     heroImage: "https://images.unsplash.com/photo-1546519638-68e109498ffc?w=1200&q=80",
     estimatedTime: "10 min",
+    category: "indoor",
     ruleRange: "Rules 20-21",
     nextModule: "referees",
     lessons: [
@@ -668,6 +677,7 @@ export const moduleContent: Record<string, Module> = {
     colorClass: "bg-orange-500",
     heroImage: "https://images.unsplash.com/photo-1578763363228-6e8428de69b2?w=1200&q=80",
     estimatedTime: "20 min",
+    category: "indoor",
     ruleRange: "Rules 22-32",
     nextModule: "scorekeeping",
     lessons: [
@@ -769,6 +779,7 @@ export const moduleContent: Record<string, Module> = {
     colorClass: "bg-sky-500",
     heroImage: "https://images.unsplash.com/photo-1606925797300-0b35e9d1794e?w=1200&q=80",
     estimatedTime: "20 min",
+    category: "indoor",
     ruleRange: "Score Sheet",
     lessons: [
       {
@@ -921,6 +932,362 @@ export const moduleContent: Record<string, Module> = {
         diagram: "court-layout"
       }
     ]
+  },
+
+  // ═══════════════════════════════════════════════════════════
+  // 4v4 RALLYBALL MODULES
+  // ═══════════════════════════════════════════════════════════
+  "rallyball-4v4": {
+    id: "rallyball-4v4",
+    chapter: 10,
+    chapterLabel: "4v4",
+    title: "4v4 Rallyball",
+    description: "Master the rules of 4v4 Rallyball — OVA's entry-level format featuring smaller courts, diamond/square formations, Tripleball sequences, and rotational substitutions.",
+    icon: "🏐",
+    color: "#f97316",
+    colorClass: "bg-orange-500",
+    heroImage: "/images/4v4-rallyball-hero.png",
+    estimatedTime: "15 min",
+    category: "rallyball-4v4",
+    ruleRange: "4v4 Rules",
+    lessons: [
+      {
+        id: "4v4-court-equipment",
+        title: "Court & Equipment",
+        subtitle: "Court dimensions, net heights, and ball specifications",
+        content: [
+          "4v4 Rallyball is played on a smaller court measuring 7m × 14m, or as close as the facility has available — typically a badminton doubles court. This compact size encourages faster play and more ball contacts per player.",
+          "The net height is set at 2.15m for Girls divisions and 2.20m for Boys/Co-Ed divisions. These heights are slightly lower than standard indoor to accommodate the younger age group (2014 & Under birth year, with 24-month eligibility).",
+          "The official ball for 4v4 Rallyball is the Mikasa VUL 500. This is a lighter training ball designed for younger athletes, promoting proper technique development without the heaviness of competition balls.",
+          "There is no Libero in 4v4 Rallyball. The format is intentionally simplified to focus on fundamental skill development. A single referee is provided for each match.",
+          "Divisions are split into Boys/Co-Ed and Girls. There are no divisional splits during the regular season, though Ontario Championships will be split into Division 1 and Division 2."
+        ],
+        keyPoints: [
+          "Court: 7m × 14m (badminton doubles)",
+          "Net: 2.15m Girls, 2.20m Boys/Co-Ed",
+          "Ball: Mikasa VUL 500",
+          "No Libero allowed",
+          "Age: 2014 & Under (24-month eligibility)"
+        ],
+        ruleRef: "OVA 4v4 Rallyball Regulations",
+        diagram: "court-layout"
+      },
+      {
+        id: "4v4-teams-formations",
+        title: "Teams & Formations",
+        subtitle: "Roster size, formations, and designated setter",
+        content: [
+          "The recommended roster size is 6-8 athletes. Larger rosters are encouraged to be split into 2 teams for the 4v4 competition. A team that is split up will be placed in the same regular season event.",
+          "Teams can use either a DIAMOND formation or a SQUARE formation (2 front, 2 back). Both formations have their strategic advantages — the diamond provides a central front-row player for setting, while the square provides more balanced coverage.",
+          "Teams must designate the setter position and maintain it for the entire set. The designated setting position MUST be front row. This rule ensures proper setter development.",
+          "All team members must play in each set. The only exception is if a team has more than 10 players on their roster, in which case they can be split into two groups who each participate in a single set. If the match goes to a third set tiebreaker, the coach can play one of the groups a second time.",
+          "The server is always the player who has just rotated from the front row to the back row. In a box/square formation, this is the player from the front row right side. In a diamond formation, this is the player from the front row middle position rotating to the right."
+        ],
+        keyPoints: [
+          "Roster: 6-8 athletes recommended",
+          "Diamond or Square (2 front, 2 back) formation",
+          "Designated setter must be front row",
+          "All players must play each set",
+          "Server = player who just rotated from front to back"
+        ],
+        ruleRef: "OVA 4v4 Playing Regulations",
+        diagram: "player-positions"
+      },
+      {
+        id: "4v4-tripleball",
+        title: "The Tripleball System",
+        subtitle: "How the 3-rally sequence works in 4v4",
+        content: [
+          "4v4 Rallyball uses the TRIPLEBALL system — a sequence of three rallies designed to promote better skill development, participation, and fun. Each sequence consists of: (1) a served ball, (2) a free ball tossed to the receiving team, and (3) a free ball tossed to the serving team.",
+          "Players not on the court must rotate INTO the game upon completion of the Tripleball sequence that follows their serve. For example: Player A serves the ball and stays on court for the following 2 free balls to complete the sequence. Once complete, Player A rotates out and Player B takes their place.",
+          "The match format is 3 straight sets to 15 points with no cap in any set. This means there is no deciding set played to a lower point total — all three sets go to 15.",
+          "First serve alternation: If Team A serves first in set 1, then Team B serves first in set 2, and Team A serves first in set 3. The first serve in a new set is always given to the team that did not serve first in the previous set.",
+          "Substitutions are rotational — meaning players cycle in and out as part of the Tripleball rotation system rather than using traditional substitution rules. Specialization is not permitted in 4v4 Rallyball."
+        ],
+        keyPoints: [
+          "3-rally sequence: serve → free ball (receiver) → free ball (server)",
+          "Players rotate out after completing their Tripleball sequence",
+          "Match: 3 straight sets to 15 (no cap)",
+          "Rotational substitutions only",
+          "No specialization permitted"
+        ],
+        ruleRef: "OVA 4v4 Tripleball Regulations",
+        diagram: "court-layout"
+      },
+      {
+        id: "4v4-playing-regulations",
+        title: "Playing Regulations",
+        subtitle: "Serve receive, attacking, and warm-up rules",
+        content: [
+          "OVERHAND SERVE RECEIVE IS NOT ALLOWED. If a team receives a serve with an overhand pass, this is a fault and the point goes to the other team. However, if a team receives a free ball TOSS with an overhand pass, this is a re-toss (not a fault).",
+          "The player(s) in the back court (serve receiver/server) are permitted to attack from ANYWHERE on the court. There is no back-row attack line restriction in 4v4 Rallyball.",
+          "WARM-UP PROTOCOL — First match of the day: 8 min shared court, 4 min exclusive for serving team, 4 min exclusive for receiving team. All remaining matches: 2 min shared court, 4 min exclusive per team. No shared hitting or travelling under net during warm-ups.",
+          "A team's set ratio from the Bugarski Cup will be used to help seed teams for Ontario Championships. This ranking is calculated from regular season events.",
+          "No medals are awarded until the Ontario Championships. The focus during the regular season is developmental. The Ontario Championships is a 2-day event with medals for Division 1 and Division 2."
+        ],
+        keyPoints: [
+          "No overhand serve receive (fault)",
+          "Overhand free ball toss receive = re-toss only",
+          "Back court players can attack from anywhere",
+          "Warm-up: 8+4+4 (first match), 2+4+4 (rest)",
+          "Set ratio seeds Ontario Championships"
+        ],
+        ruleRef: "OVA 4v4 Playing Regulations",
+        vcNote: "Athletes need a Recreational membership — upgrade to full competitive membership if participating in 6v6 or TLS competitions.",
+        diagram: "court-layout"
+      }
+    ]
+  },
+
+  // ═══════════════════════════════════════════════════════════
+  // 6v6 RALLYBALL MODULES
+  // ═══════════════════════════════════════════════════════════
+  "rallyball-6v6": {
+    id: "rallyball-6v6",
+    chapter: 11,
+    chapterLabel: "6v6",
+    title: "6v6 Rallyball",
+    description: "Learn the unique rules of 6v6 Rallyball — OVA's developmental format with Tripleball sequences, designated setter positions, and serve reception rules.",
+    icon: "🏐",
+    color: "#8b5cf6",
+    colorClass: "bg-violet-500",
+    heroImage: "/images/6v6-rallyball-hero.png",
+    estimatedTime: "18 min",
+    category: "rallyball-6v6",
+    ruleRange: "6v6 Rules",
+    lessons: [
+      {
+        id: "6v6-court-equipment",
+        title: "Court & Equipment",
+        subtitle: "Court dimensions, net heights, and divisions",
+        content: [
+          "6v6 Rallyball is played on a full-size court measuring 9m × 18m — the same dimensions as standard indoor volleyball. This prepares athletes for the transition to competitive 6v6 play.",
+          "Net heights are 2.15m for Female and 2.20m for Male divisions. These are slightly lower than standard competition heights to accommodate the younger age group (2013 & Under birth year, with 24-month eligibility).",
+          "The official ball is the Mikasa VQ200W-OVA. This is a step up from the 4v4 ball, moving closer to competition-grade equipment. All athletes require a full competitive membership.",
+          "Girls divisions self-declare into three tiers: Select (Tier 1), Championship (Tier 2), or Trillium (Tier 3) for all events. Boys divisions use a realignment system throughout the season based on results.",
+          "There is NO Libero in 6v6 Rallyball. A single referee is provided for matches. Medals are awarded for ALL events and Ontario Championships, unlike 4v4 where medals are only at Championships."
+        ],
+        keyPoints: [
+          "Court: 9m × 18m (full size)",
+          "Net: 2.15m Female, 2.20m Male",
+          "Ball: Mikasa VQ200W-OVA",
+          "No Libero allowed",
+          "Girls: 3 self-declare tiers; Boys: realignment"
+        ],
+        ruleRef: "OVA 6v6 Rallyball Regulations",
+        diagram: "court-layout"
+      },
+      {
+        id: "6v6-tripleball-service",
+        title: "Tripleball & Service",
+        subtitle: "The 3-rally sequence and service rotation",
+        content: [
+          "The TRIPLEBALL system in 6v6 follows the same 3-rally sequence: (1) the game starts with a service, (2) a free ball is tossed to the receiving team, (3) a free ball is tossed to the serving team. Every ball introduced is worth one point.",
+          "The service ROTATES between teams after each three-ball sequence. A team must rotate and introduce a new server when it is their turn to serve. This ensures continuous rotation through the lineup.",
+          "Teams are required to declare on the scoresheet a DESIGNATED SETTER POSITION prior to the start of each set. For example, if a team circles position 3 on their lineup, the athlete in position 3 is the 'setter' throughout that set.",
+          "The setter is allowed to come out of position #1, #2, or #3. The setter position must remain the same for the entire set, but can be changed between sets if the team chooses.",
+          "Other players are permitted to perform the second contact if needed, but it is up to the official's discretion to issue a warning if the team is not using their designated setter position properly. Further discipline is possible if the team refuses to follow this rule."
+        ],
+        keyPoints: [
+          "3-rally: serve → free ball (receiver) → free ball (server)",
+          "Service rotates between teams after each sequence",
+          "Must declare designated setter on scoresheet",
+          "Setter can come from position 1, 2, or 3",
+          "Setter position stays same for entire set"
+        ],
+        ruleRef: "OVA 6v6 Rallyball Rules",
+        diagram: "player-positions"
+      },
+      {
+        id: "6v6-serving-reception",
+        title: "Serving & Reception Rules",
+        subtitle: "Serve receive restrictions and positional rules",
+        content: [
+          "OVERHAND SERVE RECEIVE IS NOT ALLOWED. If a team receives a serve with an overhand pass, this is a fault and the point goes to the other team. However, if a team receives a toss with an overhand pass, this is a re-toss (not a fault).",
+          "When SERVING, players cannot switch positions after the serve. Players must remain in their rotational order until the ball crosses back to their side of the net. Once the ball crosses back over, normal volleyball movement is allowed during the play, but players must come back to rotational order once the ball is sent to the other side.",
+          "When in SERVE RECEPTION, the players' serve reception configuration needs to be the SAME throughout the set along with the designated setter position. Teams cannot change their receive pattern.",
+          "COMMON MISINTERPRETATION: 'Teams can isolate players in serve reception in certain rotations' — this is FALSE. Teams need to keep the same serve-reception configuration throughout the whole set. A position can be isolated (e.g., athlete in position 1), but that position needs to be consistently isolated throughout.",
+          "Requests for substitutions can only occur BETWEEN a three-ball sequence, not during one. In the deciding set, teams switch sides once a team reaches 8 points. If this occurs during a Tripleball sequence, the change of court will be made after the sequence is completed."
+        ],
+        keyPoints: [
+          "No overhand serve receive (fault → point to opponent)",
+          "Overhand toss receive = re-toss only",
+          "Can't switch positions until ball returns to your side",
+          "Same serve-receive configuration all set long",
+          "Subs only between Tripleball sequences"
+        ],
+        ruleRef: "OVA 6v6 Positional Regulations",
+        diagram: "court-layout"
+      },
+      {
+        id: "6v6-free-ball-tosser",
+        title: "Free Ball & Tosser Guidelines",
+        subtitle: "How free balls are introduced and tosser responsibilities",
+        content: [
+          "The free ball toss occurs when the three front row athletes are standing at the net and READY TO TRANSITION. Once there is a verbal/non-verbal cue (tosser can say 'Free Ball' or slap the volleyball), athletes are permitted to transition off the net.",
+          "The free ball introduction toss can be directed to position 5 or position 6. The toss must be CONSISTENT in each match — tossers cannot switch between positions during a match.",
+          "Free balls MUST be received with a forearm pass, otherwise a replay will occur. This rule promotes fundamental passing skills. However, an overpass from the free ball toss is NOT a re-toss — play continues normally.",
+          "GUIDELINES FOR TOSSERS: (1) The Head Coach, Assistant Coach, or a competent volunteer may be the Tosser and introduce balls to their own team. The Tosser is NOT allowed to verbally coach while tossing. (2) Balls must be tossed underhand with two hands, with little to no spin, above antenna height.",
+          "The Tosser can step into the court to introduce the ball but must immediately move a safe distance away after the toss. The free ball must be introduced directly to the athlete in position 5 or 6 — otherwise a replay will occur. Tossers should encourage a fast-paced transition between rallies."
+        ],
+        keyPoints: [
+          "Free ball only when front row at net and ready",
+          "Toss to position 5 or 6 consistently",
+          "Must receive free ball with forearm pass",
+          "Tosser: underhand, two hands, above antenna height",
+          "No coaching while tossing"
+        ],
+        ruleRef: "OVA 6v6 Tosser Guidelines",
+        vcNote: "The Head Coach, Assistant Coach, or competent volunteer can be the Tosser. They introduce balls to their OWN team only.",
+        diagram: "court-layout"
+      }
+    ]
+  },
+
+  // ═══════════════════════════════════════════════════════════
+  // BEACH VOLLEYBALL MODULES
+  // ═══════════════════════════════════════════════════════════
+  "beach": {
+    id: "beach",
+    chapter: 12,
+    chapterLabel: "Beach",
+    title: "Beach Volleyball",
+    description: "Learn the complete FIVB Beach Volleyball rules — from sand court specifications to the unique ball handling, blocking, and two-player team format.",
+    icon: "🏖️",
+    color: "#06b6d4",
+    colorClass: "bg-cyan-500",
+    heroImage: "/images/beach-volleyball-hero.png",
+    estimatedTime: "25 min",
+    category: "beach",
+    ruleRange: "FIVB Beach Rules",
+    lessons: [
+      {
+        id: "beach-court-equipment",
+        title: "Court & Equipment",
+        subtitle: "Sand court dimensions, net heights, and ball specifications",
+        content: [
+          "The beach volleyball court is a rectangle measuring 16m × 8m — smaller than indoor (18m × 9m). It is surrounded by a free zone of at least 3m on all sides (5-6m for FIVB competitions). The free playing space above is minimum 7m (12.5m for FIVB).",
+          "The playing surface must be composed of LEVELLED SAND, as flat and uniform as possible, free of rocks, shells, and anything else which could cause injury. For FIVB competitions, sand must be at least 40cm deep and composed of fine loosely compacted grains.",
+          "There is NO CENTRE LINE on a beach volleyball court. Both side and end lines are drawn inside the dimensions with ribbons. Court lines should be ribbons made of resistant material, and any exposed anchors must be of soft, flexible material. All lines are 5cm wide.",
+          "Net height is 2.43m for men and 2.24m for women — same as indoor. Youth heights: 16U both 2.24m, 14U both 2.12m, 12U both 2.00m. The net is 8.5m long (shorter than indoor's 9.5-10m) and 1m wide.",
+          "The ball circumference is 66-68cm (slightly larger than indoor's 65-67cm) and weighs 260-280g. The inside pressure is much lower: 0.175-0.225 kg/cm² (vs indoor's 0.30-0.325), making it travel slower in the outdoor environment. The ball must be waterproof for outdoor conditions."
+        ],
+        keyPoints: [
+          "Court: 16m × 8m (smaller than indoor)",
+          "Sand: at least 40cm deep for FIVB",
+          "No centre line on court",
+          "Net: same heights as indoor (2.43m/2.24m)",
+          "Ball: 66-68cm, lower pressure (0.175-0.225 kg/cm²)"
+        ],
+        ruleRef: "FIVB Beach Rules 1-3",
+        diagram: "court-layout"
+      },
+      {
+        id: "beach-teams-uniforms",
+        title: "Teams & Uniforms",
+        subtitle: "2-player teams, equipment, and captains",
+        content: [
+          "A beach volleyball team is composed exclusively of TWO PLAYERS. Only the two players recorded on the score sheet have the right to participate in the match. There are NO substitutions in beach volleyball.",
+          "One of the players is the team captain, indicated on the score sheet. Only the captain can speak to referees while the ball is out of play — to ask for rule explanations, request equipment changes, or request timeouts.",
+          "Player equipment consists of shorts or a bathing suit. A jersey or 'tank-top' is optional except when specified in Tournament Regulations. Players must play BAREFOOT except when authorized by the 1st referee.",
+          "Players' jerseys (or shorts if playing without a shirt) must be numbered 1 and 2. The number must be on the chest (or front of shorts), minimum 10cm height, with stripe minimum 1.5cm wide.",
+          "FORBIDDEN: Objects that may cause injury or give artificial advantage. Players may wear glasses or lenses at their own risk. Compression pads may be worn for protection. For FIVB senior competitions, these devices must match the uniform colour."
+        ],
+        keyPoints: [
+          "Exactly 2 players per team",
+          "No substitutions allowed",
+          "Play barefoot (normally)",
+          "Jerseys numbered 1 and 2 only",
+          "Captain is only one who can speak to refs"
+        ],
+        ruleRef: "FIVB Beach Rules 4-5",
+        diagram: "court-layout"
+      },
+      {
+        id: "beach-scoring-format",
+        title: "Scoring & Format",
+        subtitle: "Sets, match format, and court switches",
+        content: [
+          "Beach volleyball uses the Rally Point System, just like indoor. The team winning a rally scores a point. When the receiving team wins a rally, it gains a point AND the right to serve — but the serving player must be ALTERNATED each time.",
+          "A set (except the deciding 3rd set) is won by the team which first scores 21 POINTS with a minimum lead of 2 points. This is lower than indoor's 25 points, keeping beach matches dynamic and fast-paced.",
+          "The match is won by the team that wins TWO SETS (best of 3). The deciding 3rd set is played to 15 points with a minimum 2-point lead — same as indoor.",
+          "COURT SWITCHES happen every 7 POINTS combined in sets 1 and 2 (i.e., when the total points is a multiple of 7). In the deciding set, teams switch every 5 POINTS. This ensures neither team has an unfair advantage from wind or sun.",
+          "Players are FREE to position themselves — there are NO determined positions on the court. There are NO positional order faults. However, service order must be maintained throughout the set as determined by the captain after the toss."
+        ],
+        keyPoints: [
+          "Sets to 21 points (not 25), 2-pt lead",
+          "Deciding set to 15 points",
+          "Court switch every 7 points (5 in deciding set)",
+          "Server must alternate each time team gains serve",
+          "No positional faults — free positioning"
+        ],
+        ruleRef: "FIVB Beach Rules 6-7",
+        diagram: "court-layout"
+      },
+      {
+        id: "beach-ball-handling",
+        title: "Ball Handling & Playing Actions",
+        subtitle: "Block counts as a hit, setting rules, and no open-hand tips",
+        content: [
+          "The BIGGEST difference from indoor: In beach volleyball, the BLOCK COUNTS as a team hit. Teams get a maximum of THREE HITS to return the ball — and the block contact IS one of those three. After a block, the team only has TWO remaining hits.",
+          "SETTING OVER THE NET: When using an overhand finger pass to direct the ball toward the opponent, the player's shoulders must be SQUARE (perpendicular) to the direction of the set. This is a unique beach rule that prevents deceptive sets across the net.",
+          "The ball must be hit, not caught or thrown. However, beach volleyball is more lenient on contact — at the FIRST HIT (any hit not involving an overhand finger action), even if the ball is momentarily held, it is legal as long as it is not caught or thrown in a clear manner.",
+          "OPEN-HAND TIPS AND DINKS ARE NOT ALLOWED. When directing the ball toward the opponent with a finger action, the ball must be contacted with the heel or closed hand (knuckles). Tips must use a 'poke' or 'cobra' technique — never open fingertips.",
+          "The ball may touch any part of the body. Consecutive contacts are allowed during one action for the first team hit, similar to indoor. The ball is IN if any part touches the court boundary lines."
+        ],
+        keyPoints: [
+          "Block COUNTS as a team hit (3 total including block)",
+          "Overhand set over net: shoulders must be perpendicular",
+          "No open-hand tips — use knuckles/cobra only",
+          "First hit allows momentary hold",
+          "Court lines are IN (same as indoor)"
+        ],
+        ruleRef: "FIVB Beach Rules 9-11, 13-14",
+        diagram: "court-layout"
+      },
+      {
+        id: "beach-service-attack",
+        title: "Service & Attack",
+        subtitle: "Serving rules, screening, and attack characteristics",
+        content: [
+          "The first service in the 1st set is determined by the toss. In the 2nd set, the loser of the 1st set toss gets the choice. A new toss is conducted for the deciding set. The winner can choose to serve/receive or choose a side.",
+          "Service execution is similar to indoor: the ball must be hit with one hand or any part of the arm after being tossed or released. The server must not touch the end line or court at the moment of contact. After the hit, they may step onto the court.",
+          "SCREENING is not allowed — with only 2 players, there's effectively only the partner standing on the court. The teammate of the server must not prevent opponents from seeing the server or the ball flight path through screening.",
+          "An attack hit includes all actions directing the ball toward the opponent's court except service and block. Since there are no positions in beach volleyball, both players can attack from anywhere at any height.",
+          "BLOCKING THE SERVICE IS FORBIDDEN, same as indoor. Since the block counts as a team hit, a blocker who touches the ball only has 2 more team hits available. Consecutive contacts during blocking are legal."
+        ],
+        keyPoints: [
+          "New toss for deciding set",
+          "Service rules similar to indoor",
+          "No screening by partner",
+          "Both players can attack from anywhere",
+          "Block service = fault (same as indoor)"
+        ],
+        ruleRef: "FIVB Beach Rules 12-14",
+        diagram: "court-layout"
+      },
+      {
+        id: "beach-interruptions-conduct",
+        title: "Interruptions & Conduct",
+        subtitle: "Timeouts, delays, court switches, and sanctions",
+        content: [
+          "Each team is allowed ONE timeout per set, lasting 30 SECONDS. This is fewer than indoor's 2 timeouts. Technical timeouts may apply in FIVB competitions at specific point totals.",
+          "Since there are NO SUBSTITUTIONS in beach volleyball, there are no substitution-related interruptions. This makes the game flow much faster than indoor volleyball.",
+          "If a player is injured and cannot continue, the team is declared INCOMPLETE and loses the set or match. The opponent is given the points/sets needed to win. There is no recovery time or exceptional substitution like in indoor.",
+          "The MISCONDUCT and SANCTIONS scale is similar to indoor: (1) Minor misconduct → verbal warning → Yellow Card (warning). (2) Rude conduct → Red Card (penalty: point to opponent). (3) Offensive conduct → Expulsion (red + yellow jointly). (4) Aggression → Disqualification (red + yellow separately).",
+          "DELAY SANCTIONS work the same as indoor: first delay = warning (whole match), subsequent delays = penalty (point to opponent). All sanctions carry forward through the entire match."
+        ],
+        keyPoints: [
+          "1 timeout per set (30 seconds)",
+          "No substitutions at all",
+          "Injured player = team is incomplete, loses",
+          "Sanction scale same as indoor (Yellow → Red → cards)",
+          "Court switch every 7 points (5 in deciding set)"
+        ],
+        ruleRef: "FIVB Beach Rules 15-20",
+        diagram: "sanction-cards"
+      }
+    ]
   }
 };
 
@@ -932,6 +1299,13 @@ export function getModuleBySlug(slug: string): Module | undefined {
 // Get all modules as array for listing
 export function getAllModules(): Module[] {
   return Object.values(moduleContent).sort((a, b) => a.chapter - b.chapter);
+}
+
+// Get modules filtered by category
+export function getModulesByCategory(category: Module["category"]): Module[] {
+  return Object.values(moduleContent)
+    .filter(m => m.category === category)
+    .sort((a, b) => a.chapter - b.chapter);
 }
 
 // Get next module for navigation

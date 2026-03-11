@@ -3,7 +3,7 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Timer, Trophy, Play, CheckCircle2, XCircle, ArrowRight, Video, Zap } from "lucide-react";
+import { Timer, Trophy, Play, CheckCircle2, XCircle, ArrowRight, Video, Zap, Building2, Palmtree } from "lucide-react";
 import { AuthGuard } from "../../components/auth-guard";
 import { fadeInUp, staggerContainer, staggerItem, scaleIn } from "../../lib/animations";
 import { useSupabaseAuth } from "../../lib/useSupabaseAuth";
@@ -28,6 +28,7 @@ const difficultyColors = {
 export default function PracticePage() {
   const { session } = useSupabaseAuth();
   const [difficulty, setDifficulty] = useState<(typeof difficulties)[number]>("medium");
+  const [videoCategory, setVideoCategory] = useState<"indoor" | "beach">("indoor");
   const [clip, setClip] = useState<PracticeQuestion | null>(null);
   const [phase, setPhase] = useState<"idle" | "question" | "resuming" | "done">("idle");
   const [timeLeftMs, setTimeLeftMs] = useState<number | null>(null);
@@ -48,10 +49,10 @@ export default function PracticePage() {
   const isAnswered = useMemo(() => evaluationResult !== null || evaluationError !== null, [evaluationResult, evaluationError]);
 
   const clipQuery = useQuery({
-    queryKey: ["practice", difficulty],
+    queryKey: ["practice", difficulty, videoCategory],
     enabled: !!session?.access_token,
     queryFn: async () => {
-      const res = await fetch(`/api/practice?difficulty=${difficulty}`, {
+      const res = await fetch(`/api/practice?difficulty=${difficulty}&category=${videoCategory}`, {
         headers: session?.access_token ? { Authorization: `Bearer ${session.access_token}` } : undefined,
       });
       if (!res.ok) {
@@ -93,7 +94,7 @@ export default function PracticePage() {
       clipQuery.refetch();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [difficulty, session?.access_token]);
+  }, [difficulty, videoCategory, session?.access_token]);
 
   // Answer-window countdown (ms precision)
   useEffect(() => {
@@ -228,9 +229,39 @@ export default function PracticePage() {
             <h1 className="text-4xl md:text-5xl font-display font-bold text-primary mb-4">
               Video Practice
             </h1>
-            <p className="text-muted text-lg max-w-xl mx-auto">
+            <p className="text-muted text-lg max-w-xl mx-auto mb-6">
               Real game footage with timed decisions. Train your instincts at match speed.
             </p>
+
+            {/* Indoor / Beach Toggle */}
+            <div className="inline-flex items-center rounded-full bg-white border border-border shadow-sm p-1 gap-1">
+              <motion.button
+                whileHover={{ scale: 1.03 }}
+                whileTap={{ scale: 0.97 }}
+                onClick={() => setVideoCategory("indoor")}
+                className={`flex items-center gap-2 px-5 py-2 rounded-full text-sm font-semibold transition-all duration-300 ${
+                  videoCategory === "indoor"
+                    ? "bg-primary text-white shadow-md"
+                    : "text-muted hover:text-ink"
+                }`}
+              >
+                <Building2 size={16} />
+                Indoor
+              </motion.button>
+              <motion.button
+                whileHover={{ scale: 1.03 }}
+                whileTap={{ scale: 0.97 }}
+                onClick={() => setVideoCategory("beach")}
+                className={`flex items-center gap-2 px-5 py-2 rounded-full text-sm font-semibold transition-all duration-300 ${
+                  videoCategory === "beach"
+                    ? "bg-cyan-500 text-white shadow-md"
+                    : "text-muted hover:text-ink"
+                }`}
+              >
+                <Palmtree size={16} />
+                Beach
+              </motion.button>
+            </div>
           </motion.div>
 
           {/* Difficulty Selector & New Clip */}
