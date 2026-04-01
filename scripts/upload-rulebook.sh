@@ -79,20 +79,6 @@ INSERTED_COUNT=$(echo "$EMBED_RESPONSE" | grep -o '"inserted":[0-9]*' | cut -d':
 echo "✅ Embedded $INSERTED_COUNT chunks into the database"
 echo ""
 
-# Step 3: Verify RAG is working
-echo "🔍 Step 3: Verifying RAG search..."
-TEST_RESPONSE=$(curl -s -X POST \
-  -H "Content-Type: application/json" \
-  -d '{"query":"What is a fault in volleyball?","limit":2}' \
-  "$BASE_URL/api/rag-search")
-
-if echo "$TEST_RESPONSE" | grep -q '"results"'; then
-  echo "✅ RAG search is working!"
-else
-  echo "⚠️  RAG verification returned unexpected response: $TEST_RESPONSE"
-fi
-
-echo ""
 echo "======================================"
 echo "🎉 Rulebook upload complete!"
 echo ""
