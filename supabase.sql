@@ -19,6 +19,100 @@ create table if not exists public.quiz_attempts (
   created_at timestamp with time zone default timezone('utc'::text, now())
 );
 
+-- Learner profiles
+create table if not exists public.profiles (
+  user_id uuid primary key references auth.users(id) on delete cascade,
+  email text,
+  referee_level text not null default 'level_1'
+    check (referee_level in ('level_1', 'level_2', 'level_3', 'level_4')),
+  created_at timestamp with time zone default timezone('utc'::text, now()),
+  updated_at timestamp with time zone default timezone('utc'::text, now())
+);
+
+create or replace function public.touch_updated_at()
+returns trigger
+language plpgsql
+as $$
+begin
+  new.updated_at = timezone('utc'::text, now());
+  return new;
+end;
+$$;
+
+drop trigger if exists profiles_touch_updated_at on public.profiles;
+create trigger profiles_touch_updated_at
+before update on public.profiles
+for each row execute function public.touch_updated_at();
+
+-- Module learning progress
+create table if not exists public.module_lesson_progress (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid not null references auth.users(id) on delete cascade,
+  module_id text not null,
+  lesson_id text not null,
+  viewed_at timestamp with time zone default timezone('utc'::text, now()),
+  unique (user_id, module_id, lesson_id)
+);
+
+create table if not exists public.module_quiz_attempts (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid not null references auth.users(id) on delete cascade,
+  module_id text not null,
+  question_level text not null check (question_level in ('beginner', 'intermediate', 'hard')),
+  question jsonb not null,
+  selected_option text not null,
+  correct boolean not null,
+  created_at timestamp with time zone default timezone('utc'::text, now())
+);
+
+create index if not exists module_quiz_attempts_user_module_created_idx
+  on public.module_quiz_attempts (user_id, module_id, created_at desc);
+
+create table if not exists public.module_passes (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid not null references auth.users(id) on delete cascade,
+  module_id text not null,
+  latest_attempts_count integer not null default 10,
+  correct_count integer not null,
+  score_percent integer not null,
+  passed_at timestamp with time zone default timezone('utc'::text, now()),
+  unique (user_id, module_id)
+);
+
+create table if not exists public.quiz_adaptive_state (
+  user_id uuid primary key references auth.users(id) on delete cascade,
+  current_difficulty text not null check (current_difficulty in ('easy', 'medium', 'hard')),
+  correct_streak integer not null default 0,
+  incorrect_streak integer not null default 0,
+  updated_at timestamp with time zone default timezone('utc'::text, now())
+);
+
+drop trigger if exists quiz_adaptive_state_touch_updated_at on public.quiz_adaptive_state;
+create trigger quiz_adaptive_state_touch_updated_at
+before update on public.quiz_adaptive_state
+for each row execute function public.touch_updated_at();
+
+create table if not exists public.module_assignments (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid not null references auth.users(id) on delete cascade,
+  module_id text not null,
+  assigned_by uuid references auth.users(id) on delete set null,
+  assigned_at timestamp with time zone default timezone('utc'::text, now()),
+  unique (user_id, module_id)
+);
+
+create index if not exists module_assignments_user_idx
+  on public.module_assignments (user_id);
+
+create table if not exists public.quiz_assignments (
+  user_id uuid primary key references auth.users(id) on delete cascade,
+  question_quota integer not null check (question_quota > 0),
+  required_percent integer not null check (required_percent between 1 and 100),
+  assigned_by uuid references auth.users(id) on delete set null,
+  assigned_at timestamp with time zone default timezone('utc'::text, now()),
+  completed_at timestamp with time zone
+);
+
 -- Lessons content
 create table if not exists public.lessons (
   id uuid primary key default gen_random_uuid(),
@@ -127,6 +221,72 @@ create policy "user manage quiz_attempts"
   on public.quiz_attempts for all
   using (auth.uid() = user_id)
   with check (auth.uid() = user_id);
+
+alter table if exists public.profiles enable row level security;
+create policy "user read own profile"
+  on public.profiles for select
+  using (auth.uid() = user_id or public.is_admin());
+create policy "user update own profile"
+  on public.profiles for update
+  using (auth.uid() = user_id)
+  with check (auth.uid() = user_id);
+create policy "user insert own profile"
+  on public.profiles for insert
+  with check (auth.uid() = user_id);
+
+alter table if exists public.module_lesson_progress enable row level security;
+create policy "user manage own lesson progress"
+  on public.module_lesson_progress for all
+  using (auth.uid() = user_id or public.is_admin())
+  with check (auth.uid() = user_id);
+
+alter table if exists public.module_quiz_attempts enable row level security;
+create policy "user manage own module quiz attempts"
+  on public.module_quiz_attempts for all
+  using (auth.uid() = user_id or public.is_admin())
+  with check (auth.uid() = user_id);
+
+alter table if exists public.module_passes enable row level security;
+create policy "user read own module passes"
+  on public.module_passes for select
+  using (auth.uid() = user_id or public.is_admin());
+create policy "user insert own module passes"
+  on public.module_passes for insert
+  with check (auth.uid() = user_id);
+create policy "user update own module passes"
+  on public.module_passes for update
+  using (auth.uid() = user_id)
+  with check (auth.uid() = user_id);
+
+alter table if exists public.quiz_adaptive_state enable row level security;
+create policy "user read own adaptive quiz state"
+  on public.quiz_adaptive_state for select
+  using (auth.uid() = user_id or public.is_admin());
+create policy "user insert own adaptive quiz state"
+  on public.quiz_adaptive_state for insert
+  with check (auth.uid() = user_id);
+create policy "user update own adaptive quiz state"
+  on public.quiz_adaptive_state for update
+  using (auth.uid() = user_id)
+  with check (auth.uid() = user_id);
+
+alter table if exists public.module_assignments enable row level security;
+create policy "user read own module assignments"
+  on public.module_assignments for select
+  using (auth.uid() = user_id or public.is_admin());
+create policy "admin manage module assignments"
+  on public.module_assignments for all
+  using (public.is_admin())
+  with check (public.is_admin());
+
+alter table if exists public.quiz_assignments enable row level security;
+create policy "user read own quiz assignment"
+  on public.quiz_assignments for select
+  using (auth.uid() = user_id or public.is_admin());
+create policy "admin manage quiz assignments"
+  on public.quiz_assignments for all
+  using (public.is_admin())
+  with check (public.is_admin());
 
 alter table if exists public.video_questions enable row level security;
 create policy "auth read video_questions"

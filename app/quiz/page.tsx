@@ -1,13 +1,17 @@
 "use client";
 
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Sparkles, CheckCircle2, XCircle, ArrowRight, Zap, BookOpen, Target } from "lucide-react";
 import { AuthGuard } from "../../components/auth-guard";
 import { fadeInUp, staggerContainer, staggerItem } from "../../lib/animations";
+import { useSupabaseAuth } from "../../lib/useSupabaseAuth";
 
 type Question = {
+  adaptive_difficulty?: AdaptiveDifficulty;
+  difficulty_label?: string;
+  question_level?: "beginner" | "intermediate" | "hard";
   question: string;
   options: string[];
   answer: string;
@@ -15,87 +19,115 @@ type Question = {
   rule_reference?: string;
 };
 
-const difficulties = ["easy", "medium", "hard"] as const;
+type AdaptiveDifficulty = "easy" | "medium" | "hard";
 
-const difficultyColors = {
+type AdaptiveState = {
+  referee_level: "level_1" | "level_2" | "level_3" | "level_4";
+  initial_difficulty: AdaptiveDifficulty;
+  current_difficulty: AdaptiveDifficulty;
+  difficulty_label: string;
+  question_level: "beginner" | "intermediate" | "hard";
+  correct_streak: number;
+  incorrect_streak: number;
+  updated_at: string | null;
+  quiz_assignment: QuizAssignmentProgress;
+};
+
+type QuizAssignmentProgress = {
+  assigned: boolean;
+  question_quota: number;
+  required_percent: number;
+  attempted: number;
+  correct: number;
+  score_percent: number;
+  remaining: number;
+  passed: boolean;
+  completed_at: string | null;
+  assigned_at: string | null;
+};
+
+const difficultyColors: Record<AdaptiveDifficulty, string> = {
   easy: "bg-green-500",
   medium: "bg-accent",
   hard: "bg-red-500",
 };
 
 export default function QuizPage() {
-  const [difficulty, setDifficulty] = useState<(typeof difficulties)[number]>("medium");
+  const { session } = useSupabaseAuth();
+  const queryClient = useQueryClient();
   const [current, setCurrent] = useState<Question | null>(null);
   const [selected, setSelected] = useState<string | null>(null);
   const [result, setResult] = useState<"correct" | "incorrect" | null>(null);
   const [recommendation, setRecommendation] = useState<string | null>(null);
-  // Store questions by difficulty to restore when switching back
-  const [questionsByDifficulty, setQuestionsByDifficulty] = useState<Record<string, Question>>({});
-  // Track which difficulty the current question belongs to
-  const [currentQuestionDifficulty, setCurrentQuestionDifficulty] = useState<string | null>(null);
+
+  const adaptiveQuery = useQuery<AdaptiveState>({
+    queryKey: ["quiz-adaptive-state"],
+    enabled: !!session?.access_token,
+    queryFn: async () => {
+      const res = await fetch("/api/quiz-state", {
+        headers: session?.access_token ? { Authorization: `Bearer ${session.access_token}` } : undefined,
+      });
+      if (!res.ok) throw new Error("Failed to load adaptive quiz state");
+      return res.json();
+    },
+  });
 
   const generateMutation = useMutation({
-    mutationFn: async (diff: string) => {
+    mutationFn: async () => {
       const res = await fetch("/api/generate-question", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ difficulty: diff })
+        headers: {
+          "Content-Type": "application/json",
+          ...(session?.access_token ? { Authorization: `Bearer ${session.access_token}` } : {}),
+        },
+        body: JSON.stringify({})
       });
       if (!res.ok) throw new Error("Failed to generate question");
       return res.json();
     },
-    onSuccess: (data, diff) => {
+    onSuccess: (data) => {
       setCurrent(data);
-      setCurrentQuestionDifficulty(diff);
-      // Store the question for this difficulty
-      setQuestionsByDifficulty(prev => ({ ...prev, [diff]: data }));
       setSelected(null);
       setResult(null);
+      setRecommendation(null);
     }
   });
-
-  // Handle difficulty change: restore question if exists, otherwise clear
-  const handleDifficultyChange = (newDifficulty: (typeof difficulties)[number]) => {
-    setDifficulty(newDifficulty);
-    
-    // If there's a question stored for this difficulty, restore it
-    if (questionsByDifficulty[newDifficulty]) {
-      setCurrent(questionsByDifficulty[newDifficulty]);
-      setCurrentQuestionDifficulty(newDifficulty);
-      // Reset answer state when restoring
-      setSelected(null);
-      setResult(null);
-      setRecommendation(null);
-    } else {
-      // No question for this difficulty, clear the display
-      setCurrent(null);
-      setCurrentQuestionDifficulty(null);
-      setSelected(null);
-      setResult(null);
-      setRecommendation(null);
-    }
-  };
 
   const saveAttempt = useMutation({
     mutationFn: async (payload: object) => {
       const res = await fetch("/api/quiz-attempt", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          ...(session?.access_token ? { Authorization: `Bearer ${session.access_token}` } : {}),
+        },
         body: JSON.stringify(payload)
       });
       if (!res.ok) throw new Error("Failed to save attempt");
       return res.json();
-    }
+    },
+    onSuccess: (data) => {
+      if (data.adaptive_state) {
+        queryClient.setQueryData(["quiz-adaptive-state"], (prev: AdaptiveState | undefined) => ({
+          referee_level: prev?.referee_level ?? "level_1",
+          initial_difficulty: prev?.initial_difficulty ?? "easy",
+          quiz_assignment: data.quiz_assignment ?? prev?.quiz_assignment,
+          ...data.adaptive_state,
+        }));
+      }
+    },
   });
 
   const checkAnswer = () => {
     if (!current || !selected) return;
     const correct = selected === current.answer;
+    const currentDifficultyLabel =
+      current.difficulty_label || adaptiveQuery.data?.difficulty_label || "Adaptive";
     setResult(correct ? "correct" : "incorrect");
     setRecommendation(
       correct
         ? null
-        : `You missed a ${difficulty} item. Review module: ${
+        : `You missed a ${currentDifficultyLabel.toLowerCase()} item. Review module: ${
             current.rule_reference?.includes("rotation")
               ? "Rotations"
               : current.rule_reference?.includes("net")
@@ -111,6 +143,16 @@ export default function QuizPage() {
   };
 
   const options = useMemo(() => current?.options || [], [current]);
+  const visibleDifficulty = current?.adaptive_difficulty || adaptiveQuery.data?.current_difficulty || "medium";
+  const visibleDifficultyLabel = current?.difficulty_label || adaptiveQuery.data?.difficulty_label || "Intermediate";
+  const currentStreak = adaptiveQuery.data
+    ? adaptiveQuery.data.correct_streak > 0
+      ? `${adaptiveQuery.data.correct_streak} correct streak`
+      : adaptiveQuery.data.incorrect_streak > 0
+        ? `${adaptiveQuery.data.incorrect_streak} wrong streak`
+        : "No active streak"
+    : "Loading streak";
+  const quizAssignment = adaptiveQuery.data?.quiz_assignment;
 
   return (
     <AuthGuard>
@@ -139,35 +181,26 @@ export default function QuizPage() {
             </p>
           </motion.div>
 
-          {/* Difficulty Selector & New Question */}
+          {/* Adaptive status & New Question */}
           <motion.div
             variants={staggerContainer}
             initial="hidden"
             animate="visible"
             className="flex flex-wrap items-center justify-center gap-3 mb-10"
           >
-            {difficulties.map((d) => (
-              <motion.button
-                key={d}
-                variants={staggerItem}
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.98 }}
-                onClick={() => handleDifficultyChange(d)}
-                className={`px-5 py-2.5 rounded-full text-sm font-semibold capitalize transition-all ${
-                  difficulty === d
-                    ? `${difficultyColors[d]} text-white shadow-lg`
-                    : "bg-white border border-border text-ink hover:border-accent/40"
-                }`}
-              >
-                {d}
-              </motion.button>
-            ))}
+            <div className="inline-flex items-center gap-3 rounded-full bg-white border border-border px-5 py-2.5 shadow-sm">
+              <span className={`w-2 h-2 rounded-full ${difficultyColors[visibleDifficulty]}`} />
+              <span className="text-sm font-bold text-primary">
+                {visibleDifficultyLabel}
+              </span>
+              <span className="text-xs text-muted">{currentStreak}</span>
+            </div>
             <motion.button
               variants={staggerItem}
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.98 }}
-              onClick={() => generateMutation.mutate(difficulty)}
-              disabled={generateMutation.isPending}
+              onClick={() => generateMutation.mutate()}
+              disabled={generateMutation.isPending || adaptiveQuery.isLoading}
               className="pill text-white"
             >
               {generateMutation.isPending ? (
@@ -213,6 +246,42 @@ export default function QuizPage() {
             ))}
           </motion.div>
 
+          {quizAssignment?.assigned && (
+            <motion.div
+              variants={fadeInUp}
+              initial="hidden"
+              animate="visible"
+              className={`card mb-10 ${quizAssignment.passed ? "border-green-200 bg-green-50" : ""}`}
+            >
+              <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-wider text-muted mb-1">
+                    Assigned Quiz Quota
+                  </p>
+                  <h2 className="text-xl font-display font-bold text-primary">
+                    {quizAssignment.attempted}/{quizAssignment.question_quota} problems completed
+                  </h2>
+                  <p className="text-sm text-muted mt-1">
+                    {quizAssignment.correct} correct · {quizAssignment.score_percent}% score · required {quizAssignment.required_percent}%
+                  </p>
+                </div>
+                <span className={`inline-flex w-fit px-3 py-1 rounded-full text-sm font-bold border ${
+                  quizAssignment.passed
+                    ? "bg-green-100 text-green-700 border-green-200"
+                    : "bg-primary/10 text-primary border-primary/20"
+                }`}>
+                  {quizAssignment.passed ? "Quota Passed" : `${quizAssignment.remaining} remaining`}
+                </span>
+              </div>
+              <div className="mt-4 h-2 rounded-full bg-white border border-border overflow-hidden">
+                <div
+                  className={quizAssignment.passed ? "h-full bg-green-500" : "h-full bg-primary"}
+                  style={{ width: `${Math.min(100, Math.round((quizAssignment.attempted / quizAssignment.question_quota) * 100))}%` }}
+                />
+              </div>
+            </motion.div>
+          )}
+
           {/* Question Card */}
           <AnimatePresence mode="wait">
             {current ? (
@@ -227,9 +296,9 @@ export default function QuizPage() {
                 {/* Question */}
                 <div>
                   <div className="flex items-center gap-2 mb-3">
-                    <span className={`w-2 h-2 rounded-full ${difficultyColors[(currentQuestionDifficulty as typeof difficulties[number]) || difficulty]}`} />
+                    <span className={`w-2 h-2 rounded-full ${difficultyColors[visibleDifficulty]}`} />
                     <span className="text-xs font-semibold uppercase tracking-wider text-muted">
-                      {(currentQuestionDifficulty || difficulty)} Question
+                      {visibleDifficultyLabel} Question
                     </span>
                   </div>
                   <h2 className="text-xl md:text-2xl font-display font-bold text-primary">
@@ -358,7 +427,7 @@ export default function QuizPage() {
                       <motion.button
                         whileHover={{ scale: 1.02 }}
                         whileTap={{ scale: 0.98 }}
-                        onClick={() => generateMutation.mutate(difficulty)}
+                        onClick={() => generateMutation.mutate()}
                         disabled={generateMutation.isPending}
                         className="pill text-white w-full justify-center disabled:opacity-80"
                       >
@@ -413,8 +482,8 @@ export default function QuizPage() {
                 <motion.button
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.98 }}
-                  onClick={() => generateMutation.mutate(difficulty)}
-                  disabled={generateMutation.isPending}
+                  onClick={() => generateMutation.mutate()}
+                  disabled={generateMutation.isPending || adaptiveQuery.isLoading}
                   className="pill text-white disabled:opacity-80"
                 >
                   {generateMutation.isPending ? (

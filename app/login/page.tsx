@@ -8,6 +8,7 @@ import { Mail, Lock, ArrowRight, Sparkles, Loader2, CheckCircle2, UserPlus, LogI
 import { getBrowserSupabase } from "../../lib/supabase-browser";
 import { fadeInUp, staggerContainer, staggerItem } from "../../lib/animations";
 import { Logo } from "../../components/logo";
+import type { RefereeLevel } from "../../lib/learning";
 
 const heroImage = "https://images.unsplash.com/photo-1612872087720-bb876e2e67d1?auto=format&fit=crop&w=1200&q=85";
 
@@ -23,6 +24,7 @@ function AuthForm() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [refereeLevel, setRefereeLevel] = useState<RefereeLevel>("level_1");
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -73,6 +75,11 @@ function AuthForm() {
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
+      options: {
+        data: {
+          referee_level: refereeLevel,
+        },
+      },
     });
 
     if (error) {
@@ -84,6 +91,16 @@ function AuthForm() {
     // If email confirmation is disabled in Supabase, user is auto-confirmed
     // and we can redirect immediately
     if (data.session) {
+      if (data.user) {
+        await supabase.from("profiles").upsert(
+          {
+            user_id: data.user.id,
+            email: data.user.email,
+            referee_level: refereeLevel,
+          },
+          { onConflict: "user_id" }
+        );
+      }
       router.replace(nextUrl);
       return;
     }
@@ -236,6 +253,33 @@ function AuthForm() {
                   placeholder="••••••••"
                 />
               </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        <AnimatePresence mode="wait">
+          {activeTab === "signup" && (
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: "auto" }}
+              exit={{ opacity: 0, height: 0 }}
+              transition={{ duration: 0.2 }}
+              className="space-y-2"
+            >
+              <label className="block text-sm font-medium text-primary">
+                Referee Level
+              </label>
+              <select
+                value={refereeLevel}
+                onChange={(e) => setRefereeLevel(e.target.value as RefereeLevel)}
+                required
+                className="w-full px-4 py-3 rounded-xl bg-white border border-border text-ink focus:outline-none focus:ring-2 focus:ring-accent/30"
+              >
+                <option value="level_1">Level 1 - starts easy</option>
+                <option value="level_2">Level 2 - starts intermediate</option>
+                <option value="level_3">Level 3 - starts hard</option>
+                <option value="level_4">Level 4 - starts hard</option>
+              </select>
             </motion.div>
           )}
         </AnimatePresence>
@@ -396,4 +440,3 @@ export default function LoginPage() {
     </div>
   );
 }
-

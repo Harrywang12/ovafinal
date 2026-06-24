@@ -3,6 +3,10 @@ import { searchRules } from "../../../lib/rag";
 import { llmChat } from "../../../lib/llm";
 import { assertEnv, formatRuleContext } from "../../../lib/utils";
 import { moduleContent } from "../../../lib/module-content";
+import { requireUserFromRequest } from "../../../lib/auth";
+import { difficultyLabel, questionLevelForDifficulty, type AdaptiveDifficulty, type QuestionLevel } from "../../../lib/learning";
+import { getServerSupabase } from "../../../lib/supabase";
+import { getOrCreateAdaptiveQuizState } from "../../../lib/quiz-adaptive";
 
 export const runtime = "nodejs";
 
@@ -161,7 +165,7 @@ export async function POST(request: Request) {
     );
   }
 
-  let body: { difficulty?: string };
+  let body: { difficulty?: string; question_level?: QuestionLevel };
   try {
     body = await request.json();
   } catch {
@@ -169,9 +173,28 @@ export async function POST(request: Request) {
   }
 
   const { difficulty = "medium" } = body;
-  const safeDifficulty = ["easy", "medium", "hard"].includes(difficulty)
-    ? difficulty
-    : "medium";
+  let safeDifficulty: AdaptiveDifficulty = difficulty === "easy" || difficulty === "hard" ? difficulty : "medium";
+  let questionLevel: QuestionLevel =
+    body.question_level === "hard"
+      ? "hard"
+      : body.question_level === "intermediate"
+        ? "intermediate"
+        : "beginner";
+
+  const authHeader = request.headers.get("authorization") || request.headers.get("Authorization") || "";
+  if (authHeader.startsWith("Bearer ")) {
+    const user = await requireUserFromRequest(request);
+    if (!user.ok) {
+      return NextResponse.json({ error: user.error }, { status: user.status });
+    }
+    try {
+      const state = await getOrCreateAdaptiveQuizState(getServerSupabase(), user.userId, user.refereeLevel);
+      safeDifficulty = state.current_difficulty;
+      questionLevel = questionLevelForDifficulty(state.current_difficulty);
+    } catch (stateError) {
+      return NextResponse.json({ error: (stateError as Error).message }, { status: 500 });
+    }
+  }
 
   // Randomly select 2-3 different topics for variety
   const shuffledTopics = [...REFEREE_TOPICS].sort(() => Math.random() - 0.5);
@@ -253,6 +276,21 @@ export async function POST(request: Request) {
       - Examples: simultaneous faults, replay vs point decisions, sanction escalation`
   };
 
+  const levelGuidelines: Record<QuestionLevel, string> = {
+    beginner: `
+      - REFEREE LEVEL: Beginner / Level 1
+      - Prefer foundational officiating knowledge, clear faults, basic scoring/procedure, court positions, and common signals
+      - Avoid rare edge cases and multi-rule priority conflicts unless the answer is still clear`,
+    intermediate: `
+      - REFEREE LEVEL: Intermediate / Level 2
+      - Prefer realistic judgment scenarios with rule interactions, timing, player restrictions, libero/back-row issues, sanctions, screening, or referee mechanics
+      - Wrong answers should be plausible for someone who knows the basics but needs deeper application`,
+    hard: `
+      - REFEREE LEVEL: Advanced / Level 3-4
+      - Prefer complex, high-judgment scenarios with multiple rules, unusual timing, sanctions, libero/back-row nuances, screening, replay vs point decisions, and officiating mechanics
+      - Wrong answers should be plausible even for experienced referees`
+  };
+
   const system = `You are an elite volleyball rules expert covering FOUR formats: Indoor 6v6, 4v4 Rallyball (OVA), 6v6 Rallyball (OVA), and Beach Volleyball (FIVB). Your task is to create ONE highly specific, practical quiz question that will genuinely help players and referees improve their knowledge.
 
 IMPORTANT FORMAT AWARENESS:
@@ -273,6 +311,8 @@ QUESTION FOCUS AREA: ${focusArea}
 SCENARIO TYPE: ${randomScenarioType}
 DIFFICULTY: ${safeDifficulty}
 ${difficultyGuidelines[safeDifficulty as keyof typeof difficultyGuidelines]}
+QUESTION BANK LEVEL: ${questionLevel}
+${levelGuidelines[questionLevel]}
 
 RANDOMIZATION SEED: ${randomSeed} (use this to vary your approach - different scenario angles, different team perspectives, different phases of play)
 
@@ -363,6 +403,9 @@ QUALITY CHECKLIST:
     }
     
     return NextResponse.json({
+      question_level: questionLevel,
+      adaptive_difficulty: safeDifficulty,
+      difficulty_label: difficultyLabel(safeDifficulty),
       question: parsed.question,
       options: cleanOptions,
       answer: cleanAnswer,

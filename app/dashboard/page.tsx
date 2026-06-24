@@ -13,6 +13,8 @@ import {
   Video,
   ArrowRight,
   BarChart3,
+  BookOpen,
+  GraduationCap,
 } from "lucide-react";
 import { AuthGuard } from "../../components/auth-guard";
 import { fadeInUp, staggerContainer, staggerItem } from "../../lib/animations";
@@ -24,6 +26,42 @@ type DashboardResponse = {
   user: {
     id: string;
     email: string | null;
+    referee_level: "level_1" | "level_2" | "level_3" | "level_4";
+    question_level: "beginner" | "intermediate" | "hard";
+  };
+  learning: {
+    modules_started: number;
+    modules_passed: number;
+    total_modules: number;
+    required_modules: number;
+    required_modules_passed: number;
+    last_activity_at: string | null;
+    modules: Array<{
+      module_id: string;
+      title: string;
+      lessons_viewed: number;
+      lesson_count: number;
+      attempts: number;
+      latest_score_percent: number;
+      latest_correct_count: number;
+      latest_attempts_count: number;
+      assigned: boolean;
+      passed: boolean;
+      passed_at: string | null;
+      last_activity_at: string | null;
+    }>;
+  };
+  quiz_assignment: {
+    assigned: boolean;
+    question_quota: number;
+    required_percent: number;
+    attempted: number;
+    correct: number;
+    score_percent: number;
+    remaining: number;
+    passed: boolean;
+    completed_at: string | null;
+    assigned_at: string | null;
   };
   video_practice: {
     attempted: number;
@@ -91,6 +129,10 @@ function formatSeconds(ms: number | null) {
 function percent(numerator: number, denominator: number) {
   if (!denominator) return 0;
   return Math.max(0, Math.min(100, Math.round((numerator / denominator) * 100)));
+}
+
+function refLevelLabel(level: "level_1" | "level_2" | "level_3" | "level_4") {
+  return `Level ${level.replace("level_", "")}`;
 }
 
 function AttemptBadge({ correct, timedOut }: { correct: boolean | null; timedOut: boolean | null }) {
@@ -221,11 +263,65 @@ export default function DashboardPage() {
                       <p className="text-xs font-semibold uppercase tracking-wider text-muted mb-1">User ID</p>
                       <p className="text-ink font-mono text-sm break-all">{dashboardQuery.data.user.id}</p>
                     </div>
+                    <div>
+                      <p className="text-xs font-semibold uppercase tracking-wider text-muted mb-1">Referee Level</p>
+                      <p className="text-ink font-medium">
+                        {refLevelLabel(dashboardQuery.data.user.referee_level)} · {dashboardQuery.data.user.question_level}
+                      </p>
+                    </div>
                   </div>
                 </motion.div>
 
                 <motion.div variants={staggerItem} className="card lg:col-span-2">
                   <div className="grid md:grid-cols-2 gap-4">
+                    <div className="p-4 rounded-xl bg-surface border border-border md:col-span-2">
+                      <div className="flex items-center justify-between mb-2">
+                        <p className="text-xs font-semibold uppercase tracking-wider text-muted">Learning Modules</p>
+                        <Link href="/learn" className="text-xs font-semibold text-accent hover:underline inline-flex items-center gap-1">
+                          Learn <ArrowRight size={14} />
+                        </Link>
+                      </div>
+                      <p className="text-2xl font-display font-bold text-primary">
+                        {dashboardQuery.data.learning.modules_passed} passed / {dashboardQuery.data.learning.total_modules}
+                      </p>
+                      <div className="mt-3 h-2 rounded-full bg-border overflow-hidden">
+                        <div
+                          className="h-full bg-green-500"
+                          style={{ width: `${percent(dashboardQuery.data.learning.modules_passed, dashboardQuery.data.learning.total_modules)}%` }}
+                        />
+                      </div>
+                      <p className="mt-2 text-xs text-muted">
+                        {dashboardQuery.data.learning.modules_started} module(s) started
+                        {dashboardQuery.data.learning.required_modules > 0
+                          ? ` · required ${dashboardQuery.data.learning.required_modules_passed}/${dashboardQuery.data.learning.required_modules}`
+                          : ""}
+                        {dashboardQuery.data.learning.last_activity_at ? ` · latest activity ${formatDateTime(dashboardQuery.data.learning.last_activity_at)}` : ""}
+                      </p>
+                    </div>
+
+                    {dashboardQuery.data.quiz_assignment.assigned && (
+                      <div className="p-4 rounded-xl bg-surface border border-border md:col-span-2">
+                        <div className="flex items-center justify-between mb-2">
+                          <p className="text-xs font-semibold uppercase tracking-wider text-muted">Assigned Quiz Quota</p>
+                          <Link href="/quiz" className="text-xs font-semibold text-accent hover:underline inline-flex items-center gap-1">
+                            Quiz <ArrowRight size={14} />
+                          </Link>
+                        </div>
+                        <p className="text-2xl font-display font-bold text-primary">
+                          {dashboardQuery.data.quiz_assignment.attempted} / {dashboardQuery.data.quiz_assignment.question_quota}
+                        </p>
+                        <div className="mt-3 h-2 rounded-full bg-border overflow-hidden">
+                          <div
+                            className={`h-full ${dashboardQuery.data.quiz_assignment.passed ? "bg-green-500" : "bg-accent"}`}
+                            style={{ width: `${percent(dashboardQuery.data.quiz_assignment.attempted, dashboardQuery.data.quiz_assignment.question_quota)}%` }}
+                          />
+                        </div>
+                        <p className="mt-2 text-xs text-muted">
+                          {dashboardQuery.data.quiz_assignment.correct} correct · {dashboardQuery.data.quiz_assignment.score_percent}% score · required {dashboardQuery.data.quiz_assignment.required_percent}%
+                        </p>
+                      </div>
+                    )}
+
                     <div className="p-4 rounded-xl bg-surface border border-border">
                       <div className="flex items-center justify-between mb-2">
                         <p className="text-xs font-semibold uppercase tracking-wider text-muted">Practice (Permanent)</p>
@@ -274,6 +370,61 @@ export default function DashboardPage() {
                     </p>
                   </div>
                 </motion.div>
+              </motion.div>
+
+              <motion.div variants={fadeInUp} initial="hidden" animate="visible" className="card mb-8">
+                <div className="flex items-center justify-between gap-4 mb-5">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-xl bg-green-500/10 text-green-700 flex items-center justify-center">
+                      <GraduationCap size={20} />
+                    </div>
+                    <div>
+                      <p className="text-lg font-display font-bold text-primary">Learning modules</p>
+                      <p className="text-sm text-muted">Required modules are assigned by an admin. All modules remain available.</p>
+                    </div>
+                  </div>
+                  <Link href="/learn" className="pill text-white text-sm py-2">
+                    Learn
+                    <ArrowRight size={16} />
+                  </Link>
+                </div>
+
+                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {dashboardQuery.data.learning.modules.map((module) => (
+                    <div key={module.module_id} className="p-4 rounded-xl bg-surface border border-border">
+                      <div className="flex items-start justify-between gap-3 mb-3">
+                        <div>
+                          <p className="font-semibold text-primary">{module.title}</p>
+                          <p className="text-xs text-muted">
+                            {module.lessons_viewed}/{module.lesson_count} lessons · {module.attempts} attempts
+                            {module.assigned ? " · required" : ""}
+                          </p>
+                        </div>
+                        <span className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-semibold border ${
+                          module.passed
+                            ? "bg-green-50 border-green-200 text-green-700"
+                            : module.assigned
+                              ? "bg-primary/10 border-primary/20 text-primary"
+                            : module.lessons_viewed > 0 || module.attempts > 0
+                              ? "bg-amber-50 border-amber-200 text-amber-700"
+                              : "bg-white border-border text-muted"
+                        }`}>
+                          {module.passed ? <CheckCircle2 size={14} /> : <BookOpen size={14} />}
+                          {module.passed ? "Passed" : module.assigned ? "Required" : module.lessons_viewed > 0 || module.attempts > 0 ? "In progress" : "Not started"}
+                        </span>
+                      </div>
+                      <div className="h-2 rounded-full bg-white border border-border overflow-hidden">
+                        <div
+                          className={`h-full ${module.passed ? "bg-green-500" : "bg-primary"}`}
+                          style={{ width: `${Math.min(100, module.latest_score_percent)}%` }}
+                        />
+                      </div>
+                      <p className="mt-2 text-xs text-muted">
+                        Latest score {module.latest_score_percent}% ({module.latest_correct_count}/{Math.max(module.latest_attempts_count, 10)})
+                      </p>
+                    </div>
+                  ))}
+                </div>
               </motion.div>
 
               {/* Practice Section */}

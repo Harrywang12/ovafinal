@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useMemo } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { motion } from "framer-motion";
 import Link from "next/link";
 import { 
@@ -11,6 +12,8 @@ import {
 import { AuthGuard } from "../../components/auth-guard";
 import { getAllModules, type Module } from "../../lib/module-content";
 import { fadeInUp, staggerContainer, staggerItem, chapterCard } from "../../lib/animations";
+import { useSupabaseAuth } from "../../lib/useSupabaseAuth";
+import type { LearningProgressResponse, ModuleProgressSummary } from "../../lib/learning";
 
 // Map module IDs to custom icons
 const moduleIcons: Record<string, React.ReactNode> = {
@@ -45,15 +48,47 @@ const categoryStats: Record<CategoryFilter, { chapters: string; lessons: string;
 };
 
 export default function LearnPage() {
+  const { session } = useSupabaseAuth();
   const allModules = getAllModules();
   const [activeCategory, setActiveCategory] = useState<CategoryFilter>("indoor");
 
+  const progressQuery = useQuery<LearningProgressResponse>({
+    queryKey: ["learn-progress"],
+    enabled: !!session?.access_token,
+    queryFn: async () => {
+      const res = await fetch("/api/learn/progress", {
+        headers: session?.access_token ? { Authorization: `Bearer ${session.access_token}` } : undefined,
+      });
+      if (!res.ok) throw new Error("Failed to load learning progress");
+      return res.json();
+    },
+  });
+
+  const progressByModule = useMemo(() => {
+    return new Map((progressQuery.data?.modules || []).map((m) => [m.module_id, m]));
+  }, [progressQuery.data?.modules]);
+
   const filteredModules = useMemo(() => {
-    return allModules.filter(m => m.category === activeCategory);
-  }, [allModules, activeCategory]);
+    return allModules
+      .filter(m => m.category === activeCategory)
+      .sort((a, b) => {
+        const aAssigned = progressByModule.get(a.id)?.assigned ? 1 : 0;
+        const bAssigned = progressByModule.get(b.id)?.assigned ? 1 : 0;
+        return bAssigned - aAssigned;
+      });
+  }, [allModules, activeCategory, progressByModule]);
 
   const stats = categoryStats[activeCategory];
   const activeCat = categories.find(c => c.key === activeCategory)!;
+
+  const statusBadge = (progress?: ModuleProgressSummary) => {
+    if (progress?.passed) return { label: "Passed", cls: "bg-green-100 text-green-700 border-green-200" };
+    if (progress?.assigned) return { label: "Required", cls: "bg-primary/10 text-primary border-primary/20" };
+    if (progress && (progress.lessons_viewed > 0 || progress.attempts > 0)) {
+      return { label: "In Progress", cls: "bg-amber-100 text-amber-800 border-amber-200" };
+    }
+    return { label: "Not Started", cls: "bg-white text-muted border-border" };
+  };
 
   const features = [
     {
@@ -239,6 +274,10 @@ export default function LearnPage() {
                   variants={chapterCard}
                   custom={idx}
                 >
+                  {(() => {
+                    const progress = progressByModule.get(module.id);
+                    const badge = statusBadge(progress);
+                    return (
                   <Link href={`/learn/${module.id}`}>
                     <motion.div
                       whileHover={{ y: -6, scale: 1.02 }}
@@ -277,6 +316,9 @@ export default function LearnPage() {
                             >
                               {module.chapterLabel || `Ch. ${module.chapter}`}
                             </span>
+                            <span className={`px-2 py-0.5 text-[10px] font-bold rounded-full border ${badge.cls}`}>
+                              {badge.label}
+                            </span>
                             <span className="text-[10px] font-mono text-muted">
                               {module.ruleRange}
                             </span>
@@ -304,6 +346,12 @@ export default function LearnPage() {
                               <Clock size={12} />
                               <span>{module.estimatedTime}</span>
                             </div>
+                            {progress && (
+                              <div className="hidden sm:flex items-center gap-1 text-xs text-muted">
+                                <Target size={12} />
+                                <span>{progress.latest_score_percent}%</span>
+                              </div>
+                            )}
                           </div>
                           
                           <motion.div
@@ -325,6 +373,8 @@ export default function LearnPage() {
                       />
                     </motion.div>
                   </Link>
+                    );
+                  })()}
                 </motion.div>
               ))}
             </motion.div>

@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { useParams, notFound } from "next/navigation";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { AuthGuard } from "../../../components/auth-guard";
 import { 
   ModuleHero, 
@@ -12,8 +13,11 @@ import {
 } from "../../../components/learn";
 import { getModuleBySlug, getNextModule } from "../../../lib/module-content";
 import { fadeInUp } from "../../../lib/animations";
+import { useSupabaseAuth } from "../../../lib/useSupabaseAuth";
+import type { LearningProgressResponse } from "../../../lib/learning";
 
 export default function ModulePage() {
+  const { session } = useSupabaseAuth();
   const params = useParams();
   const moduleSlug = params.module as string;
   const [activeLesson, setActiveLesson] = useState(0);
@@ -32,6 +36,44 @@ export default function ModulePage() {
 
   const currentLesson = currentModule.lessons[activeLesson];
   const hasNextLesson = activeLesson < currentModule.lessons.length - 1;
+
+  const progressQuery = useQuery<LearningProgressResponse>({
+    queryKey: ["learn-progress"],
+    enabled: !!session?.access_token,
+    queryFn: async () => {
+      const res = await fetch("/api/learn/progress", {
+        headers: session?.access_token ? { Authorization: `Bearer ${session.access_token}` } : undefined,
+      });
+      if (!res.ok) throw new Error("Failed to load learning progress");
+      return res.json();
+    },
+  });
+
+  const markLessonViewed = useMutation({
+    mutationFn: async (lessonId: string) => {
+      const res = await fetch("/api/learn/progress/lesson", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          ...(session?.access_token ? { Authorization: `Bearer ${session.access_token}` } : {}),
+        },
+        body: JSON.stringify({ module_id: currentModule.id, lesson_id: lessonId }),
+      });
+      if (!res.ok) throw new Error("Failed to save lesson progress");
+      return res.json();
+    },
+    onSuccess: () => {
+      progressQuery.refetch();
+    },
+  });
+
+  useEffect(() => {
+    if (!session?.access_token || !currentLesson?.id) return;
+    markLessonViewed.mutate(currentLesson.id);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [session?.access_token, currentModule.id, currentLesson?.id]);
+
+  const moduleProgress = progressQuery.data?.modules.find((m) => m.module_id === currentModule.id) ?? null;
 
   const handleNextLesson = () => {
     if (hasNextLesson) {
@@ -103,7 +145,7 @@ export default function ModulePage() {
                 </p>
               </motion.div>
               
-              <ModuleQuiz module={currentModule} nextModule={nextModule} />
+              <ModuleQuiz module={currentModule} nextModule={nextModule} progress={moduleProgress} />
             </motion.div>
           )}
         </div>
@@ -111,4 +153,3 @@ export default function ModulePage() {
     </AuthGuard>
   );
 }
-

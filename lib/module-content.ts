@@ -87,7 +87,7 @@ export const moduleContent: Record<string, Module> = {
           "Temperature: minimum 10°C (50°F)"
         ],
         ruleRef: "Rules 1.4-1.6",
-        diagram: "court-layout"
+        diagram: "court-positions"
       },
       {
         id: "net-posts",
@@ -132,7 +132,7 @@ export const moduleContent: Record<string, Module> = {
         ],
         ruleRef: "Rules 3.1-3.3",
         vcNote: "VC Championships: 14U-16U Mikasa VQ200w-CAN, 17U-18U Mikasa V200w",
-        diagram: "court-layout"
+        diagram: "balls"
       }
     ]
   },
@@ -170,7 +170,7 @@ export const moduleContent: Record<string, Module> = {
         ],
         ruleRef: "Rules 4.1-4.5",
         vcNote: "VC allows up to 15 players on bench but only 12 on score sheet per match",
-        diagram: "referee-positions",
+        diagram: "teams",
         image: "https://images.unsplash.com/photo-1553005746-9245ba190489?w=800&q=80"
       },
       {
@@ -193,7 +193,7 @@ export const moduleContent: Record<string, Module> = {
         ],
         ruleRef: "Rules 5.1-5.3",
         vcNote: "For 18U and younger, head coach must sign score sheet at match completion",
-        diagram: "referee-positions"
+        diagram: "captain-coach"
       }
     ]
   },
@@ -230,7 +230,7 @@ export const moduleContent: Record<string, Module> = {
           "Double fault = replay the rally"
         ],
         ruleRef: "Rules 6.1-6.4",
-        diagram: "court-layout",
+        diagram: "scoring-flow",
         image: "https://images.unsplash.com/photo-1519331379826-f10be5486c6f?w=800&q=80"
       },
       {
@@ -332,7 +332,7 @@ export const moduleContent: Record<string, Module> = {
           "Simultaneous team contact = multiple hits"
         ],
         ruleRef: "Rules 9.1-9.3",
-        diagram: "court-layout"
+        diagram: "ball-play-sequence"
       },
       {
         id: "ball-at-net",
@@ -397,7 +397,7 @@ export const moduleContent: Record<string, Module> = {
         ],
         ruleRef: "Rules 12.1-12.7",
         vcNote: "All Volleyball Canada time-outs last 60 seconds (not 30)",
-        diagram: "court-layout"
+        diagram: "service-rules"
       },
       {
         id: "attack-hit",
@@ -478,7 +478,7 @@ export const moduleContent: Record<string, Module> = {
         ],
         ruleRef: "Rules 15.1-15.4",
         vcNote: "All VC timeouts last 60 seconds. 14U-15U allows 12 substitutions per set.",
-        diagram: "referee-positions"
+        diagram: "interruptions"
       },
       {
         id: "substitution-rules",
@@ -499,7 +499,7 @@ export const moduleContent: Record<string, Module> = {
           "Sub zone: between attack lines at scorer's table"
         ],
         ruleRef: "Rules 15.5-15.10",
-        diagram: "referee-positions",
+        diagram: "substitution",
         image: "https://images.unsplash.com/photo-1610036578923-81be15f8c3d9?w=800&q=80"
       },
       {
@@ -543,7 +543,7 @@ export const moduleContent: Record<string, Module> = {
         ],
         ruleRef: "Rules 17.1-18.2",
         vcNote: "Referees must allow time for floor wiping if too wet/slippery",
-        diagram: "court-layout"
+        diagram: "exceptional-interruptions"
       }
     ]
   },
@@ -581,7 +581,7 @@ export const moduleContent: Record<string, Module> = {
         ],
         ruleRef: "Rules 19.1-19.3",
         vcNote: "14U-15U: No Libero allowed. 16U-18U: Only one Libero per set, may be re-designated between sets.",
-        diagram: "court-layout",
+        diagram: "libero-complete",
         image: "https://images.unsplash.com/photo-1622279457486-62dbd21de89b?w=800&q=80"
       },
       {
@@ -603,7 +603,7 @@ export const moduleContent: Record<string, Module> = {
           "Captain can be re-designated as Libero"
         ],
         ruleRef: "Rules 19.4-19.5",
-        diagram: "court-layout"
+        diagram: "libero-redesignation"
       }
     ]
   },
@@ -640,7 +640,7 @@ export const moduleContent: Record<string, Module> = {
           "Team communication is permitted"
         ],
         ruleRef: "Rules 20.1-20.2",
-        diagram: "referee-positions"
+        diagram: "conduct"
       },
       {
         id: "misconduct-sanctions",
@@ -700,7 +700,7 @@ export const moduleContent: Record<string, Module> = {
           "R2: whistles their own faults (penetration, position)"
         ],
         ruleRef: "Rules 22.1-24.3",
-        diagram: "referee-positions",
+        diagram: "referee-crew",
         image: "https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?w=800&q=80"
       },
       {
@@ -722,7 +722,7 @@ export const moduleContent: Record<string, Module> = {
           "Both: sign score sheet at match end"
         ],
         ruleRef: "Rules 27.1-28.2",
-        diagram: "referee-positions"
+        diagram: "scorer-table"
       },
       {
         id: "line-judges",
@@ -801,7 +801,7 @@ export const moduleContent: Record<string, Module> = {
           "Record all officials in APPROVAL section"
         ],
         ruleRef: "Score Sheet Sections 1.1-1.20",
-        diagram: "court-layout"
+        diagram: "scoresheet-before"
       },
       {
         id: "after-toss",
@@ -822,7 +822,7 @@ export const moduleContent: Record<string, Module> = {
           "Record positions I-VI from line-up sheet"
         ],
         ruleRef: "Score Sheet Sections 2.1-2.4",
-        diagram: "court-layout"
+        diagram: "scoresheet-toss"
       },
       {
         id: "recording-points",
@@ -843,7 +843,7 @@ export const moduleContent: Record<string, Module> = {
           "Circle (O) final point at set end"
         ],
         ruleRef: "Score Sheet Sections 3.1-3.4",
-        diagram: "court-layout"
+        diagram: "scoresheet-points"
       },
       {
         id: "deciding-set",
@@ -864,7 +864,7 @@ export const moduleContent: Record<string, Module> = {
           "Still requires 2-point lead"
         ],
         ruleRef: "Score Sheet Section 3.5",
-        diagram: "court-layout"
+        diagram: "deciding-set"
       },
       {
         id: "substitutions-timeouts",
@@ -885,7 +885,7 @@ export const moduleContent: Record<string, Module> = {
           "Note exceptional subs in REMARKS"
         ],
         ruleRef: "Score Sheet Sections 3.6-3.7",
-        diagram: "court-layout"
+        diagram: "scoresheet-timeouts"
       },
       {
         id: "sanctions-recording",
@@ -929,7 +929,7 @@ export const moduleContent: Record<string, Module> = {
         ],
         ruleRef: "Score Sheet Section 4.1-4.10",
         vcNote: "For a video tutorial on scorekeeping, watch the Saskatchewan Volleyball scoresheet tutorial: https://www.youtube.com/watch?v=EyB7ji_LwT0 — Note: The Ontario Volleyball Association uses the same score sheet format as Saskatchewan Volleyball.",
-        diagram: "court-layout"
+        diagram: "scoresheet-close"
       }
     ]
   },
@@ -970,7 +970,7 @@ export const moduleContent: Record<string, Module> = {
           "Age: 2014 & Under (24-month eligibility)"
         ],
         ruleRef: "OVA 4v4 Rallyball Regulations",
-        diagram: "court-layout"
+        diagram: "rallyball-4v4-court"
       },
       {
         id: "4v4-teams-formations",
@@ -991,7 +991,7 @@ export const moduleContent: Record<string, Module> = {
           "Server = player who just rotated from front to back"
         ],
         ruleRef: "OVA 4v4 Playing Regulations",
-        diagram: "player-positions"
+        diagram: "rallyball-4v4-formation"
       },
       {
         id: "4v4-tripleball",
@@ -1012,7 +1012,7 @@ export const moduleContent: Record<string, Module> = {
           "No specialization permitted"
         ],
         ruleRef: "OVA 4v4 Tripleball Regulations",
-        diagram: "court-layout"
+        diagram: "tripleball"
       },
       {
         id: "4v4-playing-regulations",
@@ -1034,7 +1034,7 @@ export const moduleContent: Record<string, Module> = {
         ],
         ruleRef: "OVA 4v4 Playing Regulations",
         vcNote: "Athletes need a Recreational membership — upgrade to full competitive membership if participating in 6v6 or TLS competitions.",
-        diagram: "court-layout"
+        diagram: "rallyball-rules"
       }
     ]
   },
@@ -1075,7 +1075,7 @@ export const moduleContent: Record<string, Module> = {
           "Girls: 3 self-declare tiers; Boys: realignment"
         ],
         ruleRef: "OVA 6v6 Rallyball Regulations",
-        diagram: "court-layout"
+        diagram: "rallyball-6v6-court"
       },
       {
         id: "6v6-tripleball-service",
@@ -1096,7 +1096,7 @@ export const moduleContent: Record<string, Module> = {
           "Setter position stays same for entire set"
         ],
         ruleRef: "OVA 6v6 Rallyball Rules",
-        diagram: "player-positions"
+        diagram: "rallyball-6v6-tripleball"
       },
       {
         id: "6v6-serving-reception",
@@ -1117,7 +1117,7 @@ export const moduleContent: Record<string, Module> = {
           "Subs only between Tripleball sequences"
         ],
         ruleRef: "OVA 6v6 Positional Regulations",
-        diagram: "court-layout"
+        diagram: "rallyball-6v6-reception"
       },
       {
         id: "6v6-free-ball-tosser",
@@ -1139,7 +1139,7 @@ export const moduleContent: Record<string, Module> = {
         ],
         ruleRef: "OVA 6v6 Tosser Guidelines",
         vcNote: "The Head Coach, Assistant Coach, or competent volunteer can be the Tosser. They introduce balls to their OWN team only.",
-        diagram: "court-layout"
+        diagram: "free-ball-tosser"
       }
     ]
   },
@@ -1180,7 +1180,7 @@ export const moduleContent: Record<string, Module> = {
           "Ball: 66-68cm, lower pressure (0.175-0.225 kg/cm²)"
         ],
         ruleRef: "FIVB Beach Rules 1-3",
-        diagram: "court-layout"
+        diagram: "beach-court"
       },
       {
         id: "beach-teams-uniforms",
@@ -1201,7 +1201,7 @@ export const moduleContent: Record<string, Module> = {
           "Captain is only one who can speak to refs"
         ],
         ruleRef: "FIVB Beach Rules 4-5",
-        diagram: "court-layout"
+        diagram: "beach-teams"
       },
       {
         id: "beach-scoring-format",
@@ -1222,7 +1222,7 @@ export const moduleContent: Record<string, Module> = {
           "No positional faults — free positioning"
         ],
         ruleRef: "FIVB Beach Rules 6-7",
-        diagram: "court-layout"
+        diagram: "beach-scoring"
       },
       {
         id: "beach-ball-handling",
@@ -1243,7 +1243,7 @@ export const moduleContent: Record<string, Module> = {
           "Court lines are IN (same as indoor)"
         ],
         ruleRef: "FIVB Beach Rules 9-11, 13-14",
-        diagram: "court-layout"
+        diagram: "beach-ball-handling"
       },
       {
         id: "beach-service-attack",
@@ -1264,7 +1264,7 @@ export const moduleContent: Record<string, Module> = {
           "Block service = fault (same as indoor)"
         ],
         ruleRef: "FIVB Beach Rules 12-14",
-        diagram: "court-layout"
+        diagram: "beach-service-attack"
       },
       {
         id: "beach-interruptions-conduct",

@@ -1,6 +1,9 @@
 import { NextResponse } from "next/server";
 import { getServerSupabase } from "../../../lib/supabase";
 import { assertEnv } from "../../../lib/utils";
+import { getAllModules } from "../../../lib/module-content";
+import { calculateLatestScore, normalizeRefereeLevel, questionLevelForRefereeLevel } from "../../../lib/learning";
+import { getQuizAssignmentProgress } from "../../../lib/quiz-assignments";
 
 export const runtime = "nodejs";
 
@@ -26,6 +29,29 @@ type ChallengeEntryRow = {
   created_at: string;
 };
 
+type LearningLessonRow = {
+  module_id: string;
+  lesson_id: string;
+  viewed_at: string | null;
+};
+
+type LearningAttemptRow = {
+  module_id: string;
+  correct: boolean;
+  created_at: string | null;
+};
+
+type LearningPassRow = {
+  module_id: string;
+  correct_count: number;
+  score_percent: number;
+  passed_at: string | null;
+};
+
+type LearningAssignmentRow = {
+  module_id: string;
+};
+
 function weekStartUtcIso(date: Date): string {
   // Postgres date_trunc('week', ...) uses Monday as week start.
   const day = date.getUTCDay(); // 0=Sun..6=Sat
@@ -34,6 +60,12 @@ function weekStartUtcIso(date: Date): string {
   start.setUTCDate(start.getUTCDate() - diffToMonday);
   start.setUTCHours(0, 0, 0, 0);
   return start.toISOString();
+}
+
+function later(a: string | null, b: string | null) {
+  if (!a) return b;
+  if (!b) return a;
+  return Date.parse(a) >= Date.parse(b) ? a : b;
 }
 
 async function requireUserId(request: Request) {
@@ -215,11 +247,93 @@ export async function GET(request: Request) {
 
   const userEmail = authData?.user?.email ?? null;
 
+  const [{ data: profile }, { data: learningLessons, error: learningLessonError }, { data: learningAttempts, error: learningAttemptError }, { data: learningPasses, error: learningPassError }, { data: learningAssignments, error: learningAssignmentError }] =
+    await Promise.all([
+      supabase.from("profiles").select("referee_level").eq("user_id", user.userId).maybeSingle(),
+      supabase
+        .from("module_lesson_progress")
+        .select("module_id, lesson_id, viewed_at")
+        .eq("user_id", user.userId),
+      supabase
+        .from("module_quiz_attempts")
+        .select("module_id, correct, created_at")
+        .eq("user_id", user.userId)
+        .order("created_at", { ascending: false }),
+      supabase
+        .from("module_passes")
+        .select("module_id, correct_count, score_percent, passed_at")
+        .eq("user_id", user.userId),
+      supabase
+        .from("module_assignments")
+        .select("module_id")
+        .eq("user_id", user.userId),
+    ]);
+
+  const learningError = learningLessonError || learningAttemptError || learningPassError || learningAssignmentError;
+  if (learningError) {
+    return NextResponse.json({ error: learningError.message }, { status: 500 });
+  }
+
+  const moduleCatalog = getAllModules();
+  const learningLessonsByModule = new Map<string, LearningLessonRow[]>();
+  for (const row of (learningLessons || []) as LearningLessonRow[]) {
+    learningLessonsByModule.set(row.module_id, [...(learningLessonsByModule.get(row.module_id) || []), row]);
+  }
+  const learningAttemptsByModule = new Map<string, LearningAttemptRow[]>();
+  for (const row of (learningAttempts || []) as LearningAttemptRow[]) {
+    learningAttemptsByModule.set(row.module_id, [...(learningAttemptsByModule.get(row.module_id) || []), row]);
+  }
+  const learningPassByModule = new Map((learningPasses || []).map((row) => [(row as LearningPassRow).module_id, row as LearningPassRow]));
+  const assignedModuleIds = new Set(((learningAssignments || []) as LearningAssignmentRow[]).map((row) => row.module_id));
+
+  const learningModules = moduleCatalog.map((module) => {
+    const lessonsForModule = learningLessonsByModule.get(module.id) || [];
+    const attemptsForModule = learningAttemptsByModule.get(module.id) || [];
+    const pass = learningPassByModule.get(module.id) || null;
+    const score = calculateLatestScore(attemptsForModule);
+    const lastLesson = lessonsForModule.reduce<string | null>((acc, row) => later(acc, row.viewed_at), null);
+    const lastAttempt = attemptsForModule.reduce<string | null>((acc, row) => later(acc, row.created_at), null);
+    return {
+      module_id: module.id,
+      title: module.title,
+      lessons_viewed: lessonsForModule.length,
+      lesson_count: module.lessons.length,
+      attempts: attemptsForModule.length,
+      latest_score_percent: pass?.score_percent ?? score.latestScorePercent,
+      latest_correct_count: pass?.correct_count ?? score.latestCorrectCount,
+      latest_attempts_count: score.latestAttemptsCount,
+      assigned: assignedModuleIds.has(module.id),
+      passed: !!pass,
+      passed_at: pass?.passed_at ?? null,
+      last_activity_at: later(lastLesson, lastAttempt),
+    };
+  }).sort((a, b) => Number(b.assigned) - Number(a.assigned));
+
+  const modulesStarted = learningModules.filter((m) => m.lessons_viewed > 0 || m.attempts > 0).length;
+  const modulesPassed = learningModules.filter((m) => m.passed).length;
+  const assignedModules = learningModules.filter((m) => m.assigned);
+  const assignedPassed = assignedModules.filter((m) => m.passed).length;
+  const lastLearningActivity = learningModules.reduce<string | null>((acc, row) => later(acc, row.last_activity_at), null);
+  const refereeLevel = normalizeRefereeLevel((profile as { referee_level?: string } | null)?.referee_level);
+  const quizAssignment = await getQuizAssignmentProgress(supabase, user.userId);
+
   return NextResponse.json({
     user: {
       id: user.userId,
       email: userEmail,
+      referee_level: refereeLevel,
+      question_level: questionLevelForRefereeLevel(refereeLevel),
     },
+    learning: {
+      modules_started: modulesStarted,
+      modules_passed: modulesPassed,
+      total_modules: moduleCatalog.length,
+      required_modules: assignedModules.length,
+      required_modules_passed: assignedPassed,
+      last_activity_at: lastLearningActivity,
+      modules: learningModules,
+    },
+    quiz_assignment: quizAssignment,
     video_practice: {
       attempted: practiceAttempted,
       solved: practiceSolved,

@@ -21,7 +21,8 @@ import {
   CollectiveScreen,
   SanctionCards,
   HandSignals,
-  FlagSignals
+  FlagSignals,
+  ScenarioDiagram
 } from "../diagrams";
 
 interface LessonContentProps {
@@ -37,6 +38,11 @@ function getDiagramComponent(diagramType: string) {
     // Facilities & Equipment
     "court-layout": <CourtLayout showMeasurements size="lg" />,
     "net-design": <NetDesign showMeasurements size="lg" />,
+    "balls": <ScenarioDiagram scenario="balls" />,
+    "teams": <ScenarioDiagram scenario="teams" />,
+    "captain-coach": <ScenarioDiagram scenario="captain-coach" />,
+    "scoring-flow": <ScenarioDiagram scenario="scoring-flow" />,
+    "ball-play-sequence": <ScenarioDiagram scenario="ball-play-sequence" />,
     
     // Positions & Rotation
     "player-positions": <PlayerPositions showOverlapExample="correct" size="lg" />,
@@ -49,6 +55,7 @@ function getDiagramComponent(diagramType: string) {
     "service-zone": <ServiceZone showServer showTimeline />,
     "service-execution": <ServiceZone showServer={false} showTimeline={false} />,
     "service-faults": <ServiceZone showServer showTimeline />,
+    "service-rules": <ScenarioDiagram scenario="service-rules" />,
     "receiving-position": <CourtZones highlightZones={[1, 5, 6]} showLabels />,
     
     // Ball at Net & Playing Actions
@@ -76,12 +83,17 @@ function getDiagramComponent(diagramType: string) {
     "libero-replacement": <LiberoZones showSettingRestriction={false} showReplacementZone />,
     "libero-setting": <LiberoZones showSettingRestriction showReplacementZone={false} />,
     "injured-libero": <LiberoZones showSettingRestriction={false} showReplacementZone />,
+    "libero-complete": <ScenarioDiagram scenario="libero-complete" />,
+    "libero-redesignation": <ScenarioDiagram scenario="libero-redesignation" />,
     
     // Conduct & Sanctions
     "sanction-cards": <SanctionCards showType="all" size="lg" />,
+    "conduct": <ScenarioDiagram scenario="conduct" />,
     
     // Referee Signals
     "referee-positions": <CourtLayout highlightZone="substitution" size="lg" />,
+    "referee-crew": <ScenarioDiagram scenario="referee-crew" />,
+    "scorer-table": <ScenarioDiagram scenario="scorer-table" />,
     "hand-signals": <HandSignals category="all" size="lg" />,
     "flag-signals": <FlagSignals size="lg" />,
     "scoring-signals": <RefereeSignals signal="point" />,
@@ -89,6 +101,32 @@ function getDiagramComponent(diagramType: string) {
     "attack-block-signals": <RefereeSignals signal="net-touch" />,
     "timeout-sub-signals": <RefereeSignals signal="out" />,
     "positioning-signals": <RefereeSignals signal="rotation-fault" />,
+
+    // Interruptions & scorekeeping
+    "interruptions": <ScenarioDiagram scenario="interruptions" />,
+    "substitution": <ScenarioDiagram scenario="substitution" />,
+    "exceptional-interruptions": <ScenarioDiagram scenario="exceptional-interruptions" />,
+    "scoresheet-before": <ScenarioDiagram scenario="scoresheet-before" />,
+    "scoresheet-toss": <ScenarioDiagram scenario="scoresheet-toss" />,
+    "scoresheet-points": <ScenarioDiagram scenario="scoresheet-points" />,
+    "deciding-set": <ScenarioDiagram scenario="deciding-set" />,
+    "scoresheet-timeouts": <ScenarioDiagram scenario="scoresheet-timeouts" />,
+    "scoresheet-close": <ScenarioDiagram scenario="scoresheet-close" />,
+
+    // Rallyball & beach
+    "rallyball-4v4-court": <ScenarioDiagram scenario="rallyball-4v4-court" />,
+    "rallyball-4v4-formation": <ScenarioDiagram scenario="rallyball-4v4-formation" />,
+    "tripleball": <ScenarioDiagram scenario="tripleball" />,
+    "rallyball-rules": <ScenarioDiagram scenario="rallyball-rules" />,
+    "rallyball-6v6-court": <ScenarioDiagram scenario="rallyball-6v6-court" />,
+    "rallyball-6v6-tripleball": <ScenarioDiagram scenario="rallyball-6v6-tripleball" />,
+    "rallyball-6v6-reception": <ScenarioDiagram scenario="rallyball-6v6-reception" />,
+    "free-ball-tosser": <ScenarioDiagram scenario="free-ball-tosser" />,
+    "beach-court": <ScenarioDiagram scenario="beach-court" />,
+    "beach-teams": <ScenarioDiagram scenario="beach-teams" />,
+    "beach-scoring": <ScenarioDiagram scenario="beach-scoring" />,
+    "beach-ball-handling": <ScenarioDiagram scenario="beach-ball-handling" />,
+    "beach-service-attack": <ScenarioDiagram scenario="beach-service-attack" />,
   };
   
   return diagramMap[diagramType] || <CourtZones showLabels />;

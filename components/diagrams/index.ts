@@ -21,3 +21,4 @@ export { RefereeSignals } from "./referee-signals";
 export { HandSignals } from "./hand-signals";
 export { FlagSignals } from "./flag-signals";
 export { SanctionCards } from "./sanction-cards";
+export { ScenarioDiagram } from "./scenario-diagram";

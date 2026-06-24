@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { 
   Lightbulb, 
   CheckCircle2, 
@@ -14,30 +14,54 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import type { Module } from "../../lib/module-content";
+import { useSupabaseAuth } from "../../lib/useSupabaseAuth";
+import {
+  MODULE_PASS_CORRECT_REQUIREMENT,
+  MODULE_PASS_PERCENT,
+  MODULE_PASS_QUESTION_REQUIREMENT,
+  questionLevelLabel,
+  type ModuleProgressSummary,
+  type QuestionLevel,
+} from "../../lib/learning";
 
 interface QuizData {
+  module_id?: string;
+  question_level?: QuestionLevel;
   question: string;
   options: string[];
   answer: string;
   explanation: string;
+  rule_reference?: string | null;
 }
 
 interface ModuleQuizProps {
   module: Module;
   nextModule?: Module;
+  progress?: ModuleProgressSummary | null;
 }
 
-export function ModuleQuiz({ module, nextModule }: ModuleQuizProps) {
+export function ModuleQuiz({ module, nextModule, progress }: ModuleQuizProps) {
+  const { session } = useSupabaseAuth();
+  const queryClient = useQueryClient();
   const [quiz, setQuiz] = useState<QuizData | null>(null);
   const [selectedAnswer, setSelectedAnswer] = useState<string | null>(null);
   const [isCorrect, setIsCorrect] = useState<boolean | null>(null);
+  const [attemptResult, setAttemptResult] = useState<{
+    latest_attempts_count: number;
+    latest_correct_count: number;
+    latest_score_percent: number;
+    passed: boolean;
+  } | null>(null);
 
   const loadQuiz = useMutation({
     mutationFn: async () => {
-      const res = await fetch("/api/lessons", {
+      const res = await fetch("/api/learn/module-question", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ module: module.id })
+        headers: {
+          "Content-Type": "application/json",
+          ...(session?.access_token ? { Authorization: `Bearer ${session.access_token}` } : {}),
+        },
+        body: JSON.stringify({ module_id: module.id })
       });
       if (!res.ok) throw new Error("Failed to load quiz");
       return res.json();
@@ -45,19 +69,47 @@ export function ModuleQuiz({ module, nextModule }: ModuleQuizProps) {
     onSuccess: (data) => {
       setSelectedAnswer(null);
       setIsCorrect(null);
-      try {
-        const parsed = JSON.parse(data.quiz);
-        setQuiz(parsed);
-      } catch {
-        setQuiz(null);
-      }
+      setAttemptResult(null);
+      setQuiz(data);
     }
+  });
+
+  const saveAttempt = useMutation({
+    mutationFn: async (payload: { question: QuizData; selected_option: string; correct: boolean }) => {
+      const res = await fetch("/api/learn/module-attempt", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          ...(session?.access_token ? { Authorization: `Bearer ${session.access_token}` } : {}),
+        },
+        body: JSON.stringify({
+          module_id: module.id,
+          question: payload.question,
+          selected_option: payload.selected_option,
+          correct: payload.correct,
+        }),
+      });
+      if (!res.ok) throw new Error("Failed to save module attempt");
+      return res.json() as Promise<{
+        latest_attempts_count: number;
+        latest_correct_count: number;
+        latest_score_percent: number;
+        passed: boolean;
+      }>;
+    },
+    onSuccess: (data) => {
+      setAttemptResult(data);
+      queryClient.invalidateQueries({ queryKey: ["learn-progress"] });
+      queryClient.invalidateQueries({ queryKey: ["dashboard"] });
+    },
   });
 
   const checkAnswer = (answer: string) => {
     if (!quiz || isCorrect !== null) return;
+    const correct = answer === quiz.answer;
     setSelectedAnswer(answer);
-    setIsCorrect(answer === quiz.answer);
+    setIsCorrect(correct);
+    saveAttempt.mutate({ question: quiz, selected_option: answer, correct });
   };
 
   const retryQuiz = () => {
@@ -66,6 +118,22 @@ export function ModuleQuiz({ module, nextModule }: ModuleQuizProps) {
     setIsCorrect(null);
     loadQuiz.mutate();
   };
+
+  const visibleProgress = attemptResult
+    ? {
+        latest_attempts_count: attemptResult.latest_attempts_count,
+        latest_correct_count: attemptResult.latest_correct_count,
+        latest_score_percent: attemptResult.latest_score_percent,
+        passed: attemptResult.passed,
+      }
+    : progress
+      ? {
+          latest_attempts_count: progress.latest_attempts_count,
+          latest_correct_count: progress.latest_correct_count,
+          latest_score_percent: progress.latest_score_percent,
+          passed: progress.passed,
+        }
+      : null;
 
   return (
     <motion.div
@@ -89,11 +157,34 @@ export function ModuleQuiz({ module, nextModule }: ModuleQuizProps) {
           </div>
           <div>
             <p className="text-xs font-semibold uppercase tracking-wider text-muted">
-              Knowledge Check
+              Tracked Knowledge Check
             </p>
             <h3 className="text-2xl font-display font-bold text-primary">
               Module Quiz
             </h3>
+          </div>
+        </div>
+
+        <div className="grid sm:grid-cols-3 gap-3 mb-8">
+          <div className="rounded-xl border border-border bg-surface p-3">
+            <p className="text-xs font-semibold uppercase tracking-wider text-muted">Requirement</p>
+            <p className="text-sm font-bold text-primary">
+              {MODULE_PASS_CORRECT_REQUIREMENT}/{MODULE_PASS_QUESTION_REQUIREMENT} correct
+            </p>
+          </div>
+          <div className="rounded-xl border border-border bg-surface p-3">
+            <p className="text-xs font-semibold uppercase tracking-wider text-muted">Latest Score</p>
+            <p className="text-sm font-bold text-primary">
+              {visibleProgress
+                ? `${visibleProgress.latest_correct_count}/${Math.max(visibleProgress.latest_attempts_count, MODULE_PASS_QUESTION_REQUIREMENT)} (${visibleProgress.latest_score_percent}%)`
+                : `0/${MODULE_PASS_QUESTION_REQUIREMENT} (0%)`}
+            </p>
+          </div>
+          <div className="rounded-xl border border-border bg-surface p-3">
+            <p className="text-xs font-semibold uppercase tracking-wider text-muted">Status</p>
+            <p className={`text-sm font-bold ${visibleProgress?.passed ? "text-green-700" : "text-primary"}`}>
+              {visibleProgress?.passed ? "Passed" : `${MODULE_PASS_PERCENT}% to pass`}
+            </p>
           </div>
         </div>
 
@@ -107,7 +198,7 @@ export function ModuleQuiz({ module, nextModule }: ModuleQuizProps) {
               className="text-center py-8"
             >
               <p className="text-muted mb-6">
-                Test your understanding of {module.title} with an AI-generated quiz question.
+                Test your understanding of {module.title}. Your answers count toward module progress.
               </p>
               <motion.button
                 onClick={() => loadQuiz.mutate()}
@@ -143,6 +234,11 @@ export function ModuleQuiz({ module, nextModule }: ModuleQuizProps) {
               className="space-y-6"
             >
               {/* Question */}
+              {quiz.question_level && (
+                <span className="inline-flex w-fit rounded-full bg-primary/10 px-3 py-1 text-xs font-bold uppercase tracking-wider text-primary">
+                  {questionLevelLabel(quiz.question_level)}
+                </span>
+              )}
               <p className="text-lg font-semibold text-primary leading-relaxed">
                 {quiz.question}
               </p>
@@ -221,6 +317,14 @@ export function ModuleQuiz({ module, nextModule }: ModuleQuizProps) {
                           {isCorrect ? "Correct! Well done!" : "Not quite right"}
                         </p>
                         <p className="text-sm text-muted">{quiz.explanation}</p>
+                        {quiz.rule_reference && (
+                          <p className="mt-2 text-xs font-semibold text-primary">{quiz.rule_reference}</p>
+                        )}
+                        {saveAttempt.isError && (
+                          <p className="mt-2 text-xs font-semibold text-red-600">
+                            Answer shown, but progress could not be saved. Try signing in again.
+                          </p>
+                        )}
                       </div>
                     </div>
                   </motion.div>
@@ -266,4 +370,3 @@ export function ModuleQuiz({ module, nextModule }: ModuleQuizProps) {
     </motion.div>
   );
 }
-
