@@ -27,6 +27,18 @@ OPENAI_API_KEY=
    - `practice-clips` (for MP4 practice clips)
 3. Optional policies: allow authenticated inserts/selects on tables used from client (e.g., `quiz_attempts`, `video_attempts`). Server routes use the service key for admin writes.
 
+### Administrator access
+
+Apply the latest Supabase migrations to create the `admin_users` table. Existing administrators can then add or remove admin emails from **Admin → Admin access**.
+
+For bootstrap or emergency access, set `ADMIN_EMAILS` to a comma-separated list:
+
+```bash
+ADMIN_EMAILS=admin@example.com,second-admin@example.com
+```
+
+Database-managed admins can be removed in the UI. Environment-managed admins must be removed from `ADMIN_EMAILS`.
+
 ## Local Development
 ```
 pnpm install   # or npm install

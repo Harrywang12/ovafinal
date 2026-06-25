@@ -148,12 +148,28 @@ $$;
 -- Admin helper
 -- ---------------------------------------------------------------------------
 
+create table if not exists public.admin_users (
+  email text primary key check (email = lower(trim(email))),
+  created_by uuid references auth.users(id) on delete set null,
+  created_at timestamp with time zone not null default timezone('utc'::text, now())
+);
+
+insert into public.admin_users (email)
+values ('yixuanwang2009@gmail.com')
+on conflict (email) do nothing;
+
 create or replace function public.is_admin()
 returns boolean
 language sql
 stable
+security definer
+set search_path = public
 as $$
-  select coalesce((auth.jwt() ->> 'email'), '') = 'yixuanwang2009@gmail.com';
+  select exists (
+    select 1
+    from public.admin_users
+    where email = lower(coalesce(auth.jwt() ->> 'email', ''))
+  );
 $$;
 
 -- ---------------------------------------------------------------------------
@@ -233,6 +249,15 @@ create policy "user update own profile"
 create policy "user insert own profile"
   on public.profiles for insert
   with check (auth.uid() = user_id);
+
+alter table if exists public.admin_users enable row level security;
+create policy "admin read admin_users"
+  on public.admin_users for select
+  using (public.is_admin());
+create policy "admin manage admin_users"
+  on public.admin_users for all
+  using (public.is_admin())
+  with check (public.is_admin());
 
 alter table if exists public.module_lesson_progress enable row level security;
 create policy "user manage own lesson progress"

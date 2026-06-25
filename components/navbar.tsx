@@ -7,6 +7,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Menu, X } from "lucide-react";
 import { useSupabaseAuth } from "../lib/useSupabaseAuth";
 import { getBrowserSupabase } from "../lib/supabase-browser";
+import { useAdminAccess } from "../lib/useAdminAccess";
 import { Logo } from "./logo";
 
 const links = [
@@ -15,16 +16,12 @@ const links = [
   { href: "/practice", label: "Practice" },
   { href: "/challenge", label: "Challenge" },
 ];
-const ADMIN_EMAIL = "yixuanwang2009@gmail.com";
-
 export function Navbar() {
   const router = useRouter();
   const pathname = usePathname();
   const { session } = useSupabaseAuth();
-  const isAdmin = useMemo(() => {
-    const email = session?.user?.email?.toLowerCase() || "";
-    return email === ADMIN_EMAIL.toLowerCase();
-  }, [session?.user?.email]);
+  const adminAccess = useAdminAccess(session);
+  const isAdmin = adminAccess.data?.isAdmin === true;
   const supabase = useMemo(() => getBrowserSupabase(), []);
   
   const [scrolled, setScrolled] = useState(false);

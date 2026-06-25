@@ -1,18 +1,44 @@
 import { createClient } from "@supabase/supabase-js";
+import { getServerSupabase } from "./supabase";
 import { assertEnv } from "./utils";
-
-export const ADMIN_EMAIL = "yixuanwang2009@gmail.com";
 
 export type AdminAuthResult =
   | { ok: true; userId: string; email: string }
   | { ok: false; status: number; error: string };
 
-/**
- * Validates a Supabase JWT from the Authorization header and ensures the user is the configured admin.
- *
- * This is used by admin API routes that also use the service role key for database writes.
- */
-export async function requireAdminFromRequest(request: Request): Promise<AdminAuthResult> {
+function normalizeEmail(email: string) {
+  return email.trim().toLowerCase();
+}
+
+export function getConfiguredAdminEmails() {
+  return (process.env.ADMIN_EMAILS || process.env.ADMIN_EMAIL || "")
+    .split(",")
+    .map(normalizeEmail)
+    .filter(Boolean);
+}
+
+export async function isAdminEmail(email: string) {
+  const normalizedEmail = normalizeEmail(email);
+  if (!normalizedEmail) return false;
+
+  if (getConfiguredAdminEmails().includes(normalizedEmail)) {
+    return true;
+  }
+
+  try {
+    const { data, error } = await getServerSupabase()
+      .from("admin_users")
+      .select("email")
+      .eq("email", normalizedEmail)
+      .maybeSingle();
+
+    return !error && !!data;
+  } catch {
+    return false;
+  }
+}
+
+export async function getRequestIdentity(request: Request): Promise<AdminAuthResult> {
   assertEnv(["SUPABASE_URL"]);
 
   const authHeader = request.headers.get("authorization") || request.headers.get("Authorization") || "";
@@ -29,7 +55,6 @@ export async function requireAdminFromRequest(request: Request): Promise<AdminAu
     return { ok: false, status: 500, error: "Missing SUPABASE_ANON_KEY (or NEXT_PUBLIC_SUPABASE_ANON_KEY)" };
   }
 
-  // Use anon client to validate the JWT and fetch user identity
   const authClient = createClient(supabaseUrl, supabaseAnonKey, {
     auth: {
       persistSession: false,
@@ -43,10 +68,25 @@ export async function requireAdminFromRequest(request: Request): Promise<AdminAu
     return { ok: false, status: 401, error: error?.message || "Invalid token" };
   }
 
-  const email = (data.user.email || "").toLowerCase();
-  if (email !== ADMIN_EMAIL.toLowerCase()) {
-    return { ok: false, status: 403, error: "Admin access required" };
+  const email = normalizeEmail(data.user.email || "");
+  if (!email) {
+    return { ok: false, status: 403, error: "An email address is required for admin access" };
   }
 
   return { ok: true, userId: data.user.id, email };
+}
+
+/**
+ * Validates the bearer token and checks both the database-backed admin list
+ * and the comma-separated ADMIN_EMAILS bootstrap list.
+ */
+export async function requireAdminFromRequest(request: Request): Promise<AdminAuthResult> {
+  const identity = await getRequestIdentity(request);
+  if (!identity.ok) return identity;
+
+  if (!(await isAdminEmail(identity.email))) {
+    return { ok: false, status: 403, error: "Admin access required" };
+  }
+
+  return identity;
 }

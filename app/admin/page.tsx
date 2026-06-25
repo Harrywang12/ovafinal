@@ -4,9 +4,25 @@ import Link from "next/link";
 import { useMemo, useState } from "react";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { motion, AnimatePresence } from "framer-motion";
-import { Plus, Shield, Trash2, RefreshCcw, Video, GraduationCap, BarChart3 } from "lucide-react";
+import {
+  Plus,
+  Shield,
+  Trash2,
+  RefreshCcw,
+  Video,
+  GraduationCap,
+  BarChart3,
+  Users,
+  UserRoundCog,
+  MailPlus,
+  Loader2,
+  Library,
+  Activity,
+  Settings2,
+} from "lucide-react";
 import { AuthGuard } from "../../components/auth-guard";
 import { useSupabaseAuth } from "../../lib/useSupabaseAuth";
+import { useAdminAccess } from "../../lib/useAdminAccess";
 import { fadeInUp, scaleIn, staggerContainer, staggerItem } from "../../lib/animations";
 
 type VideoQuestionRow = {
@@ -83,21 +99,26 @@ type QuizAssignmentData = {
   }>;
 };
 
-const ADMIN_EMAIL = "yixuanwang2009@gmail.com";
+type AdminListData = {
+  admins: Array<{
+    email: string;
+    created_at: string | null;
+    created_by: string | null;
+    source: "database" | "environment";
+  }>;
+};
 
 export default function AdminPage() {
   const { session } = useSupabaseAuth();
+  const adminAccess = useAdminAccess(session);
   const [kindFilter, setKindFilter] = useState<"all" | "practice" | "challenge">("all");
-  const [activePanel, setActivePanel] = useState<"videos" | "learning">("videos");
+  const [activePanel, setActivePanel] = useState<"videos" | "learning" | "access">("videos");
   const [selectedLearnerIds, setSelectedLearnerIds] = useState<string[]>([]);
   const [selectedModuleIds, setSelectedModuleIds] = useState<string[]>([]);
   const [quizQuota, setQuizQuota] = useState<number>(50);
   const [quizRequiredPercent, setQuizRequiredPercent] = useState<number>(70);
-
-  const isAdmin = useMemo(() => {
-    const email = session?.user?.email?.toLowerCase() || "";
-    return email === ADMIN_EMAIL.toLowerCase();
-  }, [session?.user?.email]);
+  const [newAdminEmail, setNewAdminEmail] = useState("");
+  const isAdmin = adminAccess.data?.isAdmin === true;
 
   const listQuery = useQuery({
     queryKey: ["admin", "video-questions", kindFilter],
@@ -241,6 +262,66 @@ export default function AdminPage() {
     },
   });
 
+  const adminsQuery = useQuery({
+    queryKey: ["admin", "admins"],
+    enabled: !!session?.access_token && isAdmin && activePanel === "access",
+    queryFn: async () => {
+      const res = await fetch("/api/admin/admins", {
+        headers: {
+          Authorization: `Bearer ${session!.access_token}`,
+        },
+      });
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data.error || "Failed to load administrators");
+      }
+      return res.json() as Promise<AdminListData>;
+    },
+  });
+
+  const addAdminMutation = useMutation({
+    mutationFn: async () => {
+      const res = await fetch("/api/admin/admins", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${session!.access_token}`,
+        },
+        body: JSON.stringify({ email: newAdminEmail }),
+      });
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data.error || "Failed to add administrator");
+      }
+      return res.json();
+    },
+    onSuccess: () => {
+      setNewAdminEmail("");
+      adminsQuery.refetch();
+    },
+  });
+
+  const removeAdminMutation = useMutation({
+    mutationFn: async (email: string) => {
+      const res = await fetch("/api/admin/admins", {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${session!.access_token}`,
+        },
+        body: JSON.stringify({ email }),
+      });
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data.error || "Failed to remove administrator");
+      }
+      return res.json();
+    },
+    onSuccess: () => {
+      adminsQuery.refetch();
+    },
+  });
+
   const toggleSelected = (value: string, current: string[], setValue: (next: string[]) => void) => {
     setValue(current.includes(value) ? current.filter((item) => item !== value) : [...current, value]);
   };
@@ -252,68 +333,115 @@ export default function AdminPage() {
 
   return (
     <AuthGuard>
-      <div className="min-h-screen pt-24 pb-16">
-        <div className="max-w-5xl mx-auto px-6">
-          <motion.div variants={fadeInUp} initial="hidden" animate="visible" className="text-center mb-10">
-            <motion.div
-              initial={{ scale: 0 }}
-              animate={{ scale: 1 }}
-              transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
-              className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-primary/10 text-primary mb-6"
-            >
-              <Shield size={32} />
+      <div className="admin-shell min-h-screen pt-24 pb-20">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6">
+          {adminAccess.isLoading ? (
+            <motion.div variants={scaleIn} initial="hidden" animate="visible" className="admin-surface mx-auto max-w-lg p-10 text-center">
+              <Loader2 className="mx-auto animate-spin text-primary" size={28} />
+              <p className="mt-3 text-muted">Checking admin access…</p>
             </motion.div>
-            <h1 className="text-4xl md:text-5xl font-display font-bold text-primary mb-3">Admin Panel</h1>
-            <p className="text-muted text-lg max-w-2xl mx-auto">
-              Upload and configure video challenges: pause point, 4 options, correct answer, and difficulty-based answer window.
-            </p>
-          </motion.div>
-
-          {!isAdmin ? (
-            <motion.div variants={scaleIn} initial="hidden" animate="visible" className="card text-center py-10">
-              <p className="text-primary font-semibold">Admin access required</p>
-              <p className="text-muted mt-2">Sign in as {ADMIN_EMAIL} to manage challenges.</p>
+          ) : !isAdmin ? (
+            <motion.div variants={scaleIn} initial="hidden" animate="visible" className="admin-surface mx-auto max-w-lg p-10 text-center">
+              <div className="mx-auto mb-5 flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/10 text-primary">
+                <Shield size={28} />
+              </div>
+              <p className="text-xl font-display font-bold text-ink">Admin access required</p>
+              <p className="text-muted mt-2">Ask an existing administrator to add your email to the access list.</p>
             </motion.div>
           ) : (
             <>
+              <motion.section
+                variants={fadeInUp}
+                initial="hidden"
+                animate="visible"
+                className="admin-hero mb-6 overflow-hidden rounded-[2rem] text-white"
+              >
+                <div className="relative z-10 grid gap-8 p-7 md:grid-cols-[1fr_auto] md:items-end md:p-10">
+                  <div>
+                    <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-3 py-1.5 text-xs font-bold uppercase tracking-[0.18em] text-white/75">
+                      <Activity size={14} />
+                      Operations console
+                    </div>
+                    <h1 className="max-w-3xl text-4xl font-display font-bold leading-[0.95] md:text-6xl">
+                      Keep training sharp.
+                    </h1>
+                    <p className="mt-4 max-w-2xl text-base text-white/65 md:text-lg">
+                      Publish match scenarios, assign learning, monitor progress, and control administrator access.
+                    </p>
+                  </div>
+                  <div className="rounded-2xl border border-white/15 bg-black/15 px-5 py-4 backdrop-blur-sm">
+                    <p className="text-xs font-bold uppercase tracking-[0.16em] text-white/50">Signed in as</p>
+                    <p className="mt-1 max-w-64 truncate font-semibold text-white">{adminAccess.data?.email}</p>
+                  </div>
+                </div>
+              </motion.section>
+
               <motion.div
                 variants={staggerContainer}
                 initial="hidden"
                 animate="visible"
-                className="flex flex-wrap items-center justify-between gap-3 mb-6"
+                className="mb-6 grid gap-3 sm:grid-cols-3"
+              >
+                {[
+                  {
+                    label: "Video library",
+                    value: listQuery.data?.questions.length ?? "—",
+                    detail: "Published scenarios",
+                    icon: Library,
+                  },
+                  {
+                    label: "Learners",
+                    value: learningQuery.data?.learners.length ?? assignmentQuery.data?.learners.length ?? "—",
+                    detail: "Tracked profiles",
+                    icon: Users,
+                  },
+                  {
+                    label: "Administrators",
+                    value: adminsQuery.data?.admins.length ?? "—",
+                    detail: "Authorized emails",
+                    icon: UserRoundCog,
+                  },
+                ].map((stat) => {
+                  const Icon = stat.icon;
+                  return (
+                    <motion.div key={stat.label} variants={staggerItem} className="admin-metric">
+                      <div className="flex items-start justify-between gap-4">
+                        <div>
+                          <p className="text-xs font-bold uppercase tracking-[0.14em] text-muted">{stat.label}</p>
+                          <p className="mt-2 text-3xl font-display font-bold text-ink">{stat.value}</p>
+                          <p className="mt-1 text-sm text-muted">{stat.detail}</p>
+                        </div>
+                        <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 text-primary">
+                          <Icon size={20} />
+                        </span>
+                      </div>
+                    </motion.div>
+                  );
+                })}
+              </motion.div>
+
+              <motion.div
+                variants={staggerContainer}
+                initial="hidden"
+                animate="visible"
+                className="admin-toolbar mb-6 flex flex-wrap items-center justify-between gap-3"
               >
                 <div className="flex flex-wrap items-center gap-2">
-                  {(["videos", "learning"] as const).map((panel) => (
+                  {(["videos", "learning", "access"] as const).map((panel) => (
                     <motion.button
                       key={panel}
                       variants={staggerItem}
-                      whileHover={{ scale: 1.05 }}
+                      whileHover={{ y: -1 }}
                       whileTap={{ scale: 0.98 }}
                       onClick={() => setActivePanel(panel)}
                       className={
                         activePanel === panel
-                          ? "px-4 py-2 rounded-full text-sm font-semibold bg-primary text-white inline-flex items-center gap-2"
-                          : "px-4 py-2 rounded-full text-sm font-semibold bg-white border border-border text-ink hover:border-primary/40 inline-flex items-center gap-2"
+                          ? "admin-tab admin-tab-active"
+                          : "admin-tab"
                       }
                     >
-                      {panel === "videos" ? <Video size={16} /> : <GraduationCap size={16} />}
-                      {panel === "videos" ? "Video Questions" : "Learning Progress"}
-                    </motion.button>
-                  ))}
-                  {activePanel === "videos" && (["all", "practice", "challenge"] as const).map((k) => (
-                    <motion.button
-                      key={k}
-                      variants={staggerItem}
-                      whileHover={{ scale: 1.05 }}
-                      whileTap={{ scale: 0.98 }}
-                      onClick={() => setKindFilter(k)}
-                      className={
-                        kindFilter === k
-                          ? "px-4 py-2 rounded-full text-sm font-semibold bg-accent text-white"
-                          : "px-4 py-2 rounded-full text-sm font-semibold bg-white border border-border text-ink hover:border-accent/40"
-                      }
-                    >
-                      {k === "all" ? "All" : k[0].toUpperCase() + k.slice(1)}
+                      {panel === "videos" ? <Video size={16} /> : panel === "learning" ? <GraduationCap size={16} /> : <UserRoundCog size={16} />}
+                      {panel === "videos" ? "Video library" : panel === "learning" ? "Learning" : "Admin access"}
                     </motion.button>
                   ))}
                 </div>
@@ -321,26 +449,52 @@ export default function AdminPage() {
                 <div className="flex items-center gap-2">
                   <motion.button
                     variants={staggerItem}
-                    whileHover={{ scale: 1.05 }}
+                    whileHover={{ y: -1 }}
                     whileTap={{ scale: 0.98 }}
-                    onClick={() => activePanel === "videos" ? listQuery.refetch() : (learningQuery.refetch(), assignmentQuery.refetch(), quizAssignmentQuery.refetch())}
-                    className="pill text-white"
-                    disabled={activePanel === "videos" ? listQuery.isLoading : learningQuery.isLoading}
+                    onClick={() => {
+                      if (activePanel === "videos") listQuery.refetch();
+                      if (activePanel === "learning") {
+                        learningQuery.refetch();
+                        assignmentQuery.refetch();
+                        quizAssignmentQuery.refetch();
+                      }
+                      if (activePanel === "access") adminsQuery.refetch();
+                    }}
+                    className="admin-icon-button"
+                    aria-label="Refresh current panel"
                   >
                     <RefreshCcw size={18} />
-                    Refresh
                   </motion.button>
                   {activePanel === "videos" && (
-                    <Link className="pill text-white" href="/admin/new">
+                    <Link className="admin-primary-button" href="/admin/new">
                       <Plus size={18} />
-                      New Video Challenge
+                      New scenario
                     </Link>
                   )}
                 </div>
               </motion.div>
 
+              {activePanel === "videos" && (
+                <div className="mb-4 flex flex-wrap items-center gap-2">
+                  <span className="mr-1 inline-flex items-center gap-2 text-xs font-bold uppercase tracking-[0.14em] text-muted">
+                    <Settings2 size={14} />
+                    Filter
+                  </span>
+                  {(["all", "practice", "challenge"] as const).map((kind) => (
+                    <button
+                      key={kind}
+                      type="button"
+                      onClick={() => setKindFilter(kind)}
+                      className={kindFilter === kind ? "admin-filter admin-filter-active" : "admin-filter"}
+                    >
+                      {kind === "all" ? "All scenarios" : kind}
+                    </button>
+                  ))}
+                </div>
+              )}
+
               {activePanel === "videos" ? (
-              <motion.div variants={scaleIn} initial="hidden" animate="visible" className="card">
+              <motion.div variants={scaleIn} initial="hidden" animate="visible" className="admin-surface p-5 md:p-7">
                 <div className="flex items-center gap-3 mb-5">
                   <Video className="text-accent" size={22} />
                   <div>
@@ -414,8 +568,8 @@ export default function AdminPage() {
                   )}
                 </AnimatePresence>
               </motion.div>
-              ) : (
-              <motion.div variants={scaleIn} initial="hidden" animate="visible" className="card">
+              ) : activePanel === "learning" ? (
+              <motion.div variants={scaleIn} initial="hidden" animate="visible" className="admin-surface p-5 md:p-7">
                 <div className="flex items-center gap-3 mb-5">
                   <BarChart3 className="text-accent" size={22} />
                   <div>
@@ -637,6 +791,103 @@ export default function AdminPage() {
                   )}
                 </AnimatePresence>
               </motion.div>
+              ) : (
+                <motion.div variants={scaleIn} initial="hidden" animate="visible" className="grid gap-6 lg:grid-cols-[minmax(0,1.25fr)_minmax(300px,0.75fr)]">
+                  <section className="admin-surface p-5 md:p-7">
+                    <div className="mb-6 flex items-start justify-between gap-4">
+                      <div>
+                        <p className="text-xs font-bold uppercase tracking-[0.16em] text-muted">Permissions</p>
+                        <h2 className="mt-1 text-2xl font-display font-bold text-ink">Administrator access</h2>
+                        <p className="mt-2 max-w-2xl text-sm text-muted">
+                          Every email below can open this console and use protected admin APIs.
+                        </p>
+                      </div>
+                      <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-primary/10 text-primary">
+                        <UserRoundCog size={22} />
+                      </span>
+                    </div>
+
+                    {adminsQuery.isLoading ? (
+                      <div className="py-12 text-center text-muted">Loading administrators…</div>
+                    ) : adminsQuery.isError ? (
+                      <div className="rounded-2xl border border-red-200 bg-red-50 p-4 text-sm font-semibold text-red-700">
+                        {(adminsQuery.error as Error).message}
+                      </div>
+                    ) : (
+                      <div className="space-y-3">
+                        {(adminsQuery.data?.admins || []).map((item) => {
+                          const isCurrentUser = item.email === adminAccess.data?.email;
+                          return (
+                            <div key={item.email} className="admin-person-row">
+                              <div className="flex min-w-0 items-center gap-3">
+                                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-secondary text-sm font-bold text-white">
+                                  {item.email.slice(0, 2).toUpperCase()}
+                                </div>
+                                <div className="min-w-0">
+                                  <p className="truncate font-semibold text-ink">{item.email}</p>
+                                  <p className="text-xs text-muted">
+                                    {item.source === "environment" ? "Environment configured" : item.created_at ? `Added ${new Date(item.created_at).toLocaleDateString()}` : "Database managed"}
+                                    {isCurrentUser ? " · You" : ""}
+                                  </p>
+                                </div>
+                              </div>
+                              <button
+                                type="button"
+                                onClick={() => removeAdminMutation.mutate(item.email)}
+                                disabled={isCurrentUser || item.source === "environment" || removeAdminMutation.isPending}
+                                className="rounded-xl border border-border px-3 py-2 text-xs font-bold text-muted transition hover:border-red-200 hover:bg-red-50 hover:text-red-700 disabled:cursor-not-allowed disabled:opacity-40"
+                              >
+                                Remove
+                              </button>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    )}
+
+                    {removeAdminMutation.isError && (
+                      <p className="mt-4 text-sm font-semibold text-red-600">{(removeAdminMutation.error as Error).message}</p>
+                    )}
+                  </section>
+
+                  <aside className="admin-access-card p-6 text-white md:p-7">
+                    <MailPlus size={26} className="text-[#ff7a8d]" />
+                    <h3 className="mt-6 text-2xl font-display font-bold">Grant access</h3>
+                    <p className="mt-2 text-sm leading-6 text-white/60">
+                      Add the email used by the person’s Supabase account. Access takes effect on their next authorization check.
+                    </p>
+                    <form
+                      className="mt-6 space-y-3"
+                      onSubmit={(event) => {
+                        event.preventDefault();
+                        addAdminMutation.mutate();
+                      }}
+                    >
+                      <label className="block text-xs font-bold uppercase tracking-[0.14em] text-white/50">
+                        Admin email
+                      </label>
+                      <input
+                        type="email"
+                        required
+                        value={newAdminEmail}
+                        onChange={(event) => setNewAdminEmail(event.target.value)}
+                        placeholder="name@example.com"
+                        className="w-full rounded-xl border border-white/15 bg-white/10 px-4 py-3 text-white outline-none placeholder:text-white/30 focus:border-white/40"
+                      />
+                      <button
+                        type="submit"
+                        disabled={!newAdminEmail.trim() || addAdminMutation.isPending}
+                        className="flex w-full items-center justify-center gap-2 rounded-xl bg-[#ff4966] px-4 py-3 text-sm font-bold text-white transition hover:bg-[#ff5f78] disabled:opacity-50"
+                      >
+                        {addAdminMutation.isPending ? <Loader2 size={17} className="animate-spin" /> : <Plus size={17} />}
+                        Add administrator
+                      </button>
+                    </form>
+                    {addAdminMutation.isError && (
+                      <p className="mt-4 rounded-xl bg-red-500/15 p-3 text-sm text-red-100">{(addAdminMutation.error as Error).message}</p>
+                    )}
+                  </aside>
+                </motion.div>
               )}
             </>
           )}

@@ -10,7 +10,7 @@ import { fadeInUp, staggerContainer, staggerItem } from "../../lib/animations";
 import { Logo } from "../../components/logo";
 import type { RefereeLevel } from "../../lib/learning";
 
-const heroImage = "https://images.unsplash.com/photo-1612872087720-bb876e2e67d1?auto=format&fit=crop&w=1200&q=85";
+const heroImage = "/images/editorial/referee-signal.jpg";
 
 type AuthTab = "signin" | "signup";
 

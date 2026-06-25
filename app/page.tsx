@@ -19,14 +19,14 @@ import {
   scrollReveal,
 } from "../lib/animations";
 
-// High-quality volleyball imagery from Unsplash
+// Cohesive editorial imagery generated specifically for Volley Ref Lab.
 const images = {
-  hero: "https://images.unsplash.com/photo-1612872087720-bb876e2e67d1?auto=format&fit=crop&w=1920&q=90",
-  action: "https://images.unsplash.com/photo-1547347298-4074fc3086f0?auto=format&fit=crop&w=1200&q=85",
-  court: "https://images.unsplash.com/photo-1574629810360-7efbbe195018?auto=format&fit=crop&w=1200&q=85",
-  team: "https://images.unsplash.com/photo-1509475291189-9a5f06e73e10?auto=format&fit=crop&w=1200&q=85",
-  spike: "https://images.unsplash.com/photo-1592656094267-764a45160876?auto=format&fit=crop&w=1200&q=85",
-  celebrate: "https://images.unsplash.com/photo-1546519638-68e109498ffc?auto=format&fit=crop&w=1200&q=85",
+  hero: "/images/editorial/referee-match.jpg",
+  action: "/images/editorial/referee-signal.jpg",
+  court: "/images/editorial/volleyball-court.jpg",
+  team: "/images/editorial/referee-review.jpg",
+  spike: "/images/editorial/referee-match.jpg",
+  celebrate: "/images/editorial/referee-review.jpg",
 };
 
 const steps = [

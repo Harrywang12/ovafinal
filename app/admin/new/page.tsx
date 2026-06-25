@@ -7,15 +7,15 @@ import { motion, AnimatePresence } from "framer-motion";
 import { ArrowLeft, Upload, Video, Save, Shield, Loader2 } from "lucide-react";
 import { AuthGuard } from "../../../components/auth-guard";
 import { useSupabaseAuth } from "../../../lib/useSupabaseAuth";
+import { useAdminAccess } from "../../../lib/useAdminAccess";
 import { fadeInUp, scaleIn } from "../../../lib/animations";
-
-const ADMIN_EMAIL = "yixuanwang2009@gmail.com";
 
 type Difficulty = "easy" | "medium" | "hard";
 
 export default function NewVideoQuestionPage() {
   const { session } = useSupabaseAuth();
-  const isAdmin = useMemo(() => (session?.user?.email || "").toLowerCase() === ADMIN_EMAIL.toLowerCase(), [session?.user?.email]);
+  const adminAccess = useAdminAccess(session);
+  const isAdmin = adminAccess.data?.isAdmin === true;
 
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
@@ -107,10 +107,15 @@ export default function NewVideoQuestionPage() {
             <p className="text-muted text-lg max-w-2xl mx-auto">Upload a clip, set the pause point, provide 4 options, and choose the correct answer.</p>
           </motion.div>
 
-          {!isAdmin ? (
+          {adminAccess.isLoading ? (
+            <motion.div variants={scaleIn} initial="hidden" animate="visible" className="card text-center py-10">
+              <Loader2 className="mx-auto animate-spin text-primary" size={24} />
+              <p className="text-muted mt-3">Checking admin access…</p>
+            </motion.div>
+          ) : !isAdmin ? (
             <motion.div variants={scaleIn} initial="hidden" animate="visible" className="card text-center py-10">
               <p className="text-primary font-semibold">Admin access required</p>
-              <p className="text-muted mt-2">Sign in as {ADMIN_EMAIL} to create challenges.</p>
+              <p className="text-muted mt-2">Ask an existing administrator to add your email.</p>
               <div className="mt-6">
                 <Link href="/" className="pill text-white inline-flex">
                   <ArrowLeft size={18} />

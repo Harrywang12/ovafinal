@@ -39,7 +39,7 @@ export const moduleContent: Record<string, Module> = {
     icon: "📐",
     color: "#3b82f6",
     colorClass: "bg-blue-500",
-    heroImage: "https://images.unsplash.com/photo-1612872087720-bb876e2e67d1?w=1200&q=80",
+    heroImage: "/images/editorial/referee-match.jpg",
     estimatedTime: "12 min",
     category: "indoor",
     ruleRange: "Rules 1-3",
@@ -66,7 +66,7 @@ export const moduleContent: Record<string, Module> = {
         ruleRef: "Rules 1.1-1.3",
         vcNote: "For Canada Games, free playing space must be minimum 9 meters high.",
         diagram: "court-layout",
-        image: "https://images.unsplash.com/photo-1592656094267-764a45160876?w=800&q=80"
+        image: "/images/editorial/referee-match.jpg"
       },
       {
         id: "zones-areas",
@@ -110,7 +110,7 @@ export const moduleContent: Record<string, Module> = {
         ruleRef: "Rules 2.1-2.5",
         vcNote: "Youth heights: 15/16U men 2.35m, 15U women 2.20m, 16U women 2.24m, 14U men 2.20m, 14U women 2.15m",
         diagram: "net-design",
-        image: "https://images.unsplash.com/photo-1547347298-4074fc3086f0?w=800&q=80"
+        image: "/images/editorial/referee-signal.jpg"
       },
       {
         id: "balls",
@@ -144,7 +144,7 @@ export const moduleContent: Record<string, Module> = {
     icon: "👥",
     color: "#8b5cf6",
     colorClass: "bg-purple-500",
-    heroImage: "https://images.unsplash.com/photo-1515523110800-9415d13b84a8?w=1200&q=80",
+    heroImage: "/images/editorial/volleyball-court.jpg",
     estimatedTime: "10 min",
     category: "indoor",
     ruleRange: "Rules 4-5",
@@ -171,7 +171,7 @@ export const moduleContent: Record<string, Module> = {
         ruleRef: "Rules 4.1-4.5",
         vcNote: "VC allows up to 15 players on bench but only 12 on score sheet per match",
         diagram: "teams",
-        image: "https://images.unsplash.com/photo-1553005746-9245ba190489?w=800&q=80"
+        image: "/images/editorial/referee-review.jpg"
       },
       {
         id: "team-leaders",
@@ -205,7 +205,7 @@ export const moduleContent: Record<string, Module> = {
     icon: "🏆",
     color: "#22c55e",
     colorClass: "bg-green-500",
-    heroImage: "https://images.unsplash.com/photo-1580692475446-c2fabbbbf835?w=1200&q=80",
+    heroImage: "/images/editorial/referee-signal.jpg",
     estimatedTime: "15 min",
     category: "indoor",
     ruleRange: "Rules 6-7",
@@ -231,7 +231,7 @@ export const moduleContent: Record<string, Module> = {
         ],
         ruleRef: "Rules 6.1-6.4",
         diagram: "scoring-flow",
-        image: "https://images.unsplash.com/photo-1519331379826-f10be5486c6f?w=800&q=80"
+        image: "/images/editorial/volleyball-court.jpg"
       },
       {
         id: "positions-rotation",
@@ -285,7 +285,7 @@ export const moduleContent: Record<string, Module> = {
     icon: "⚡",
     color: "#f59e0b",
     colorClass: "bg-amber-500",
-    heroImage: "https://images.unsplash.com/photo-1574629810360-7efbbe195018?w=1200&q=80",
+    heroImage: "/images/editorial/volleyball-court.jpg",
     estimatedTime: "25 min",
     category: "indoor",
     ruleRange: "Rules 8-14",
@@ -311,7 +311,7 @@ export const moduleContent: Record<string, Module> = {
         ],
         ruleRef: "Rules 8.1-8.4",
         diagram: "ball-crossing",
-        image: "https://images.unsplash.com/photo-1594470117722-de4b9a02ebed?w=800&q=80"
+        image: "/images/editorial/referee-signal.jpg"
       },
       {
         id: "playing-ball",
@@ -375,7 +375,7 @@ export const moduleContent: Record<string, Module> = {
         ],
         ruleRef: "Rules 11.1-11.4",
         diagram: "ball-crossing",
-        image: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&q=80"
+        image: "/images/editorial/referee-review.jpg"
       },
       {
         id: "service",
@@ -419,7 +419,7 @@ export const moduleContent: Record<string, Module> = {
         ],
         ruleRef: "Rules 13.1-13.3",
         diagram: "back-row-attack",
-        image: "https://images.unsplash.com/photo-1517466787929-bc90951d0974?w=800&q=80"
+        image: "/images/editorial/referee-match.jpg"
       },
       {
         id: "blocking",
@@ -452,7 +452,7 @@ export const moduleContent: Record<string, Module> = {
     icon: "⏱️",
     color: "#6366f1",
     colorClass: "bg-indigo-500",
-    heroImage: "https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?w=1200&q=80",
+    heroImage: "/images/editorial/referee-review.jpg",
     estimatedTime: "15 min",
     category: "indoor",
     ruleRange: "Rules 15-18",
@@ -500,7 +500,7 @@ export const moduleContent: Record<string, Module> = {
         ],
         ruleRef: "Rules 15.5-15.10",
         diagram: "substitution",
-        image: "https://images.unsplash.com/photo-1610036578923-81be15f8c3d9?w=800&q=80"
+        image: "/images/editorial/referee-match.jpg"
       },
       {
         id: "game-delays",
@@ -555,7 +555,7 @@ export const moduleContent: Record<string, Module> = {
     icon: "🛡️",
     color: "#eab308",
     colorClass: "bg-yellow-500",
-    heroImage: "https://images.unsplash.com/photo-1588492069485-d05b56b2831d?w=1200&q=80",
+    heroImage: "/images/editorial/referee-signal.jpg",
     estimatedTime: "12 min",
     category: "indoor",
     ruleRange: "Rule 19",
@@ -582,7 +582,7 @@ export const moduleContent: Record<string, Module> = {
         ruleRef: "Rules 19.1-19.3",
         vcNote: "14U-15U: No Libero allowed. 16U-18U: Only one Libero per set, may be re-designated between sets.",
         diagram: "libero-complete",
-        image: "https://images.unsplash.com/photo-1622279457486-62dbd21de89b?w=800&q=80"
+        image: "/images/editorial/referee-match.jpg"
       },
       {
         id: "libero-redesignation",
@@ -615,7 +615,7 @@ export const moduleContent: Record<string, Module> = {
     icon: "⚖️",
     color: "#ef4444",
     colorClass: "bg-red-500",
-    heroImage: "https://images.unsplash.com/photo-1546519638-68e109498ffc?w=1200&q=80",
+    heroImage: "/images/editorial/referee-review.jpg",
     estimatedTime: "10 min",
     category: "indoor",
     ruleRange: "Rules 20-21",
@@ -663,7 +663,7 @@ export const moduleContent: Record<string, Module> = {
         ruleRef: "Rules 21.1-21.6",
         vcNote: "Expelled/disqualified must leave Competition Control Area including spectator seating",
         diagram: "sanction-cards",
-        image: "https://images.unsplash.com/photo-1552674605-db6ffd4facb5?w=800&q=80"
+        image: "/images/editorial/referee-signal.jpg"
       }
     ]
   },
@@ -675,7 +675,7 @@ export const moduleContent: Record<string, Module> = {
     icon: "🏁",
     color: "#f97316",
     colorClass: "bg-orange-500",
-    heroImage: "https://images.unsplash.com/photo-1578763363228-6e8428de69b2?w=1200&q=80",
+    heroImage: "/images/editorial/referee-review.jpg",
     estimatedTime: "20 min",
     category: "indoor",
     ruleRange: "Rules 22-32",
@@ -701,7 +701,7 @@ export const moduleContent: Record<string, Module> = {
         ],
         ruleRef: "Rules 22.1-24.3",
         diagram: "referee-crew",
-        image: "https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?w=800&q=80"
+        image: "/images/editorial/referee-review.jpg"
       },
       {
         id: "scorers",
@@ -765,7 +765,7 @@ export const moduleContent: Record<string, Module> = {
         ],
         ruleRef: "Rules 30.1-30.2",
         diagram: "hand-signals",
-        image: "https://images.unsplash.com/photo-1578763363228-6e8428de69b2?w=800&q=80"
+        image: "/images/editorial/referee-review.jpg"
       }
     ]
   },
@@ -777,7 +777,7 @@ export const moduleContent: Record<string, Module> = {
     icon: "📋",
     color: "#0ea5e9",
     colorClass: "bg-sky-500",
-    heroImage: "https://images.unsplash.com/photo-1606925797300-0b35e9d1794e?w=1200&q=80",
+    heroImage: "/images/editorial/volleyball-court.jpg",
     estimatedTime: "20 min",
     category: "indoor",
     ruleRange: "Score Sheet",
@@ -907,7 +907,7 @@ export const moduleContent: Record<string, Module> = {
         ],
         ruleRef: "Score Sheet Section 3.8",
         diagram: "sanction-cards",
-        image: "https://images.unsplash.com/photo-1552674605-db6ffd4facb5?w=800&q=80"
+        image: "/images/editorial/referee-signal.jpg"
       },
       {
         id: "after-match",
