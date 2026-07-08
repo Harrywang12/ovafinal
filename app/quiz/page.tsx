@@ -56,6 +56,7 @@ export default function QuizPage() {
   const { session } = useSupabaseAuth();
   const queryClient = useQueryClient();
   const [current, setCurrent] = useState<Question | null>(null);
+  const [askedQuestions, setAskedQuestions] = useState<string[]>([]);
   const [selected, setSelected] = useState<string | null>(null);
   const [result, setResult] = useState<"correct" | "incorrect" | null>(null);
   const [recommendation, setRecommendation] = useState<string | null>(null);
@@ -80,7 +81,7 @@ export default function QuizPage() {
           "Content-Type": "application/json",
           ...(session?.access_token ? { Authorization: `Bearer ${session.access_token}` } : {}),
         },
-        body: JSON.stringify({})
+        body: JSON.stringify({ recent_questions: askedQuestions.slice(-15) })
       });
       if (!res.ok) throw new Error("Failed to generate question");
       return res.json();
@@ -90,6 +91,9 @@ export default function QuizPage() {
       setSelected(null);
       setResult(null);
       setRecommendation(null);
+      if (data?.question) {
+        setAskedQuestions((prev) => [...prev, data.question].slice(-15));
+      }
     }
   });
 

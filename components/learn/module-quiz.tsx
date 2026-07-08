@@ -44,6 +44,7 @@ export function ModuleQuiz({ module, nextModule, progress }: ModuleQuizProps) {
   const { session } = useSupabaseAuth();
   const queryClient = useQueryClient();
   const [quiz, setQuiz] = useState<QuizData | null>(null);
+  const [askedQuestions, setAskedQuestions] = useState<string[]>([]);
   const [selectedAnswer, setSelectedAnswer] = useState<string | null>(null);
   const [isCorrect, setIsCorrect] = useState<boolean | null>(null);
   const [attemptResult, setAttemptResult] = useState<{
@@ -61,7 +62,7 @@ export function ModuleQuiz({ module, nextModule, progress }: ModuleQuizProps) {
           "Content-Type": "application/json",
           ...(session?.access_token ? { Authorization: `Bearer ${session.access_token}` } : {}),
         },
-        body: JSON.stringify({ module_id: module.id })
+        body: JSON.stringify({ module_id: module.id, recent_questions: askedQuestions.slice(-15) })
       });
       if (!res.ok) throw new Error("Failed to load quiz");
       return res.json();
@@ -71,6 +72,9 @@ export function ModuleQuiz({ module, nextModule, progress }: ModuleQuizProps) {
       setIsCorrect(null);
       setAttemptResult(null);
       setQuiz(data);
+      if (data?.question) {
+        setAskedQuestions((prev) => [...prev, data.question].slice(-15));
+      }
     }
   });
 

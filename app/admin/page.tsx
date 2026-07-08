@@ -31,6 +31,7 @@ type VideoQuestionRow = {
   difficulty: "easy" | "medium" | "hard";
   video_url: string;
   pause_at_seconds: number;
+  answer_window_seconds: number | null;
   options: string[];
   correct_option_index: number;
   rule_reference: string | null;
@@ -526,6 +527,7 @@ export default function AdminPage() {
                              <th className="py-3 pr-4">Category</th>
                              <th className="py-3 pr-4">Difficulty</th>
                             <th className="py-3 pr-4">Pause</th>
+                            <th className="py-3 pr-4">Window</th>
                             <th className="py-3 pr-4">Weekly</th>
                             <th className="py-3 pr-4">Rule</th>
                             <th className="py-3 pr-4">Created</th>
@@ -545,6 +547,7 @@ export default function AdminPage() {
                               </td>
                                <td className="py-3 pr-4 capitalize">{q.difficulty}</td>
                               <td className="py-3 pr-4">{q.pause_at_seconds}s</td>
+                              <td className="py-3 pr-4">{q.answer_window_seconds ? `${q.answer_window_seconds}s` : "Default"}</td>
                               <td className="py-3 pr-4">{q.is_weekly ? "Yes" : "No"}</td>
                               <td className="py-3 pr-4">{q.rule_reference || "—"}</td>
                               <td className="py-3 pr-4">{new Date(q.created_at).toLocaleDateString()}</td>

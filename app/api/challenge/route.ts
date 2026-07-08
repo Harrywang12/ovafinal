@@ -11,7 +11,16 @@ type ChallengeQuestion = {
   video_url: string;
   pause_at_seconds: number;
   options: string[];
+  answer_window_seconds?: number | null;
 };
+
+function resolveAnswerWindow(question: ChallengeQuestion | null): number | null {
+  if (!question) return null;
+  if (typeof question.answer_window_seconds === "number" && question.answer_window_seconds > 0) {
+    return question.answer_window_seconds;
+  }
+  return difficultyToDuration(question.difficulty as "easy" | "medium" | "hard" | "extreme");
+}
 
 async function requireUserId(request: Request) {
   const authHeader = request.headers.get("authorization") || "";
@@ -54,7 +63,7 @@ export async function GET(request: Request) {
   // Try to filter by category. If the column doesn't exist yet, fall back to no filter.
   let weeklyQuery = supabase
     .from("video_questions")
-    .select("id, kind, difficulty, video_url, pause_at_seconds, options")
+    .select("id, kind, difficulty, video_url, pause_at_seconds, options, answer_window_seconds")
     .eq("kind", "challenge")
     .eq("is_weekly", true)
     .order("created_at", { ascending: false })
@@ -96,9 +105,7 @@ export async function GET(request: Request) {
       .select("*")
       .limit(20);
 
-    const answerWindowSeconds = question
-      ? difficultyToDuration(question.difficulty as "easy" | "medium" | "hard" | "extreme")
-      : null;
+    const answerWindowSeconds = resolveAnswerWindow(question);
 
     return NextResponse.json({
       question: question ? { ...question, answer_window_seconds: answerWindowSeconds } : null,
@@ -122,7 +129,7 @@ export async function GET(request: Request) {
   if (!question && !weekly) {
     let fallbackQuery = supabase
       .from("video_questions")
-      .select("id, kind, difficulty, video_url, pause_at_seconds, options")
+      .select("id, kind, difficulty, video_url, pause_at_seconds, options, answer_window_seconds")
       .eq("kind", "challenge")
       .limit(50);
     
@@ -148,9 +155,7 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: lbError.message }, { status: 500 });
   }
 
-  const answerWindowSeconds = question
-    ? difficultyToDuration(question.difficulty as "easy" | "medium" | "hard" | "extreme")
-    : null;
+  const answerWindowSeconds = resolveAnswerWindow(question);
 
   return NextResponse.json({
     question: question
@@ -243,7 +248,7 @@ export async function POST(request: Request) {
 
   const { data: q, error: qError } = await supabase
     .from("video_questions")
-    .select("id, difficulty, correct_option_index, explanation, rule_reference")
+    .select("id, difficulty, correct_option_index, explanation, rule_reference, answer_window_seconds")
     .eq("id", question_id)
     .single();
 
@@ -255,7 +260,10 @@ export async function POST(request: Request) {
   const selected = typeof selected_option_index === "number" ? selected_option_index : null;
   const isCorrect = !didTimeout && selected !== null && selected === q.correct_option_index;
 
-  const maxTimeSeconds = difficultyToDuration(q.difficulty as "easy" | "medium" | "hard" | "extreme");
+  const maxTimeSeconds =
+    typeof q.answer_window_seconds === "number" && q.answer_window_seconds > 0
+      ? q.answer_window_seconds
+      : difficultyToDuration(q.difficulty as "easy" | "medium" | "hard" | "extreme");
   const timeTakenSeconds = typeof time_taken_ms === "number" ? Math.max(0, Math.ceil(time_taken_ms / 1000)) : undefined;
   const calculatedScore = calculateScore(isCorrect, timeTakenSeconds, q.difficulty, maxTimeSeconds);
 

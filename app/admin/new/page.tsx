@@ -23,6 +23,7 @@ export default function NewVideoQuestionPage() {
   const [difficulty, setDifficulty] = useState<Difficulty>("medium");
   const [category, setCategory] = useState<"indoor" | "beach">("indoor");
   const [pauseAtSeconds, setPauseAtSeconds] = useState<number>(6);
+  const [answerWindowSeconds, setAnswerWindowSeconds] = useState<number>(15);
   const [isWeekly, setIsWeekly] = useState<boolean>(false);
 
   const [videoUrl, setVideoUrl] = useState<string>("");
@@ -59,6 +60,9 @@ export default function NewVideoQuestionPage() {
     mutationFn: async () => {
       if (!videoUrl) throw new Error("Please upload a video (or provide a URL)");
       if (!pauseAtSeconds || pauseAtSeconds <= 0) throw new Error("pauseAtSeconds must be > 0");
+      if (!answerWindowSeconds || answerWindowSeconds < 3 || answerWindowSeconds > 300) {
+        throw new Error("Answer window must be between 3 and 300 seconds");
+      }
       if (options.some((o) => !o.trim())) throw new Error("All 4 options are required");
 
       const res = await fetch("/api/admin/video-questions", {
@@ -73,6 +77,7 @@ export default function NewVideoQuestionPage() {
           category,
           video_url: videoUrl,
           pause_at_seconds: pauseAtSeconds,
+          answer_window_seconds: answerWindowSeconds,
           options,
           correct_option_index: correctIndex,
           explanation: explanation || undefined,
@@ -163,9 +168,9 @@ export default function NewVideoQuestionPage() {
                     onChange={(e) => setDifficulty(e.target.value as Difficulty)}
                     className="w-full px-4 py-3 rounded-xl bg-surface border border-border text-ink focus:outline-none focus:ring-2 focus:ring-accent/30"
                   >
-                    <option value="easy">Easy (6s answer window)</option>
-                    <option value="medium">Medium (4s answer window)</option>
-                    <option value="hard">Hard (3s answer window)</option>
+                    <option value="easy">Easy</option>
+                    <option value="medium">Medium</option>
+                    <option value="hard">Hard</option>
                   </select>
                 </div>
                 <div>
@@ -178,6 +183,19 @@ export default function NewVideoQuestionPage() {
                     onChange={(e) => setPauseAtSeconds(Number(e.target.value))}
                     className="w-full px-4 py-3 rounded-xl bg-surface border border-border text-ink focus:outline-none focus:ring-2 focus:ring-accent/30"
                   />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-muted mb-2">Answer window (seconds)</label>
+                  <input
+                    type="number"
+                    min={3}
+                    max={300}
+                    step={1}
+                    value={answerWindowSeconds}
+                    onChange={(e) => setAnswerWindowSeconds(Number(e.target.value))}
+                    className="w-full px-4 py-3 rounded-xl bg-surface border border-border text-ink focus:outline-none focus:ring-2 focus:ring-accent/30"
+                  />
+                  <p className="text-xs text-muted mt-1">How long users get to pick an answer once the video pauses.</p>
                 </div>
               </div>
 

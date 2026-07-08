@@ -187,6 +187,7 @@ create table if not exists public.video_questions (
   explanation text,
   rule_reference text,
   is_weekly boolean not null default false,
+  answer_window_seconds integer check (answer_window_seconds is null or answer_window_seconds > 0),
   created_at timestamp with time zone default timezone('utc'::text, now())
 );
 

@@ -34,7 +34,7 @@ export async function GET(request: Request) {
 
   const { data, error } = await supabase
     .from("video_questions")
-    .select("id, kind, difficulty, video_url, pause_at_seconds, options")
+    .select("id, kind, difficulty, video_url, pause_at_seconds, options, answer_window_seconds")
     .eq("kind", "practice")
     .eq("difficulty", difficulty)
     .eq("category", category)
@@ -64,7 +64,10 @@ export async function GET(request: Request) {
   }
 
   const q = available[Math.floor(Math.random() * available.length)];
-  const answerWindow = difficultyToDuration(q.difficulty as "easy" | "medium" | "hard" | "extreme");
+  const answerWindow =
+    typeof q.answer_window_seconds === "number" && q.answer_window_seconds > 0
+      ? q.answer_window_seconds
+      : difficultyToDuration(q.difficulty as "easy" | "medium" | "hard" | "extreme");
 
   return NextResponse.json({
     question_id: q.id,

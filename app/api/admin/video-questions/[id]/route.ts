@@ -39,6 +39,7 @@ export async function PATCH(
     "explanation",
     "rule_reference",
     "is_weekly",
+    "answer_window_seconds",
   ] as const;
 
   const updates: Record<string, unknown> = {};

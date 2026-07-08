@@ -16,6 +16,7 @@ type CreatePayload = {
   rule_reference?: string;
   is_weekly?: boolean;
   category?: "indoor" | "beach";
+  answer_window_seconds?: number;
 };
 
 export async function GET(request: Request) {
@@ -69,6 +70,7 @@ export async function POST(request: Request) {
     rule_reference,
     is_weekly,
     category,
+    answer_window_seconds,
   } = body;
 
   if (!kind || !difficulty || !video_url || !pause_at_seconds || !options) {
@@ -86,6 +88,15 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "correct_option_index must be 0..3" }, { status: 400 });
   }
 
+  let answerWindow: number | null = null;
+  if (answer_window_seconds !== undefined && answer_window_seconds !== null) {
+    const parsed = Math.floor(Number(answer_window_seconds));
+    if (!Number.isFinite(parsed) || parsed < 3 || parsed > 300) {
+      return NextResponse.json({ error: "answer_window_seconds must be between 3 and 300" }, { status: 400 });
+    }
+    answerWindow = parsed;
+  }
+
   const supabase = getServerSupabase();
   const { data, error } = await supabase
     .from("video_questions")
@@ -100,6 +111,7 @@ export async function POST(request: Request) {
       rule_reference: rule_reference || null,
       is_weekly: !!is_weekly,
       category: category || "indoor",
+      answer_window_seconds: answerWindow,
     })
     .select()
     .single();

@@ -165,7 +165,7 @@ export async function POST(request: Request) {
     );
   }
 
-  let body: { difficulty?: string; question_level?: QuestionLevel };
+  let body: { difficulty?: string; question_level?: QuestionLevel; recent_questions?: string[] };
   try {
     body = await request.json();
   } catch {
@@ -181,6 +181,12 @@ export async function POST(request: Request) {
         ? "intermediate"
         : "beginner";
 
+  // Collect recently asked questions so the model doesn't regenerate the same ones
+  const avoidQuestions: string[] = [];
+  for (const q of Array.isArray(body.recent_questions) ? body.recent_questions : []) {
+    if (typeof q === "string" && q.trim()) avoidQuestions.push(q.trim());
+  }
+
   const authHeader = request.headers.get("authorization") || request.headers.get("Authorization") || "";
   if (authHeader.startsWith("Bearer ")) {
     const user = await requireUserFromRequest(request);
@@ -194,7 +200,28 @@ export async function POST(request: Request) {
     } catch (stateError) {
       return NextResponse.json({ error: (stateError as Error).message }, { status: 500 });
     }
+    try {
+      const { data: recentAttempts } = await getServerSupabase()
+        .from("quiz_attempts")
+        .select("question")
+        .eq("user_id", user.userId)
+        .order("created_at", { ascending: false })
+        .limit(20);
+      for (const row of recentAttempts || []) {
+        const text = (row.question as { question?: string } | null)?.question;
+        if (typeof text === "string" && text.trim()) avoidQuestions.push(text.trim());
+      }
+    } catch {
+      // History lookup is best-effort; generation still works without it.
+    }
   }
+
+  const uniqueAvoid = Array.from(new Set(avoidQuestions)).slice(0, 20);
+  const avoidBlock = uniqueAvoid.length
+    ? `\n\nPREVIOUSLY ASKED QUESTIONS — the user has already answered these. DO NOT repeat, rephrase, or ask about the same specific scenario as any of them:\n${uniqueAvoid
+        .map((q, i) => `${i + 1}. ${q}`)
+        .join("\n")}\nYour new question MUST test a different rule detail or game situation than every question listed above.`
+    : "";
 
   // Randomly select 2-3 different topics for variety
   const shuffledTopics = [...REFEREE_TOPICS].sort(() => Math.random() - 0.5);
@@ -343,7 +370,7 @@ QUALITY CHECKLIST:
   try {
     content = await llmChat([
       { role: "system", content: system },
-      { role: "user", content: `Based on these official volleyball rules, create a ${safeDifficulty} difficulty question:\n\n${combinedContext}\n\nRemember: Return ONLY valid JSON. The "answer" field must be the COMPLETE text of one of your options, including the letter prefix (e.g., "Option A - The correct answer text").` }
+      { role: "user", content: `Based on these official volleyball rules, create a ${safeDifficulty} difficulty question:\n\n${combinedContext}${avoidBlock}\n\nRemember: Return ONLY valid JSON. The "answer" field must be the COMPLETE text of one of your options, including the letter prefix (e.g., "Option A - The correct answer text").` }
     ], "gpt-4o", { temperature: 0.85 }); // Higher temperature for more variety
   } catch (llmError) {
     return NextResponse.json(

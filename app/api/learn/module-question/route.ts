@@ -5,6 +5,7 @@ import { llmChat } from "../../../../lib/llm";
 import { searchRules } from "../../../../lib/rag";
 import { assertEnv, formatRuleContext } from "../../../../lib/utils";
 import { type QuestionLevel } from "../../../../lib/learning";
+import { getServerSupabase } from "../../../../lib/supabase";
 
 export const runtime = "nodejs";
 
@@ -52,7 +53,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: user.error }, { status: user.status });
   }
 
-  let body: { module_id?: string };
+  let body: { module_id?: string; recent_questions?: string[] };
   try {
     body = await request.json();
   } catch {
@@ -65,6 +66,36 @@ export async function POST(request: Request) {
   }
 
   const questionLevel = requestUserQuestionLevel(user);
+
+  // Build a list of this user's recently asked questions for the module so the
+  // model doesn't keep regenerating the same handful (worst on small modules
+  // like 4v4/6v6 Rallyball).
+  const avoidQuestions: string[] = [];
+  const clientRecent = Array.isArray(body.recent_questions) ? body.recent_questions : [];
+  for (const q of clientRecent) {
+    if (typeof q === "string" && q.trim()) avoidQuestions.push(q.trim());
+  }
+  try {
+    const { data: recentAttempts } = await getServerSupabase()
+      .from("module_quiz_attempts")
+      .select("question")
+      .eq("user_id", user.userId)
+      .eq("module_id", moduleData.id)
+      .order("created_at", { ascending: false })
+      .limit(20);
+    for (const row of recentAttempts || []) {
+      const text = (row.question as { question?: string } | null)?.question;
+      if (typeof text === "string" && text.trim()) avoidQuestions.push(text.trim());
+    }
+  } catch {
+    // History lookup is best-effort; generation still works without it.
+  }
+  const uniqueAvoid = Array.from(new Set(avoidQuestions)).slice(0, 20);
+  const avoidBlock = uniqueAvoid.length
+    ? `\n\nPREVIOUSLY ASKED QUESTIONS — the user has already answered these. DO NOT repeat, rephrase, or ask about the same specific scenario as any of them:\n${uniqueAvoid
+        .map((q, i) => `${i + 1}. ${q}`)
+        .join("\n")}\nYour new question MUST test a different rule detail or game situation than every question listed above.`
+    : "";
   const lessonsContext = moduleData.lessons
     .map((l) => `${l.title}: ${l.content.join(" ")}`)
     .join("\n\n");
@@ -102,11 +133,11 @@ The answer must exactly match one option. Do not include markdown or text outsid
         content: `Create a ${questionLevel} question for module "${moduleData.title}" (${moduleData.ruleRange}). Focus topic: "${focusLesson.title}". Random seed: ${randomSeed}.
 
 Context:
-${context}`,
+${context}${avoidBlock}`,
       },
     ],
     questionLevel === "beginner" ? "gpt-4o-mini" : "gpt-4o",
-    { temperature: questionLevel === "beginner" ? 0.65 : 0.8 }
+    { temperature: questionLevel === "beginner" ? 0.8 : 0.9 }
   );
 
   try {

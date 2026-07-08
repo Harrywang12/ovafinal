@@ -278,7 +278,7 @@ export default function ChallengePage() {
           </motion.div>
 
           <div className="grid lg:grid-cols-5 gap-6">
-            {/* Video & Submit - 3 cols */}
+            {/* Video - 3 cols */}
             <div className="lg:col-span-3 space-y-6">
               {/* Video Card */}
               <motion.div
@@ -364,7 +364,10 @@ export default function ChallengePage() {
                   </div>
                 )}
               </motion.div>
+            </div>
 
+            {/* Options & Leaderboard - 2 cols, beside the video */}
+            <div className="lg:col-span-2 space-y-6">
               {/* Submit Card */}
               <motion.div
                 variants={scaleIn}
@@ -388,26 +391,30 @@ export default function ChallengePage() {
                   <div className="space-y-4">
                     {!question ? (
                       <p className="text-muted">No weekly challenge is configured yet.</p>
-                    ) : phase !== "question" ? (
-                      <div className="p-4 rounded-xl bg-surface border border-border">
-                        <p className="text-primary font-semibold">Watch until the pause.</p>
-                        <p className="text-muted text-sm mt-1">
-                          The video will pause at {question.pause_at_seconds}s, then you’ll have a short window to select one of 4 options.
-                        </p>
-                      </div>
                     ) : (
                       <div className="space-y-3">
-                        <p className="text-sm font-semibold text-primary">Choose the correct option</p>
+                        {phase !== "question" && (
+                          <div className="p-4 rounded-xl bg-surface border border-border">
+                            <p className="text-primary font-semibold">Read the options while you watch.</p>
+                            <p className="text-muted text-sm mt-1">
+                              The video pauses at {question.pause_at_seconds}s — then you’ll have {question.answer_window_seconds}s to lock in your answer.
+                            </p>
+                          </div>
+                        )}
+                        <p className="text-sm font-semibold text-primary">
+                          {phase === "question" ? "Choose the correct option" : "Answer options"}
+                        </p>
                         <div className="grid gap-3">
                           {question.options.map((opt: string, idx: number) => {
                             const isPicked = selectedIndex === idx;
+                            const locked = phase !== "question";
                             return (
                               <motion.button
                                 key={idx}
-                                whileHover={{ scale: 1.01 }}
-                                whileTap={{ scale: 0.99 }}
+                                whileHover={!locked ? { scale: 1.01 } : {}}
+                                whileTap={!locked ? { scale: 0.99 } : {}}
                                 onClick={() => submitSelection(idx)}
-                                disabled={submitMutation.isPending || submittedRef.current}
+                                disabled={locked || submitMutation.isPending || submittedRef.current}
                                 className={`w-full text-left px-4 py-3 rounded-xl border transition-colors ${
                                   isPicked
                                     ? "border-accent bg-accent/10 text-ink"
@@ -420,9 +427,11 @@ export default function ChallengePage() {
                             );
                           })}
                         </div>
-                        <p className="text-xs text-muted">
-                          Time window: {question.answer_window_seconds}s
-                        </p>
+                        {phase === "question" && (
+                          <p className="text-xs text-muted">
+                            Time window: {question.answer_window_seconds}s
+                          </p>
+                        )}
                       </div>
                     )}
 
@@ -513,14 +522,13 @@ export default function ChallengePage() {
                   </div>
                 )}
               </motion.div>
-            </div>
 
-            {/* Leaderboard - 2 cols */}
+            {/* Leaderboard */}
             <motion.div
               variants={scaleIn}
               initial="hidden"
               animate="visible"
-              className="lg:col-span-2 card h-fit"
+              className="card h-fit"
             >
               <div className="flex items-center gap-3 mb-6">
                 <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-yellow-400 to-amber-500 flex items-center justify-center text-white">
@@ -601,6 +609,7 @@ export default function ChallengePage() {
                 )}
               </AnimatePresence>
             </motion.div>
+            </div>
           </div>
         </div>
       </div>

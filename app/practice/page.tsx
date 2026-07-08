@@ -210,7 +210,7 @@ export default function PracticePage() {
   return (
     <AuthGuard>
       <div className="min-h-screen pt-24 pb-16">
-        <div className="max-w-4xl mx-auto px-6">
+        <div className="max-w-5xl mx-auto px-6">
           {/* Header Section */}
           <motion.div
             variants={fadeInUp}
@@ -370,46 +370,54 @@ export default function PracticePage() {
                   </div>
                 )}
 
-                {/* Video Player */}
-                <div className="relative rounded-xl overflow-hidden bg-black aspect-video">
-                  <video
-                    src={clip.video_url}
-                    className="w-full h-full object-cover"
-                    controls
-                    preload="metadata"
-                    ref={videoRef}
-                    onTimeUpdate={maybePauseAtMarker}
-                    onSeeked={maybePauseAtMarker}
-                    onEnded={() => setPhase("done")}
-                  />
-                  <div className="absolute top-4 left-4">
-                    <span className={`px-3 py-1 rounded-full text-xs font-semibold text-white ${difficultyColors[difficulty]}`}>
-                      {difficulty}
-                    </span>
-                  </div>
-                  {phase === "question" && (
-                    <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
-                      <span className="px-4 py-2 rounded-full bg-white/90 text-ink font-semibold">
-                        Paused — make your call
+                {/* Video + Options side by side */}
+                <div className="grid lg:grid-cols-5 gap-6 items-start">
+                  <div className="relative rounded-xl overflow-hidden bg-black aspect-video lg:col-span-3">
+                    <video
+                      src={clip.video_url}
+                      className="w-full h-full object-cover"
+                      controls
+                      preload="metadata"
+                      ref={videoRef}
+                      onTimeUpdate={maybePauseAtMarker}
+                      onSeeked={maybePauseAtMarker}
+                      onEnded={() => setPhase("done")}
+                    />
+                    <div className="absolute top-4 left-4">
+                      <span className={`px-3 py-1 rounded-full text-xs font-semibold text-white ${difficultyColors[difficulty]}`}>
+                        {difficulty}
                       </span>
                     </div>
-                  )}
-                </div>
+                    {phase === "question" && (
+                      <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
+                        <span className="px-4 py-2 rounded-full bg-white/90 text-ink font-semibold">
+                          Paused — make your call
+                        </span>
+                      </div>
+                    )}
+                  </div>
 
-                {/* Options */}
-                {phase === "question" && (
-                  <div className="space-y-3">
-                    <p className="text-sm font-semibold text-primary">What is the correct call?</p>
+                  {/* Options — visible while the clip plays, unlocked at the pause */}
+                  <div className="lg:col-span-2 space-y-3">
+                    <p className="text-sm font-semibold text-primary">
+                      {phase === "question" ? "What is the correct call?" : "Read the choices while you watch"}
+                    </p>
+                    {phase !== "question" && !isAnswered && (
+                      <p className="text-xs text-muted">
+                        Answers unlock when the video pauses at {clip.pause_at_seconds}s.
+                      </p>
+                    )}
                     <div className="grid gap-3">
                       {clip.options.map((opt, idx) => {
                         const isPicked = selectedIndex === idx;
+                        const locked = phase !== "question";
                         return (
                           <motion.button
                             key={idx}
-                            whileHover={{ scale: 1.01 }}
-                            whileTap={{ scale: 0.99 }}
+                            whileHover={!locked ? { scale: 1.01 } : {}}
+                            whileTap={!locked ? { scale: 0.99 } : {}}
                             onClick={() => submitSelection(idx)}
-                            disabled={attemptMutation.isPending || submittedRef.current}
+                            disabled={locked || attemptMutation.isPending || submittedRef.current}
                             className={`w-full text-left px-4 py-3 rounded-xl border transition-colors ${
                               isPicked
                                 ? "border-accent bg-accent/10 text-ink"
@@ -434,7 +442,7 @@ export default function PracticePage() {
                       </div>
                     )}
                   </div>
-                )}
+                </div>
 
                 {/* Result */}
                 {isAnswered && (
