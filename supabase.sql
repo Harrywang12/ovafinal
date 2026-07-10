@@ -1,5 +1,6 @@
 -- Enable pgvector extension
 create extension if not exists vector;
+create extension if not exists pgcrypto;
 
 -- Table to store embedded rule chunks
 create table if not exists public.rules_embeddings (
@@ -18,6 +19,45 @@ create table if not exists public.quiz_attempts (
   correct boolean,
   created_at timestamp with time zone default timezone('utc'::text, now())
 );
+
+create or replace function public.quiz_question_signature(input text)
+returns text
+language sql
+immutable
+as $$
+  select encode(
+    digest(
+      btrim(regexp_replace(regexp_replace(lower(coalesce(input, '')), '[^a-z0-9]+', ' ', 'g'), '\s+', ' ', 'g')),
+      'sha256'
+    ),
+    'hex'
+  );
+$$;
+
+create table if not exists public.quiz_question_history (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid not null references auth.users(id) on delete cascade,
+  scope text not null check (scope in ('adaptive', 'module')),
+  module_id text,
+  question_level text check (question_level is null or question_level in ('beginner', 'intermediate', 'hard')),
+  question_text text not null,
+  question_signature text not null,
+  created_at timestamp with time zone default timezone('utc'::text, now()),
+  check (
+    (scope = 'adaptive' and module_id is null)
+    or (scope = 'module' and module_id is not null)
+  )
+);
+
+create index if not exists quiz_question_history_user_scope_created_idx
+  on public.quiz_question_history (user_id, scope, module_id, created_at desc);
+
+create index if not exists quiz_question_history_user_signature_idx
+  on public.quiz_question_history (user_id, scope, module_id, question_signature);
+
+create unique index if not exists quiz_question_history_user_scope_signature_unique
+  on public.quiz_question_history (user_id, scope, coalesce(module_id, ''), question_signature);
+
 
 -- Learner profiles
 create table if not exists public.profiles (
@@ -237,6 +277,12 @@ alter table if exists public.quiz_attempts enable row level security;
 create policy "user manage quiz_attempts"
   on public.quiz_attempts for all
   using (auth.uid() = user_id)
+  with check (auth.uid() = user_id);
+
+alter table if exists public.quiz_question_history enable row level security;
+create policy "user manage own quiz question history"
+  on public.quiz_question_history for all
+  using (auth.uid() = user_id or public.is_admin())
   with check (auth.uid() = user_id);
 
 alter table if exists public.profiles enable row level security;

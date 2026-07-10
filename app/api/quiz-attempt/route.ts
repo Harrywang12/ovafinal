@@ -3,10 +3,16 @@ import { requireUserFromRequest } from "../../../lib/auth";
 import { difficultyLabel, questionLevelForDifficulty } from "../../../lib/learning";
 import { markQuizAssignmentCompleteIfPassed } from "../../../lib/quiz-assignments";
 import { updateAdaptiveQuizStateAfterAnswer } from "../../../lib/quiz-adaptive";
+import { recordQuizQuestionHistory } from "../../../lib/quiz-question-history";
 import { getServerSupabase } from "../../../lib/supabase";
 import { assertEnv } from "../../../lib/utils";
 
 export const runtime = "nodejs";
+
+function questionLevelFromPayload(question: unknown) {
+  const value = (question as { question_level?: unknown } | null)?.question_level;
+  return value === "beginner" || value === "intermediate" || value === "hard" ? value : null;
+}
 
 export async function POST(request: Request) {
   assertEnv(["SUPABASE_URL", "SUPABASE_SERVICE_KEY"]);
@@ -43,6 +49,13 @@ export async function POST(request: Request) {
       correct
     );
     const quizAssignment = await markQuizAssignmentCompleteIfPassed(supabase, user.userId);
+    await recordQuizQuestionHistory({
+      supabase,
+      userId: user.userId,
+      scope: "adaptive",
+      questionLevel: questionLevelFromPayload(question),
+      question,
+    });
     return NextResponse.json({
       ok: true,
       adaptive_state: {

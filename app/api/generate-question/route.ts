@@ -7,6 +7,11 @@ import { requireUserFromRequest } from "../../../lib/auth";
 import { difficultyLabel, questionLevelForDifficulty, type AdaptiveDifficulty, type QuestionLevel } from "../../../lib/learning";
 import { getServerSupabase } from "../../../lib/supabase";
 import { getOrCreateAdaptiveQuizState } from "../../../lib/quiz-adaptive";
+import {
+  assessQuizQuestionNovelty,
+  getRecentQuizQuestionHistory,
+  type QuizQuestionNovelty,
+} from "../../../lib/quiz-question-history";
 
 export const runtime = "nodejs";
 
@@ -155,6 +160,84 @@ const SCENARIO_TYPES = [
   "complex multi-fault situation"
 ];
 
+type AuthedUser = {
+  userId: string;
+  email: string | null;
+  refereeLevel: "level_1" | "level_2" | "level_3" | "level_4";
+};
+
+type GeneratedQuestion = {
+  question_level: QuestionLevel;
+  adaptive_difficulty: AdaptiveDifficulty;
+  difficulty_label: string;
+  question: string;
+  options: string[];
+  answer: string;
+  explanation: string;
+  rule_reference: string | null;
+};
+
+function buildAvoidBlock(questions: string[]) {
+  const uniqueAvoid = Array.from(new Set(questions.filter((q) => q.trim()))).slice(0, 50);
+  return uniqueAvoid.length
+    ? `\n\nPREVIOUSLY ASKED OR REJECTED QUESTIONS — the user has already answered these or they were too similar. DO NOT repeat, rephrase, or ask about the same specific scenario as any of them:\n${uniqueAvoid
+        .map((q, i) => `${i + 1}. ${q}`)
+        .join("\n")}\nYour new question MUST test a different rule detail or game situation than every question listed above.`
+    : "";
+}
+
+function parseJsonObject(content: string) {
+  let jsonContent = content.trim();
+  if (jsonContent.startsWith("```json")) {
+    jsonContent = jsonContent.slice(7);
+  } else if (jsonContent.startsWith("```")) {
+    jsonContent = jsonContent.slice(3);
+  }
+  if (jsonContent.endsWith("```")) {
+    jsonContent = jsonContent.slice(0, -3);
+  }
+  return JSON.parse(jsonContent.trim());
+}
+
+function normalizeGeneratedQuestion(
+  content: string,
+  questionLevel: QuestionLevel,
+  safeDifficulty: AdaptiveDifficulty
+): GeneratedQuestion {
+  const parsed = parseJsonObject(content);
+
+  if (!parsed.question || !parsed.options || !parsed.answer || !parsed.explanation) {
+    throw new Error("Missing required fields in response");
+  }
+  if (!Array.isArray(parsed.options) || parsed.options.length !== 4) {
+    throw new Error("Options must be an array of 4 strings");
+  }
+
+  const cleanOptions = parsed.options.map((opt: unknown) =>
+    String(opt).replace(/^(Option\s+)?[A-D][\s\-\.\)]+/i, "").trim()
+  );
+  let cleanAnswer = String(parsed.answer).replace(/^(Option\s+)?[A-D][\s\-\.\)]+/i, "").trim();
+
+  if (!cleanOptions.includes(cleanAnswer)) {
+    const answerLower = cleanAnswer.toLowerCase();
+    const matchingOption = cleanOptions.find(
+      (opt: string) => opt.toLowerCase().includes(answerLower) || answerLower.includes(opt.toLowerCase())
+    );
+    cleanAnswer = matchingOption || cleanOptions[0];
+  }
+
+  return {
+    question_level: questionLevel,
+    adaptive_difficulty: safeDifficulty,
+    difficulty_label: difficultyLabel(safeDifficulty),
+    question: String(parsed.question),
+    options: cleanOptions,
+    answer: cleanAnswer,
+    explanation: String(parsed.explanation),
+    rule_reference: parsed.rule_reference ? String(parsed.rule_reference) : null,
+  };
+}
+
 export async function POST(request: Request) {
   try {
     assertEnv(["OPENAI_API_KEY", "SUPABASE_SERVICE_KEY", "SUPABASE_URL"]);
@@ -187,41 +270,50 @@ export async function POST(request: Request) {
     if (typeof q === "string" && q.trim()) avoidQuestions.push(q.trim());
   }
 
+  const supabase = getServerSupabase();
+  let authedUser: AuthedUser | null = null;
   const authHeader = request.headers.get("authorization") || request.headers.get("Authorization") || "";
   if (authHeader.startsWith("Bearer ")) {
     const user = await requireUserFromRequest(request);
     if (!user.ok) {
       return NextResponse.json({ error: user.error }, { status: user.status });
     }
+    authedUser = user;
     try {
-      const state = await getOrCreateAdaptiveQuizState(getServerSupabase(), user.userId, user.refereeLevel);
+      const state = await getOrCreateAdaptiveQuizState(supabase, user.userId, user.refereeLevel);
       safeDifficulty = state.current_difficulty;
       questionLevel = questionLevelForDifficulty(state.current_difficulty);
     } catch (stateError) {
       return NextResponse.json({ error: (stateError as Error).message }, { status: 500 });
     }
     try {
-      const { data: recentAttempts } = await getServerSupabase()
-        .from("quiz_attempts")
-        .select("question")
-        .eq("user_id", user.userId)
-        .order("created_at", { ascending: false })
-        .limit(20);
-      for (const row of recentAttempts || []) {
-        const text = (row.question as { question?: string } | null)?.question;
-        if (typeof text === "string" && text.trim()) avoidQuestions.push(text.trim());
+      avoidQuestions.push(
+        ...(await getRecentQuizQuestionHistory({
+          supabase,
+          userId: user.userId,
+          scope: "adaptive",
+        }))
+      );
+      if (avoidQuestions.length === 0) {
+        throw new Error("No quiz history rows found");
       }
     } catch {
-      // History lookup is best-effort; generation still works without it.
+      try {
+        const { data: recentAttempts } = await supabase
+          .from("quiz_attempts")
+          .select("question")
+          .eq("user_id", user.userId)
+          .order("created_at", { ascending: false })
+          .limit(20);
+        for (const row of recentAttempts || []) {
+          const text = (row.question as { question?: string } | null)?.question;
+          if (typeof text === "string" && text.trim()) avoidQuestions.push(text.trim());
+        }
+      } catch {
+        // History lookup is best-effort; generation still works without it.
+      }
     }
   }
-
-  const uniqueAvoid = Array.from(new Set(avoidQuestions)).slice(0, 20);
-  const avoidBlock = uniqueAvoid.length
-    ? `\n\nPREVIOUSLY ASKED QUESTIONS — the user has already answered these. DO NOT repeat, rephrase, or ask about the same specific scenario as any of them:\n${uniqueAvoid
-        .map((q, i) => `${i + 1}. ${q}`)
-        .join("\n")}\nYour new question MUST test a different rule detail or game situation than every question listed above.`
-    : "";
 
   // Randomly select 2-3 different topics for variety
   const shuffledTopics = [...REFEREE_TOPICS].sort(() => Math.random() - 0.5);
@@ -366,84 +458,80 @@ QUALITY CHECKLIST:
   const ragContext = finalChunks.length > 0 ? formatRuleContext(finalChunks) : "";
   const combinedContext = [ragContext, staticContext].filter(Boolean).join("\n\n---\n\n");
 
-  let content: string;
-  try {
-    content = await llmChat([
-      { role: "system", content: system },
-      { role: "user", content: `Based on these official volleyball rules, create a ${safeDifficulty} difficulty question:\n\n${combinedContext}${avoidBlock}\n\nRemember: Return ONLY valid JSON. The "answer" field must be the COMPLETE text of one of your options, including the letter prefix (e.g., "Option A - The correct answer text").` }
-    ], "gpt-4o", { temperature: 0.85 }); // Higher temperature for more variety
-  } catch (llmError) {
-    return NextResponse.json(
-      { error: "Failed to generate question from LLM", details: (llmError as Error).message },
-      { status: 500 }
-    );
-  }
+  const rejectedQuestions: string[] = [];
+  const duplicateCandidates: Array<{
+    question: GeneratedQuestion;
+    novelty: QuizQuestionNovelty;
+  }> = [];
+  let lastContent = "";
+  let lastParseError: Error | null = null;
 
-  try {
-    // Strip markdown code fences if present
-    let jsonContent = content.trim();
-    if (jsonContent.startsWith("```json")) {
-      jsonContent = jsonContent.slice(7);
-    } else if (jsonContent.startsWith("```")) {
-      jsonContent = jsonContent.slice(3);
-    }
-    if (jsonContent.endsWith("```")) {
-      jsonContent = jsonContent.slice(0, -3);
-    }
-    jsonContent = jsonContent.trim();
+  for (let attempt = 0; attempt < 2; attempt++) {
+    let content: string;
+    const avoidBlock = buildAvoidBlock([...avoidQuestions, ...rejectedQuestions]);
+    try {
+      content = await llmChat([
+        { role: "system", content: system },
+        {
+          role: "user",
+          content: `Based on these official volleyball rules, create a ${safeDifficulty} difficulty question.
 
-    const parsed = JSON.parse(jsonContent);
-    
-    // Validate and normalize the response
-    if (!parsed.question || !parsed.options || !parsed.answer || !parsed.explanation) {
-      throw new Error("Missing required fields in response");
-    }
-    
-    // Ensure options is an array of 4 strings
-    if (!Array.isArray(parsed.options) || parsed.options.length !== 4) {
-      throw new Error("Options must be an array of 4 strings");
-    }
-    
-    // Clean up options (remove "Option A - " prefixes if present for cleaner display)
-    const cleanOptions = parsed.options.map((opt: string) => {
-      // Remove prefixes like "Option A - " or "A. " or "A) "
-      return opt.replace(/^(Option\s+)?[A-D][\s\-\.\)]+/i, "").trim();
-    });
-    
-    // Clean the answer the same way
-    let cleanAnswer = parsed.answer.replace(/^(Option\s+)?[A-D][\s\-\.\)]+/i, "").trim();
-    
-    // Verify the answer matches one of the cleaned options
-    if (!cleanOptions.includes(cleanAnswer)) {
-      // Try to find a matching option
-      const answerLower = cleanAnswer.toLowerCase();
-      const matchingOption = cleanOptions.find((opt: string) => 
-        opt.toLowerCase().includes(answerLower) || answerLower.includes(opt.toLowerCase())
+Generation attempt: ${attempt + 1}. Use a substantially different scenario, rule detail, and answer pattern than any previously asked or rejected item.
+
+${combinedContext}${avoidBlock}
+
+Remember: Return ONLY valid JSON. The "answer" field must be the COMPLETE text of one of your options, including the letter prefix (e.g., "Option A - The correct answer text").`,
+        },
+      ], "gpt-4o", { temperature: 0.85 });
+    } catch (llmError) {
+      return NextResponse.json(
+        { error: "Failed to generate question from LLM", details: (llmError as Error).message },
+        { status: 500 }
       );
-      if (matchingOption) {
-        cleanAnswer = matchingOption;
-      } else {
-        // If still no match, use the first option as fallback (shouldn't happen with good prompting)
-        console.warn("Answer didn't match options, falling back to first option");
-        cleanAnswer = cleanOptions[0];
-      }
     }
-    
-    return NextResponse.json({
-      question_level: questionLevel,
-      adaptive_difficulty: safeDifficulty,
-      difficulty_label: difficultyLabel(safeDifficulty),
-      question: parsed.question,
-      options: cleanOptions,
-      answer: cleanAnswer,
-      explanation: parsed.explanation,
-      rule_reference: parsed.rule_reference || null,
-      context: finalChunks
+
+    lastContent = content;
+    let question: GeneratedQuestion;
+    try {
+      question = normalizeGeneratedQuestion(content, questionLevel, safeDifficulty);
+    } catch (error) {
+      lastParseError = error as Error;
+      continue;
+    }
+
+    if (!authedUser) {
+      return NextResponse.json({ ...question, context: finalChunks });
+    }
+
+    const novelty = await assessQuizQuestionNovelty({
+      supabase,
+      userId: authedUser.userId,
+      scope: "adaptive",
+      questionText: question.question,
     });
-  } catch (parseErr) {
-    return NextResponse.json(
-      { error: "Failed to parse model response as JSON", raw: content, context: finalChunks },
-      { status: 500 }
-    );
+
+    if (!novelty.duplicate) {
+      return NextResponse.json({ ...question, context: finalChunks });
+    }
+
+    duplicateCandidates.push({ question, novelty });
+    rejectedQuestions.push(question.question);
   }
+
+  if (duplicateCandidates.length > 0) {
+    const leastSimilar = duplicateCandidates.sort(
+      (a, b) => a.novelty.maxSimilarity - b.novelty.maxSimilarity
+    )[0];
+    return NextResponse.json({ ...leastSimilar.question, context: finalChunks });
+  }
+
+  return NextResponse.json(
+    {
+      error: "Failed to parse model response as JSON",
+      details: lastParseError?.message,
+      raw: lastContent,
+      context: finalChunks,
+    },
+    { status: 500 }
+  );
 }

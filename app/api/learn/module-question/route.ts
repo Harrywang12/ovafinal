@@ -6,8 +6,23 @@ import { searchRules } from "../../../../lib/rag";
 import { assertEnv, formatRuleContext } from "../../../../lib/utils";
 import { type QuestionLevel } from "../../../../lib/learning";
 import { getServerSupabase } from "../../../../lib/supabase";
+import {
+  assessQuizQuestionNovelty,
+  getRecentQuizQuestionHistory,
+  type QuizQuestionNovelty,
+} from "../../../../lib/quiz-question-history";
 
 export const runtime = "nodejs";
+
+type GeneratedModuleQuestion = {
+  question_level: QuestionLevel;
+  module_id: string;
+  question: string;
+  options: string[];
+  answer: string;
+  explanation: string;
+  rule_reference: string;
+};
 
 function parseJsonObject(content: string) {
   let jsonContent = content.trim();
@@ -20,6 +35,15 @@ function parseJsonObject(content: string) {
     jsonContent = jsonContent.slice(0, -3);
   }
   return JSON.parse(jsonContent.trim());
+}
+
+function buildAvoidBlock(questions: string[]) {
+  const uniqueAvoid = Array.from(new Set(questions.filter((q) => q.trim()))).slice(0, 50);
+  return uniqueAvoid.length
+    ? `\n\nPREVIOUSLY ASKED OR REJECTED QUESTIONS — the user has already answered these or they were too similar. DO NOT repeat, rephrase, or ask about the same specific scenario as any of them:\n${uniqueAvoid
+        .map((q, i) => `${i + 1}. ${q}`)
+        .join("\n")}\nYour new question MUST test a different rule detail or game situation than every question listed above.`
+    : "";
 }
 
 function levelGuidance(questionLevel: QuestionLevel) {
@@ -46,6 +70,35 @@ INTERMEDIATE / LEVEL 2 REFEREE FOCUS:
 - Wrong answers should be plausible mistakes an experienced but developing referee might make.`;
 }
 
+function normalizeGeneratedModuleQuestion(
+  content: string,
+  questionLevel: QuestionLevel,
+  moduleId: string,
+  fallbackRuleReference: string
+): GeneratedModuleQuestion {
+  const parsed = parseJsonObject(content);
+  if (!parsed.question || !Array.isArray(parsed.options) || parsed.options.length !== 4 || !parsed.answer || !parsed.explanation) {
+    throw new Error("Missing required quiz fields");
+  }
+
+  const options: string[] = parsed.options.map((o: unknown) => String(o).trim());
+  let answer = String(parsed.answer).trim();
+  if (!options.includes(answer)) {
+    const match = options.find((o) => o.toLowerCase() === answer.toLowerCase());
+    answer = match || options[0];
+  }
+
+  return {
+    question_level: questionLevel,
+    module_id: moduleId,
+    question: String(parsed.question),
+    options,
+    answer,
+    explanation: String(parsed.explanation),
+    rule_reference: parsed.rule_reference ? String(parsed.rule_reference) : fallbackRuleReference,
+  };
+}
+
 export async function POST(request: Request) {
   assertEnv(["OPENAI_API_KEY", "SUPABASE_URL", "SUPABASE_SERVICE_KEY"]);
   const user = await requireUserFromRequest(request);
@@ -66,6 +119,7 @@ export async function POST(request: Request) {
   }
 
   const questionLevel = requestUserQuestionLevel(user);
+  const supabase = getServerSupabase();
 
   // Build a list of this user's recently asked questions for the module so the
   // model doesn't keep regenerating the same handful (worst on small modules
@@ -76,26 +130,35 @@ export async function POST(request: Request) {
     if (typeof q === "string" && q.trim()) avoidQuestions.push(q.trim());
   }
   try {
-    const { data: recentAttempts } = await getServerSupabase()
-      .from("module_quiz_attempts")
-      .select("question")
-      .eq("user_id", user.userId)
-      .eq("module_id", moduleData.id)
-      .order("created_at", { ascending: false })
-      .limit(20);
-    for (const row of recentAttempts || []) {
-      const text = (row.question as { question?: string } | null)?.question;
-      if (typeof text === "string" && text.trim()) avoidQuestions.push(text.trim());
+    avoidQuestions.push(
+      ...(await getRecentQuizQuestionHistory({
+        supabase,
+        userId: user.userId,
+        scope: "module",
+        moduleId: moduleData.id,
+      }))
+    );
+    if (avoidQuestions.length === 0) {
+      throw new Error("No quiz history rows found");
     }
   } catch {
-    // History lookup is best-effort; generation still works without it.
+    try {
+      const { data: recentAttempts } = await supabase
+        .from("module_quiz_attempts")
+        .select("question")
+        .eq("user_id", user.userId)
+        .eq("module_id", moduleData.id)
+        .order("created_at", { ascending: false })
+        .limit(20);
+      for (const row of recentAttempts || []) {
+        const text = (row.question as { question?: string } | null)?.question;
+        if (typeof text === "string" && text.trim()) avoidQuestions.push(text.trim());
+      }
+    } catch {
+      // History lookup is best-effort; generation still works without it.
+    }
   }
-  const uniqueAvoid = Array.from(new Set(avoidQuestions)).slice(0, 20);
-  const avoidBlock = uniqueAvoid.length
-    ? `\n\nPREVIOUSLY ASKED QUESTIONS — the user has already answered these. DO NOT repeat, rephrase, or ask about the same specific scenario as any of them:\n${uniqueAvoid
-        .map((q, i) => `${i + 1}. ${q}`)
-        .join("\n")}\nYour new question MUST test a different rule detail or game situation than every question listed above.`
-    : "";
+
   const lessonsContext = moduleData.lessons
     .map((l) => `${l.title}: ${l.content.join(" ")}`)
     .join("\n\n");
@@ -112,11 +175,7 @@ export async function POST(request: Request) {
   const focusLesson = moduleData.lessons[Math.floor(Math.random() * moduleData.lessons.length)];
   const context = [lessonsContext, ragContext].filter(Boolean).join("\n\n---\n\n");
 
-  const content = await llmChat(
-    [
-      {
-        role: "system",
-        content: `You are a Volleyball Canada referee instructor creating one multiple-choice module quiz question.
+  const system = `You are a Volleyball Canada referee instructor creating one multiple-choice module quiz question.
 Return ONLY valid JSON in this exact shape:
 {
   "question": "Question text",
@@ -126,46 +185,89 @@ Return ONLY valid JSON in this exact shape:
   "rule_reference": "Rule or module reference"
 }
 ${levelGuidance(questionLevel)}
-The answer must exactly match one option. Do not include markdown or text outside JSON.`,
-      },
-      {
-        role: "user",
-        content: `Create a ${questionLevel} question for module "${moduleData.title}" (${moduleData.ruleRange}). Focus topic: "${focusLesson.title}". Random seed: ${randomSeed}.
+The answer must exactly match one option. Do not include markdown or text outside JSON.`;
+
+  const rejectedQuestions: string[] = [];
+  const duplicateCandidates: Array<{
+    question: GeneratedModuleQuestion;
+    novelty: QuizQuestionNovelty;
+  }> = [];
+  let lastContent = "";
+  let lastParseError: Error | null = null;
+
+  for (let attempt = 0; attempt < 2; attempt++) {
+    const avoidBlock = buildAvoidBlock([...avoidQuestions, ...rejectedQuestions]);
+    let content: string;
+    try {
+      content = await llmChat(
+        [
+          {
+            role: "system",
+            content: system,
+          },
+          {
+            role: "user",
+            content: `Create a ${questionLevel} question for module "${moduleData.title}" (${moduleData.ruleRange}). Focus topic: "${focusLesson.title}". Random seed: ${randomSeed + attempt}.
+
+Generation attempt: ${attempt + 1}. Use a substantially different scenario, rule detail, and answer pattern than any previously asked or rejected item.
 
 Context:
 ${context}${avoidBlock}`,
-      },
-    ],
-    questionLevel === "beginner" ? "gpt-4o-mini" : "gpt-4o",
-    { temperature: questionLevel === "beginner" ? 0.8 : 0.9 }
-  );
-
-  try {
-    const parsed = parseJsonObject(content);
-    if (!parsed.question || !Array.isArray(parsed.options) || parsed.options.length !== 4 || !parsed.answer || !parsed.explanation) {
-      throw new Error("Missing required quiz fields");
+          },
+        ],
+        questionLevel === "beginner" ? "gpt-4o-mini" : "gpt-4o",
+        { temperature: questionLevel === "beginner" ? 0.8 : 0.9 }
+      );
+    } catch (llmError) {
+      return NextResponse.json(
+        { error: "Failed to generate question from LLM", details: (llmError as Error).message },
+        { status: 500 }
+      );
     }
 
-    const options: string[] = parsed.options.map((o: unknown) => String(o).trim());
-    let answer = String(parsed.answer).trim();
-    if (!options.includes(answer)) {
-      const match = options.find((o) => o.toLowerCase() === answer.toLowerCase());
-      answer = match || options[0];
+    lastContent = content;
+    let question: GeneratedModuleQuestion;
+    try {
+      question = normalizeGeneratedModuleQuestion(
+        content,
+        questionLevel,
+        moduleData.id,
+        moduleData.ruleRange
+      );
+    } catch (error) {
+      lastParseError = error as Error;
+      continue;
     }
 
-    return NextResponse.json({
-      question_level: questionLevel,
-      module_id: moduleData.id,
-      question: String(parsed.question),
-      options,
-      answer,
-      explanation: String(parsed.explanation),
-      rule_reference: parsed.rule_reference ? String(parsed.rule_reference) : moduleData.ruleRange,
+    const novelty = await assessQuizQuestionNovelty({
+      supabase,
+      userId: user.userId,
+      scope: "module",
+      moduleId: moduleData.id,
+      questionText: question.question,
     });
-  } catch (error) {
-    return NextResponse.json(
-      { error: "Failed to parse model response as JSON", details: (error as Error).message, raw: content },
-      { status: 500 }
-    );
+
+    if (!novelty.duplicate) {
+      return NextResponse.json(question);
+    }
+
+    duplicateCandidates.push({ question, novelty });
+    rejectedQuestions.push(question.question);
   }
+
+  if (duplicateCandidates.length > 0) {
+    const leastSimilar = duplicateCandidates.sort(
+      (a, b) => a.novelty.maxSimilarity - b.novelty.maxSimilarity
+    )[0];
+    return NextResponse.json(leastSimilar.question);
+  }
+
+  return NextResponse.json(
+    {
+      error: "Failed to parse model response as JSON",
+      details: lastParseError?.message,
+      raw: lastContent,
+    },
+    { status: 500 }
+  );
 }

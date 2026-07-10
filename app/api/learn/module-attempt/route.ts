@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { requireUserFromRequest, requestUserQuestionLevel } from "../../../../lib/auth";
 import { calculateLatestScore } from "../../../../lib/learning";
 import { getModuleBySlug } from "../../../../lib/module-content";
+import { recordQuizQuestionHistory } from "../../../../lib/quiz-question-history";
 import { getServerSupabase } from "../../../../lib/supabase";
 import { assertEnv } from "../../../../lib/utils";
 
@@ -110,6 +111,15 @@ export async function POST(request: Request) {
     passed = !!existingPass;
     passedAt = existingPass?.passed_at ?? null;
   }
+
+  await recordQuizQuestionHistory({
+    supabase,
+    userId: user.userId,
+    scope: "module",
+    moduleId: moduleData.id,
+    questionLevel,
+    question: body.question,
+  });
 
   return NextResponse.json({
     ok: true,
