@@ -4,7 +4,8 @@ import { gradeStoredAnswers, publicQuizQuestion } from "../lib/quiz-sessions";
 const question = {
   question: "What is the ruling?", options: ["A", "B", "C", "D"], answer: "A", explanation: "Because the rule says so.",
   ruleReference: "Rule 1", discipline: "indoor", refereeLevel: "level_1", difficulty: "basic", topic: "service",
-  subtopic: "authorization", ruleId: "1", scenarioType: "procedure", refereeRole: "first_referee", decisionType: "authorization",
+  subtopic: "service_authorization", ruleId: "1", scenarioType: "service_readiness_check", refereeRole: "first_referee", decisionType: "authorize_service",
+  questionStyle: "referee_ruling",
   sourceDocumentId: "22222222-2222-4222-8222-222222222222", sourceChunkIds: ["11111111-1111-4111-8111-111111111111"],
   sourceExcerpt: "This official excerpt is long enough to validate.",
 };

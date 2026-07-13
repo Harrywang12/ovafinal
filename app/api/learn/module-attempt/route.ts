@@ -1,19 +1,19 @@
 import { NextResponse } from "next/server";
+import { z } from "zod";
 import { requireUserFromRequest, requestUserQuestionLevel } from "../../../../lib/auth";
+import { generatedQuizQuestionSchema } from "../../../../lib/generated-quiz-question";
 import { calculateLatestScore } from "../../../../lib/learning";
 import { getModuleBySlug } from "../../../../lib/module-content";
-import { recordQuizQuestionHistory } from "../../../../lib/quiz-question-history";
 import { getServerSupabase } from "../../../../lib/supabase";
 import { assertEnv } from "../../../../lib/utils";
 
 export const runtime = "nodejs";
 
-type AttemptPayload = {
-  module_id?: string;
-  question?: unknown;
-  selected_option?: string;
-  correct?: boolean;
-};
+const attemptSchema = z.object({
+  module_id: z.string().trim().min(1),
+  question_id: z.string().uuid(),
+  selected_option: z.string().min(1),
+});
 
 type AttemptRow = {
   correct: boolean;
@@ -27,30 +27,38 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: user.error }, { status: user.status });
   }
 
-  let body: AttemptPayload;
-  try {
-    body = await request.json();
-  } catch {
-    return NextResponse.json({ error: "Invalid JSON body" }, { status: 400 });
-  }
-
-  const moduleData = body.module_id ? getModuleBySlug(body.module_id) : undefined;
-  if (!moduleData || !body.question || typeof body.selected_option !== "string" || typeof body.correct !== "boolean") {
-    return NextResponse.json(
-      { error: "module_id, question, selected_option, and correct are required" },
-      { status: 400 }
-    );
-  }
+  const body = attemptSchema.safeParse(await request.json().catch(() => ({})));
+  if (!body.success) return NextResponse.json({ error: body.error.issues[0]?.message || "Invalid attempt" }, { status: 400 });
+  const moduleData = getModuleBySlug(body.data.module_id);
+  if (!moduleData) return NextResponse.json({ error: "Valid module_id required" }, { status: 400 });
 
   const supabase = getServerSupabase();
   const questionLevel = requestUserQuestionLevel(user);
+  const { data: stored, error: lookupError } = await supabase.from("generated_quiz_questions")
+    .select("id, question_data, answered_at")
+    .eq("id", body.data.question_id)
+    .eq("user_id", user.userId)
+    .eq("scope", "module")
+    .eq("module_id", moduleData.id)
+    .maybeSingle();
+  if (lookupError) return NextResponse.json({ error: lookupError.message }, { status: 500 });
+  if (!stored) return NextResponse.json({ error: "Question not found" }, { status: 404 });
+  if (stored.answered_at) return NextResponse.json({ error: "Question has already been answered" }, { status: 409 });
+  const question = generatedQuizQuestionSchema.parse(stored.question_data);
+  if (!question.options.includes(body.data.selected_option)) return NextResponse.json({ error: "Selected answer is not a valid option" }, { status: 400 });
+  const correct = body.data.selected_option === question.answer;
+  const { data: claimed, error: claimError } = await supabase.from("generated_quiz_questions")
+    .update({ answered_at: new Date().toISOString() })
+    .eq("id", stored.id).is("answered_at", null).select("id").maybeSingle();
+  if (claimError) return NextResponse.json({ error: claimError.message }, { status: 500 });
+  if (!claimed) return NextResponse.json({ error: "Question has already been answered" }, { status: 409 });
   const { error: insertError } = await supabase.from("module_quiz_attempts").insert({
     user_id: user.userId,
     module_id: moduleData.id,
     question_level: questionLevel,
-    question: body.question,
-    selected_option: body.selected_option,
-    correct: body.correct,
+    question,
+    selected_option: body.data.selected_option,
+    correct,
   });
 
   if (insertError) {
@@ -112,18 +120,17 @@ export async function POST(request: Request) {
     passedAt = existingPass?.passed_at ?? null;
   }
 
-  await recordQuizQuestionHistory({
-    supabase,
-    userId: user.userId,
-    scope: "module",
-    moduleId: moduleData.id,
-    questionLevel,
-    question: body.question,
-  });
+  const { data: sourceDocument } = await supabase.from("rule_documents").select("title").eq("id", question.sourceDocumentId).maybeSingle();
 
   return NextResponse.json({
     ok: true,
     module_id: moduleData.id,
+    correct,
+    answer: question.answer,
+    explanation: question.explanation,
+    rule_reference: question.ruleReference,
+    source_excerpt: question.sourceExcerpt,
+    source_title: sourceDocument?.title || "Official rule source",
     latest_attempts_count: score.latestAttemptsCount,
     latest_correct_count: score.latestCorrectCount,
     latest_score_percent: score.latestScorePercent,

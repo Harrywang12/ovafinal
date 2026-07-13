@@ -1,11 +1,9 @@
 import { NextResponse } from "next/server";
-import pdf from "pdf-parse";
 import { z } from "zod";
 import { requireAdminFromRequest } from "../../../lib/admin";
 import { embedChunks } from "../../../lib/embeddings";
 import { quizDisciplineSchema, refereeLevelSchema } from "../../../lib/quiz-programs";
-import { chunkText } from "../../../lib/rag";
-import { classifyRuleChunk } from "../../../lib/rule-source-classification";
+import { buildRuleIndexChunks, extractPdfPages } from "../../../lib/rule-indexing";
 import { getServerSupabase } from "../../../lib/supabase";
 import { assertEnv } from "../../../lib/utils";
 
@@ -24,13 +22,6 @@ const inputSchema = z.object({
   maximumRefereeLevel: refereeLevelSchema.optional(),
 });
 
-function chunkMetadata(chunk: string) {
-  const rule = chunk.match(/\bRule\s+(\d+(?:\.\d+){0,4})\b/i)?.[1] || null;
-  const caseNumber = chunk.match(/\bCase\s+(\d+(?:\.\d+)*)\b/i)?.[1] || null;
-  const firstLine = chunk.split(/\n/).map((line) => line.trim()).find((line) => line.length >= 4 && line.length <= 120);
-  return { rule_number: rule, case_number: caseNumber, section_title: firstLine || null };
-}
-
 export async function POST(request: Request) {
   let documentId: string | null = null;
   try {
@@ -45,10 +36,10 @@ export async function POST(request: Request) {
     if (error || !data) throw error || new Error("Rulebook download failed");
     const buffer = Buffer.from(await data.arrayBuffer());
     if (buffer.subarray(0, 5).toString("ascii") !== "%PDF-") return NextResponse.json({ error: "Stored file is not a PDF" }, { status: 415 });
-    const parsedPdf = await pdf(buffer);
-    const chunks = chunkText(parsedPdf.text).filter((chunk) => chunk.trim().length >= 80);
+    const pages = await extractPdfPages(buffer);
+    const chunks = buildRuleIndexChunks(pages, input.discipline);
     if (!chunks.length) return NextResponse.json({ error: "No usable text was extracted from the PDF" }, { status: 422 });
-    const embeddings = await embedChunks(chunks);
+    const embeddings = await embedChunks(chunks.map((chunk) => chunk.chunkText));
 
     const { data: document, error: documentError } = await supabase.from("rule_documents").insert({
       title: input.title, discipline: input.discipline, document_type: input.documentType,
@@ -59,17 +50,23 @@ export async function POST(request: Request) {
     documentId = document.id;
     const { error: chunkError } = await supabase.from("rule_chunks").insert(chunks.map((chunk, index) => ({
       document_id: document.id,
-      chunk_text: chunk,
+      chunk_text: chunk.chunkText,
       embedding: embeddings[index],
-      page_number: null,
-      topic: input.topic || null,
-      ruleset: classifyRuleChunk(chunk, input.discipline),
+      page_number: chunk.pageNumber,
+      rule_number: chunk.ruleNumber,
+      section_title: chunk.sectionTitle,
+      case_number: chunk.caseNumber,
+      topic: input.topic || chunk.topic,
+      topic_tags: input.topic ? [input.topic] : chunk.topicTags,
+      ruleset: chunk.ruleset,
+      index_version: 1,
+      chunk_index: index,
+      content_hash: chunk.contentHash,
       minimum_referee_level: input.minimumRefereeLevel || "level_1",
       maximum_referee_level: input.maximumRefereeLevel || "level_4",
-      ...chunkMetadata(chunk),
     })));
     if (chunkError) throw chunkError;
-    return NextResponse.json({ documentId: document.id, inserted: chunks.length, pageMetadataAvailable: false });
+    return NextResponse.json({ documentId: document.id, inserted: chunks.length, pageMetadataAvailable: true });
   } catch (error) {
     if (documentId) await getServerSupabase().from("rule_documents").delete().eq("id", documentId);
     return NextResponse.json({ error: error instanceof Error ? error.message : "Rulebook embedding failed" }, { status: 500 });

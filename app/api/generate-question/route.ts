@@ -4,12 +4,15 @@ import { requireUserFromRequest } from "../../../lib/auth";
 import { difficultyLabel, questionLevelForDifficulty } from "../../../lib/learning";
 import { getOrCreateAdaptiveQuizState } from "../../../lib/quiz-adaptive";
 import { QuizGenerationError, generateGroundedQuizQuestion } from "../../../lib/quiz-generation";
+import { getRecentStructuredQuizHistory, recordQuizQuestionHistory } from "../../../lib/quiz-question-history";
 import { quizDifficultySchema, quizDisciplineSchema } from "../../../lib/quiz-programs";
+import { listAvailableRuleTopics } from "../../../lib/rag";
 import { enforceGenerationQuota } from "../../../lib/rate-limit";
 import { getServerSupabase } from "../../../lib/supabase";
 import { assertEnv } from "../../../lib/utils";
 
 export const runtime = "nodejs";
+export const maxDuration = 90;
 
 const requestSchema = z.object({
   discipline: quizDisciplineSchema,
@@ -46,11 +49,27 @@ export async function POST(request: Request) {
     await enforceGenerationQuota(supabase, user.userId);
     const state = await getOrCreateAdaptiveQuizState(supabase, user.userId, user.refereeLevel);
     const difficulty = parsed.data.difficulty ?? adaptiveDifficulty(state.current_difficulty);
-    const topics = DEFAULT_TOPICS[parsed.data.discipline];
+    const configuredTopics = DEFAULT_TOPICS[parsed.data.discipline];
+    const requiredRuleset = parsed.data.discipline === "indoor" ? "standard_indoor" : "beach";
+    const available = await listAvailableRuleTopics({
+      discipline: parsed.data.discipline,
+      refereeLevel: user.refereeLevel,
+      rulesets: [requiredRuleset],
+    });
+    const availableSet = new Set(available.filter((item) => item.chunk_count > 0).map((item) => item.topic));
+    const topics = configuredTopics.filter((topic) => availableSet.has(topic));
+    if (!topics.length) throw new QuizGenerationError("INSUFFICIENT_SOURCE_CONTEXT", "No suitable official source material was found for this discipline.", 422);
     const requestedTopic = parsed.data.topic;
-    const topic = requestedTopic && (topics as readonly string[]).includes(requestedTopic)
+    const recentHistory = await getRecentStructuredQuizHistory({
+      supabase, userId: user.userId, scope: "adaptive",
+      discipline: parsed.data.discipline, refereeLevel: user.refereeLevel,
+    });
+    const topicCounts = new Map(topics.map((topic) => [topic, recentHistory.filter((item) => item.topic === topic).length]));
+    const leastUsed = Math.min(...topicCounts.values());
+    const preferredTopics = topics.filter((topic) => topicCounts.get(topic) === leastUsed);
+    const topic = requestedTopic && topics.includes(requestedTopic as never)
       ? requestedTopic
-      : topics[Math.floor(Math.random() * topics.length)];
+      : preferredTopics[Math.floor(Math.random() * preferredTopics.length)];
 
     const question = await generateGroundedQuizQuestion({
       supabase,
@@ -59,12 +78,17 @@ export async function POST(request: Request) {
       refereeLevel: user.refereeLevel,
       difficulty,
       topic,
+      flow: "adaptive",
     });
     const { data: stored, error } = await supabase.from("generated_quiz_questions").insert({
       user_id: user.userId,
       question_data: question,
     }).select("id").single();
     if (error) throw error;
+    await recordQuizQuestionHistory({
+      supabase, userId: user.userId, scope: "adaptive", question,
+      questionLevel: questionLevelForDifficulty(state.current_difficulty),
+    });
 
     const { answer: _answer, explanation: _explanation, sourceExcerpt: _sourceExcerpt, ...publicQuestion } = question;
     return NextResponse.json({

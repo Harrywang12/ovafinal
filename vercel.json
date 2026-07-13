@@ -10,10 +10,10 @@
       "maxDuration": 60
     },
     "app/api/generate-question/route.ts": {
-      "maxDuration": 60
+      "maxDuration": 90
     },
     "app/api/learn/module-question/route.ts": {
-      "maxDuration": 30
+      "maxDuration": 90
     }
   }
 }

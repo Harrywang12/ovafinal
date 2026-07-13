@@ -1,273 +1,84 @@
 import { NextResponse } from "next/server";
+import { z } from "zod";
 import { requireUserFromRequest, requestUserQuestionLevel } from "../../../../lib/auth";
+import { QuizGenerationError, generateGroundedQuizQuestion } from "../../../../lib/quiz-generation";
 import { getModuleBySlug } from "../../../../lib/module-content";
-import { llmChat } from "../../../../lib/llm";
-import { searchRules } from "../../../../lib/rag";
-import { assertEnv, formatRuleContext } from "../../../../lib/utils";
-import { type QuestionLevel } from "../../../../lib/learning";
+import { recordQuizQuestionHistory } from "../../../../lib/quiz-question-history";
+import type { QuizDifficulty, QuizDiscipline } from "../../../../lib/quiz-programs";
+import type { RuleSet } from "../../../../lib/rule-source-classification";
 import { getServerSupabase } from "../../../../lib/supabase";
-import {
-  assessQuizQuestionNovelty,
-  getRecentQuizQuestionHistory,
-  type QuizQuestionNovelty,
-} from "../../../../lib/quiz-question-history";
+import { assertEnv } from "../../../../lib/utils";
 
 export const runtime = "nodejs";
+export const maxDuration = 90;
 
-type GeneratedModuleQuestion = {
-  question_level: QuestionLevel;
-  module_id: string;
-  question: string;
-  options: string[];
-  answer: string;
-  explanation: string;
-  rule_reference: string;
-};
+const inputSchema = z.object({ module_id: z.string().trim().min(1) });
 
-function parseJsonObject(content: string) {
-  let jsonContent = content.trim();
-  if (jsonContent.startsWith("```json")) {
-    jsonContent = jsonContent.slice(7);
-  } else if (jsonContent.startsWith("```")) {
-    jsonContent = jsonContent.slice(3);
-  }
-  if (jsonContent.endsWith("```")) {
-    jsonContent = jsonContent.slice(0, -3);
-  }
-  return JSON.parse(jsonContent.trim());
+function moduleSource(category: string): { discipline: QuizDiscipline; rulesets: RuleSet[] } {
+  if (category === "beach") return { discipline: "beach", rulesets: ["beach"] };
+  if (category === "rallyball-4v4") return { discipline: "indoor", rulesets: ["rallyball_4v4", "rallyball_unspecified"] };
+  if (category === "rallyball-6v6") return { discipline: "indoor", rulesets: ["rallyball_6v6", "rallyball_unspecified"] };
+  return { discipline: "indoor", rulesets: ["standard_indoor"] };
 }
 
-function buildAvoidBlock(questions: string[]) {
-  const uniqueAvoid = Array.from(new Set(questions.filter((q) => q.trim()))).slice(0, 50);
-  return uniqueAvoid.length
-    ? `\n\nPREVIOUSLY ASKED OR REJECTED QUESTIONS — the user has already answered these or they were too similar. DO NOT repeat, rephrase, or ask about the same specific scenario as any of them:\n${uniqueAvoid
-        .map((q, i) => `${i + 1}. ${q}`)
-        .join("\n")}\nYour new question MUST test a different rule detail or game situation than every question listed above.`
-    : "";
-}
-
-function levelGuidance(questionLevel: QuestionLevel) {
-  if (questionLevel === "beginner") {
-    return `
-BEGINNER / LEVEL 1 REFEREE FOCUS:
-- Ask a clear, practical question for a newer referee.
-- Focus on fundamental calls, basic match procedure, common faults, court/position basics, scoring, or obvious signal recognition.
-      - Avoid rare edge cases, multi-fault priority analysis, and advanced libero/back-row judgment unless the module requires a simple version.`;
-  }
-
-  if (questionLevel === "hard") {
-    return `
-ADVANCED / LEVEL 3-4 REFEREE FOCUS:
-- Ask a high-judgment match scenario with interacting rules or officiating mechanics.
-- Include details such as timing, sequence of events, player restrictions, sanctions, screening, libero/back-row nuance, replay vs point, or referee responsibilities.
-- Wrong answers should be plausible even to an experienced referee.`;
-  }
-
-  return `
-INTERMEDIATE / LEVEL 2 REFEREE FOCUS:
-- Ask a realistic match scenario that requires applying more than one rule or referee mechanic.
-- Include judgment details such as timing, player position, front/back row status, libero restriction, sanctions, screening, or sequence of events.
-- Wrong answers should be plausible mistakes an experienced but developing referee might make.`;
-}
-
-function normalizeGeneratedModuleQuestion(
-  content: string,
-  questionLevel: QuestionLevel,
-  moduleId: string,
-  fallbackRuleReference: string
-): GeneratedModuleQuestion {
-  const parsed = parseJsonObject(content);
-  if (!parsed.question || !Array.isArray(parsed.options) || parsed.options.length !== 4 || !parsed.answer || !parsed.explanation) {
-    throw new Error("Missing required quiz fields");
-  }
-
-  const options: string[] = parsed.options.map((o: unknown) => String(o).trim());
-  let answer = String(parsed.answer).trim();
-  if (!options.includes(answer)) {
-    const match = options.find((o) => o.toLowerCase() === answer.toLowerCase());
-    answer = match || options[0];
-  }
-
-  return {
-    question_level: questionLevel,
-    module_id: moduleId,
-    question: String(parsed.question),
-    options,
-    answer,
-    explanation: String(parsed.explanation),
-    rule_reference: parsed.rule_reference ? String(parsed.rule_reference) : fallbackRuleReference,
-  };
+function moduleDifficulty(level: "beginner" | "intermediate" | "hard"): QuizDifficulty {
+  return level === "beginner" ? "basic" : level === "hard" ? "advanced" : "applied";
 }
 
 export async function POST(request: Request) {
-  assertEnv(["OPENAI_API_KEY", "SUPABASE_URL", "SUPABASE_SERVICE_KEY"]);
-  const user = await requireUserFromRequest(request);
-  if (!user.ok) {
-    return NextResponse.json({ error: user.error }, { status: user.status });
-  }
-
-  let body: { module_id?: string; recent_questions?: string[] };
   try {
-    body = await request.json();
-  } catch {
-    return NextResponse.json({ error: "Invalid JSON body" }, { status: 400 });
-  }
+    assertEnv(["OPENAI_API_KEY", "SUPABASE_URL", "SUPABASE_SERVICE_KEY"]);
+    const user = await requireUserFromRequest(request);
+    if (!user.ok) return NextResponse.json({ error: user.error }, { status: user.status });
+    const parsed = inputSchema.safeParse(await request.json().catch(() => ({})));
+    if (!parsed.success) return NextResponse.json({ error: "Valid module_id required" }, { status: 400 });
+    const moduleData = getModuleBySlug(parsed.data.module_id);
+    if (!moduleData) return NextResponse.json({ error: "Valid module_id required" }, { status: 400 });
 
-  const moduleData = body.module_id ? getModuleBySlug(body.module_id) : undefined;
-  if (!moduleData) {
-    return NextResponse.json({ error: "Valid module_id required" }, { status: 400 });
-  }
-
-  const questionLevel = requestUserQuestionLevel(user);
-  const supabase = getServerSupabase();
-
-  // Build a list of this user's recently asked questions for the module so the
-  // model doesn't keep regenerating the same handful (worst on small modules
-  // like 4v4/6v6 Rallyball).
-  const avoidQuestions: string[] = [];
-  const clientRecent = Array.isArray(body.recent_questions) ? body.recent_questions : [];
-  for (const q of clientRecent) {
-    if (typeof q === "string" && q.trim()) avoidQuestions.push(q.trim());
-  }
-  try {
-    avoidQuestions.push(
-      ...(await getRecentQuizQuestionHistory({
-        supabase,
-        userId: user.userId,
-        scope: "module",
-        moduleId: moduleData.id,
-      }))
-    );
-    if (avoidQuestions.length === 0) {
-      throw new Error("No quiz history rows found");
-    }
-  } catch {
-    try {
-      const { data: recentAttempts } = await supabase
-        .from("module_quiz_attempts")
-        .select("question")
-        .eq("user_id", user.userId)
-        .eq("module_id", moduleData.id)
-        .order("created_at", { ascending: false })
-        .limit(20);
-      for (const row of recentAttempts || []) {
-        const text = (row.question as { question?: string } | null)?.question;
-        if (typeof text === "string" && text.trim()) avoidQuestions.push(text.trim());
-      }
-    } catch {
-      // History lookup is best-effort; generation still works without it.
-    }
-  }
-
-  const lessonsContext = moduleData.lessons
-    .map((l) => `${l.title}: ${l.content.join(" ")}`)
-    .join("\n\n");
-
-  let ragContext = "";
-  try {
-    const chunks = await searchRules(`${moduleData.title} ${moduleData.ruleRange}`, 4);
-    ragContext = formatRuleContext(chunks);
-  } catch (e) {
-    console.warn("RAG search unavailable, using static module content:", e);
-  }
-
-  const randomSeed = Math.floor(Math.random() * 100000);
-  const focusLesson = moduleData.lessons[Math.floor(Math.random() * moduleData.lessons.length)];
-  const context = [lessonsContext, ragContext].filter(Boolean).join("\n\n---\n\n");
-
-  const system = `You are a Volleyball Canada referee instructor creating one multiple-choice module quiz question.
-Return ONLY valid JSON in this exact shape:
-{
-  "question": "Question text",
-  "options": ["Option A", "Option B", "Option C", "Option D"],
-  "answer": "The exact correct option text",
-  "explanation": "Brief explanation with rule reference",
-  "rule_reference": "Rule or module reference"
-}
-${levelGuidance(questionLevel)}
-The answer must exactly match one option. Do not include markdown or text outside JSON.`;
-
-  const rejectedQuestions: string[] = [];
-  const duplicateCandidates: Array<{
-    question: GeneratedModuleQuestion;
-    novelty: QuizQuestionNovelty;
-  }> = [];
-  let lastContent = "";
-  let lastParseError: Error | null = null;
-
-  for (let attempt = 0; attempt < 2; attempt++) {
-    const avoidBlock = buildAvoidBlock([...avoidQuestions, ...rejectedQuestions]);
-    let content: string;
-    try {
-      content = await llmChat(
-        [
-          {
-            role: "system",
-            content: system,
-          },
-          {
-            role: "user",
-            content: `Create a ${questionLevel} question for module "${moduleData.title}" (${moduleData.ruleRange}). Focus topic: "${focusLesson.title}". Random seed: ${randomSeed + attempt}.
-
-Generation attempt: ${attempt + 1}. Use a substantially different scenario, rule detail, and answer pattern than any previously asked or rejected item.
-
-Context:
-${context}${avoidBlock}`,
-          },
-        ],
-        questionLevel === "beginner" ? "gpt-4o-mini" : "gpt-4o",
-        { temperature: questionLevel === "beginner" ? 0.8 : 0.9 }
-      );
-    } catch (llmError) {
-      return NextResponse.json(
-        { error: "Failed to generate question from LLM", details: (llmError as Error).message },
-        { status: 500 }
-      );
-    }
-
-    lastContent = content;
-    let question: GeneratedModuleQuestion;
-    try {
-      question = normalizeGeneratedModuleQuestion(
-        content,
-        questionLevel,
-        moduleData.id,
-        moduleData.ruleRange
-      );
-    } catch (error) {
-      lastParseError = error as Error;
-      continue;
-    }
-
-    const novelty = await assessQuizQuestionNovelty({
+    const supabase = getServerSupabase();
+    const questionLevel = requestUserQuestionLevel(user);
+    const source = moduleSource(moduleData.category);
+    const focusLesson = moduleData.lessons[Math.floor(Math.random() * moduleData.lessons.length)];
+    const question = await generateGroundedQuizQuestion({
       supabase,
       userId: user.userId,
-      scope: "module",
+      discipline: source.discipline,
+      refereeLevel: user.refereeLevel,
+      difficulty: moduleDifficulty(questionLevel),
+      topic: moduleData.id,
+      flow: "module",
       moduleId: moduleData.id,
-      questionText: question.question,
+      rulesets: source.rulesets,
+      sourceQuery: `${moduleData.title} ${moduleData.ruleRange} ${focusLesson.title}`,
+      requireSourceTopic: false,
     });
 
-    if (!novelty.duplicate) {
-      return NextResponse.json(question);
-    }
+    const { data: stored, error } = await supabase.from("generated_quiz_questions").insert({
+      user_id: user.userId,
+      scope: "module",
+      module_id: moduleData.id,
+      question_data: question,
+    }).select("id").single();
+    if (error) throw error;
+    await recordQuizQuestionHistory({
+      supabase, userId: user.userId, scope: "module", moduleId: moduleData.id,
+      questionLevel, question,
+    });
 
-    duplicateCandidates.push({ question, novelty });
-    rejectedQuestions.push(question.question);
+    return NextResponse.json({
+      id: stored.id,
+      question_level: questionLevel,
+      module_id: moduleData.id,
+      question: question.question,
+      options: question.options,
+      rule_reference: question.ruleReference,
+      discipline: question.discipline,
+      difficulty: question.difficulty,
+      question_style: question.questionStyle,
+    });
+  } catch (error) {
+    const status = error instanceof QuizGenerationError ? error.status : 500;
+    const code = error instanceof QuizGenerationError ? error.code : "MODULE_QUESTION_GENERATION_FAILED";
+    return NextResponse.json({ code, message: error instanceof Error ? error.message : "Module question generation failed" }, { status });
   }
-
-  if (duplicateCandidates.length > 0) {
-    const leastSimilar = duplicateCandidates.sort(
-      (a, b) => a.novelty.maxSimilarity - b.novelty.maxSimilarity
-    )[0];
-    return NextResponse.json(leastSimilar.question);
-  }
-
-  return NextResponse.json(
-    {
-      error: "Failed to parse model response as JSON",
-      details: lastParseError?.message,
-      raw: lastContent,
-    },
-    { status: 500 }
-  );
 }

@@ -23,6 +23,7 @@ const valid = {
   scenarioType: "basic_service_procedure",
   refereeRole: "first_referee",
   decisionType: "service_fault",
+  questionStyle: "referee_ruling",
   sourceDocumentId: chunk.document_id,
   sourceChunkIds: [chunk.id],
   sourceExcerpt: "the server to contact the ball within the permitted service time",
@@ -49,6 +50,20 @@ describe("generated quiz question validation", () => {
   it("rejects source excerpts and IDs outside retrieved context", () => {
     expect(() => validateGeneratedQuestion({ ...valid, sourceExcerpt: "This sentence does not occur in the source context." }, { discipline: "beach", refereeLevel: "level_1", difficulty: "basic" }, [chunk])).toThrow(/excerpt/i);
     expect(() => validateGeneratedQuestion({ ...valid, sourceChunkIds: ["33333333-3333-4333-8333-333333333333"] }, { discipline: "beach", refereeLevel: "level_1", difficulty: "basic" }, [chunk])).toThrow(/unretrieved/i);
+  });
+
+  it("rejects topic and rule metadata that do not match the cited source", () => {
+    const taggedChunk = { ...chunk, rule_number: "12.4", topic: "service_and_service_order", topic_tags: ["service_and_service_order"] };
+    expect(() => validateGeneratedQuestion(
+      { ...valid, topic: "playing_actions" },
+      { discipline: "beach", refereeLevel: "level_1", difficulty: "basic", topic: "playing_actions" },
+      [taggedChunk]
+    )).toThrow(/topic/i);
+    expect(() => validateGeneratedQuestion(
+      { ...valid, ruleId: "9.1" },
+      { discipline: "beach", refereeLevel: "level_1", difficulty: "basic" },
+      [taggedChunk]
+    )).toThrow(/Rule ID/i);
   });
 
   it("accepts harmless punctuation differences in a verbatim source excerpt", () => {

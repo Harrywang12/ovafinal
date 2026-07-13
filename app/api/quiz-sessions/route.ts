@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { requireUserFromRequest } from "../../../lib/auth";
 import { QuizGenerationError, generateGroundedQuizQuestion } from "../../../lib/quiz-generation";
+import { recordQuizQuestionHistory } from "../../../lib/quiz-question-history";
 import { allocateDifficulties, difficultyProgressionSchema, expandTopicBlueprint, topicBlueprintItemSchema } from "../../../lib/quiz-programs";
 import { publicQuizQuestion, toStructuredHistory } from "../../../lib/quiz-sessions";
 import { enforceGenerationQuota } from "../../../lib/rate-limit";
@@ -73,6 +74,7 @@ export async function POST(request: Request) {
         refereeLevel: program.referee_level,
         difficulty: difficulties[index],
         topic: topics[index],
+        flow: "program",
         quizSessionId: session.id,
         sessionHistory: generated.map(toStructuredHistory),
       });
@@ -90,6 +92,11 @@ export async function POST(request: Request) {
     if (storeError) throw storeError;
     const { error: readyError } = await supabase.from("quiz_sessions").update({ status: "ready" }).eq("id", session.id).eq("status", "generating");
     if (readyError) throw readyError;
+    for (const question of generated) {
+      await recordQuizQuestionHistory({
+        supabase, userId: user.userId, scope: "program", question, quizSessionId: session.id,
+      });
+    }
 
     return NextResponse.json({
       session: { id: session.id, quizNumber, title: program.title, discipline: program.discipline, refereeLevel: program.referee_level, status: "ready" },

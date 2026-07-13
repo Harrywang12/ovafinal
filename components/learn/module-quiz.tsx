@@ -25,14 +25,22 @@ import {
 } from "../../lib/learning";
 
 interface QuizData {
+  id: string;
   module_id?: string;
   question_level?: QuestionLevel;
   question: string;
   options: string[];
+  rule_reference?: string | null;
+}
+
+type QuizFeedback = {
+  correct: boolean;
   answer: string;
   explanation: string;
   rule_reference?: string | null;
-}
+  source_excerpt?: string | null;
+  source_title?: string | null;
+};
 
 interface ModuleQuizProps {
   module: Module;
@@ -44,9 +52,9 @@ export function ModuleQuiz({ module, nextModule, progress }: ModuleQuizProps) {
   const { session } = useSupabaseAuth();
   const queryClient = useQueryClient();
   const [quiz, setQuiz] = useState<QuizData | null>(null);
-  const [askedQuestions, setAskedQuestions] = useState<string[]>([]);
   const [selectedAnswer, setSelectedAnswer] = useState<string | null>(null);
   const [isCorrect, setIsCorrect] = useState<boolean | null>(null);
+  const [feedback, setFeedback] = useState<QuizFeedback | null>(null);
   const [attemptResult, setAttemptResult] = useState<{
     latest_attempts_count: number;
     latest_correct_count: number;
@@ -62,24 +70,23 @@ export function ModuleQuiz({ module, nextModule, progress }: ModuleQuizProps) {
           "Content-Type": "application/json",
           ...(session?.access_token ? { Authorization: `Bearer ${session.access_token}` } : {}),
         },
-        body: JSON.stringify({ module_id: module.id, recent_questions: askedQuestions.slice(-15) })
+        body: JSON.stringify({ module_id: module.id })
       });
-      if (!res.ok) throw new Error("Failed to load quiz");
-      return res.json();
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data.message || data.error || "Failed to load quiz");
+      return data;
     },
     onSuccess: (data) => {
       setSelectedAnswer(null);
       setIsCorrect(null);
+      setFeedback(null);
       setAttemptResult(null);
       setQuiz(data);
-      if (data?.question) {
-        setAskedQuestions((prev) => [...prev, data.question].slice(-15));
-      }
     }
   });
 
   const saveAttempt = useMutation({
-    mutationFn: async (payload: { question: QuizData; selected_option: string; correct: boolean }) => {
+    mutationFn: async (payload: { question_id: string; selected_option: string }) => {
       const res = await fetch("/api/learn/module-attempt", {
         method: "POST",
         headers: {
@@ -88,20 +95,28 @@ export function ModuleQuiz({ module, nextModule, progress }: ModuleQuizProps) {
         },
         body: JSON.stringify({
           module_id: module.id,
-          question: payload.question,
+          question_id: payload.question_id,
           selected_option: payload.selected_option,
-          correct: payload.correct,
         }),
       });
-      if (!res.ok) throw new Error("Failed to save module attempt");
-      return res.json() as Promise<{
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data.error || "Failed to save module attempt");
+      return data as {
+        correct: boolean;
+        answer: string;
+        explanation: string;
+        rule_reference?: string | null;
+        source_excerpt?: string | null;
+        source_title?: string | null;
         latest_attempts_count: number;
         latest_correct_count: number;
         latest_score_percent: number;
         passed: boolean;
-      }>;
+      };
     },
     onSuccess: (data) => {
+      setIsCorrect(data.correct);
+      setFeedback(data);
       setAttemptResult(data);
       queryClient.invalidateQueries({ queryKey: ["learn-progress"] });
       queryClient.invalidateQueries({ queryKey: ["dashboard"] });
@@ -109,17 +124,16 @@ export function ModuleQuiz({ module, nextModule, progress }: ModuleQuizProps) {
   });
 
   const checkAnswer = (answer: string) => {
-    if (!quiz || isCorrect !== null) return;
-    const correct = answer === quiz.answer;
+    if (!quiz || isCorrect !== null || saveAttempt.isPending) return;
     setSelectedAnswer(answer);
-    setIsCorrect(correct);
-    saveAttempt.mutate({ question: quiz, selected_option: answer, correct });
+    saveAttempt.mutate({ question_id: quiz.id, selected_option: answer });
   };
 
   const retryQuiz = () => {
     setQuiz(null);
     setSelectedAnswer(null);
     setIsCorrect(null);
+    setFeedback(null);
     loadQuiz.mutate();
   };
 
@@ -252,7 +266,7 @@ export function ModuleQuiz({ module, nextModule, progress }: ModuleQuizProps) {
                 {quiz.options?.map((option, idx) => {
                   const letter = String.fromCharCode(65 + idx);
                   const isSelected = selectedAnswer === option;
-                  const isThisCorrect = option === quiz.answer;
+                  const isThisCorrect = option === feedback?.answer;
                   const showResult = isCorrect !== null;
                   
                   let bgClass = "bg-white border-border hover:border-primary/30";
@@ -275,7 +289,7 @@ export function ModuleQuiz({ module, nextModule, progress }: ModuleQuizProps) {
                     <motion.button
                       key={idx}
                       onClick={() => checkAnswer(option)}
-                      disabled={isCorrect !== null}
+                      disabled={isCorrect !== null || saveAttempt.isPending}
                       whileHover={isCorrect === null ? { scale: 1.01, x: 4 } : {}}
                       whileTap={isCorrect === null ? { scale: 0.99 } : {}}
                       className={`w-full p-4 rounded-xl border-2 text-left transition-all flex items-center gap-4 ${bgClass}`}
@@ -320,20 +334,22 @@ export function ModuleQuiz({ module, nextModule, progress }: ModuleQuizProps) {
                         }`}>
                           {isCorrect ? "Correct! Well done!" : "Not quite right"}
                         </p>
-                        <p className="text-sm text-muted">{quiz.explanation}</p>
-                        {quiz.rule_reference && (
-                          <p className="mt-2 text-xs font-semibold text-primary">{quiz.rule_reference}</p>
+                        <p className="text-sm text-muted">{feedback?.explanation}</p>
+                        {(feedback?.rule_reference || quiz.rule_reference) && (
+                          <p className="mt-2 text-xs font-semibold text-primary">{feedback?.rule_reference || quiz.rule_reference}</p>
                         )}
-                        {saveAttempt.isError && (
-                          <p className="mt-2 text-xs font-semibold text-red-600">
-                            Answer shown, but progress could not be saved. Try signing in again.
-                          </p>
+                        {feedback?.source_excerpt && (
+                          <p className="mt-2 text-xs leading-5 text-muted">{feedback.source_title ? `${feedback.source_title}: ` : ""}{feedback.source_excerpt}</p>
                         )}
                       </div>
                     </div>
                   </motion.div>
                 )}
               </AnimatePresence>
+
+              {saveAttempt.isError && isCorrect === null && (
+                <p className="text-sm font-semibold text-red-600">{(saveAttempt.error as Error).message}</p>
+              )}
 
               {/* Actions */}
               {isCorrect !== null && (
