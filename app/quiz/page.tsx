@@ -1,517 +1,238 @@
 "use client";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { ArrowLeft, ArrowRight, BookOpen, CheckCircle2, Loader2, Sparkles, Target, Trophy, Waves, XCircle, Zap } from "lucide-react";
 import { useMemo, useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import { Sparkles, CheckCircle2, XCircle, ArrowRight, Zap, BookOpen, Target } from "lucide-react";
 import { AuthGuard } from "../../components/auth-guard";
-import { fadeInUp, staggerContainer, staggerItem } from "../../lib/animations";
+import { QuizQuestionReport } from "../../components/quiz-question-report";
 import { useSupabaseAuth } from "../../lib/useSupabaseAuth";
 
+type Discipline = "indoor" | "beach";
 type Question = {
-  adaptive_difficulty?: AdaptiveDifficulty;
-  difficulty_label?: string;
-  question_level?: "beginner" | "intermediate" | "hard";
+  id: string;
+  sequenceNumber?: number;
   question: string;
-  options: string[];
-  answer: string;
-  explanation: string;
-  rule_reference?: string;
+  options: [string, string, string, string];
+  ruleReference: string;
+  sourceExcerpt?: string;
+  discipline: Discipline;
+  refereeLevel: string;
+  difficulty: string;
+  topic: string;
+  sourceDocumentId: string;
+  adaptive_difficulty?: "easy" | "medium" | "hard";
+  difficulty_label?: string;
+};
+type Feedback = { correct: boolean; answer: string; explanation: string; ruleReference: string; sourceExcerpt: string; sourceTitle?: string };
+type ProgramAssignment = {
+  id: string;
+  status: "not_started" | "in_progress" | "completed" | "overdue";
+  completedQuizzes: number;
+  program: {
+    id: string; title: string; discipline: Discipline; referee_level: string; required_quiz_count: number;
+    questions_per_quiz: number; minimum_score_percent: number; start_at: string | null; due_at: string | null;
+  };
+  sessions: Array<{ id: string; status: string; score_percent: number | null; passed: boolean | null }>;
+};
+type SessionResult = {
+  scorePercent: number; correctCount: number; questionCount: number; passed: boolean;
+  answers: Array<Feedback & { questionId: string; selectedAnswer: string }>;
 };
 
-type AdaptiveDifficulty = "easy" | "medium" | "hard";
-
-type AdaptiveState = {
-  referee_level: "level_1" | "level_2" | "level_3" | "level_4";
-  initial_difficulty: AdaptiveDifficulty;
-  current_difficulty: AdaptiveDifficulty;
-  difficulty_label: string;
-  question_level: "beginner" | "intermediate" | "hard";
-  correct_streak: number;
-  incorrect_streak: number;
-  updated_at: string | null;
-  quiz_assignment: QuizAssignmentProgress;
-};
-
-type QuizAssignmentProgress = {
-  assigned: boolean;
-  question_quota: number;
-  required_percent: number;
-  attempted: number;
-  correct: number;
-  score_percent: number;
-  remaining: number;
-  passed: boolean;
-  completed_at: string | null;
-  assigned_at: string | null;
-};
-
-const difficultyColors: Record<AdaptiveDifficulty, string> = {
-  easy: "bg-green-500",
-  medium: "bg-accent",
-  hard: "bg-red-500",
-};
+async function responseData(response: Response) {
+  const data = await response.json().catch(() => ({}));
+  if (!response.ok) throw new Error(data.message || data.error || "Request failed");
+  return data;
+}
 
 export default function QuizPage() {
   const { session } = useSupabaseAuth();
   const queryClient = useQueryClient();
-  const [current, setCurrent] = useState<Question | null>(null);
-  const [askedQuestions, setAskedQuestions] = useState<string[]>([]);
-  const [selected, setSelected] = useState<string | null>(null);
-  const [result, setResult] = useState<"correct" | "incorrect" | null>(null);
-  const [recommendation, setRecommendation] = useState<string | null>(null);
+  const token = session?.access_token || "";
+  const [mode, setMode] = useState<"practice" | "assigned">("practice");
+  const [discipline, setDiscipline] = useState<Discipline>("indoor");
+  const [practiceQuestion, setPracticeQuestion] = useState<Question | null>(null);
+  const [practiceSelection, setPracticeSelection] = useState("");
+  const [practiceFeedback, setPracticeFeedback] = useState<Feedback | null>(null);
+  const [activeSession, setActiveSession] = useState<{ id: string; title: string; questions: Question[] } | null>(null);
+  const [questionIndex, setQuestionIndex] = useState(0);
+  const [sessionAnswers, setSessionAnswers] = useState<Record<string, string>>({});
+  const [sessionResult, setSessionResult] = useState<SessionResult | null>(null);
 
-  const adaptiveQuery = useQuery<AdaptiveState>({
-    queryKey: ["quiz-adaptive-state"],
-    enabled: !!session?.access_token,
-    queryFn: async () => {
-      const res = await fetch("/api/quiz-state", {
-        headers: session?.access_token ? { Authorization: `Bearer ${session.access_token}` } : undefined,
-      });
-      if (!res.ok) throw new Error("Failed to load adaptive quiz state");
-      return res.json();
+  const programsQuery = useQuery<{ assignments: ProgramAssignment[] }>({
+    queryKey: ["quiz-program-assignments"],
+    enabled: !!token,
+    queryFn: async () => responseData(await fetch("/api/quiz-programs", { headers: { Authorization: `Bearer ${token}` } })),
+  });
+
+  const generatePractice = useMutation({
+    mutationFn: async () => responseData(await fetch("/api/generate-question", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+      body: JSON.stringify({ discipline }),
+    })),
+    onSuccess: (question: Question) => {
+      setPracticeQuestion(question); setPracticeSelection(""); setPracticeFeedback(null);
     },
   });
 
-  const generateMutation = useMutation({
-    mutationFn: async () => {
-      const res = await fetch("/api/generate-question", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          ...(session?.access_token ? { Authorization: `Bearer ${session.access_token}` } : {}),
-        },
-        body: JSON.stringify({ recent_questions: askedQuestions.slice(-15) })
-      });
-      if (!res.ok) throw new Error("Failed to generate question");
-      return res.json();
-    },
-    onSuccess: (data) => {
-      setCurrent(data);
-      setSelected(null);
-      setResult(null);
-      setRecommendation(null);
-      if (data?.question) {
-        setAskedQuestions((prev) => [...prev, data.question].slice(-15));
-      }
-    }
-  });
-
-  const saveAttempt = useMutation({
-    mutationFn: async (payload: object) => {
-      const res = await fetch("/api/quiz-attempt", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          ...(session?.access_token ? { Authorization: `Bearer ${session.access_token}` } : {}),
-        },
-        body: JSON.stringify(payload)
-      });
-      if (!res.ok) throw new Error("Failed to save attempt");
-      return res.json();
-    },
-    onSuccess: (data) => {
-      if (data.adaptive_state) {
-        queryClient.setQueryData(["quiz-adaptive-state"], (prev: AdaptiveState | undefined) => ({
-          referee_level: prev?.referee_level ?? "level_1",
-          initial_difficulty: prev?.initial_difficulty ?? "easy",
-          quiz_assignment: data.quiz_assignment ?? prev?.quiz_assignment,
-          ...data.adaptive_state,
-        }));
-      }
+  const submitPractice = useMutation({
+    mutationFn: async () => responseData(await fetch("/api/quiz-attempt", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+      body: JSON.stringify({ question_id: practiceQuestion?.id, selected_option: practiceSelection }),
+    })),
+    onSuccess: (feedback: Feedback) => {
+      setPracticeFeedback(feedback);
+      queryClient.invalidateQueries({ queryKey: ["quiz-adaptive-state"] });
     },
   });
 
-  const checkAnswer = () => {
-    if (!current || !selected) return;
-    const correct = selected === current.answer;
-    const currentDifficultyLabel =
-      current.difficulty_label || adaptiveQuery.data?.difficulty_label || "Adaptive";
-    setResult(correct ? "correct" : "incorrect");
-    setRecommendation(
-      correct
-        ? null
-        : `You missed a ${currentDifficultyLabel.toLowerCase()} item. Review module: ${
-            current.rule_reference?.includes("rotation")
-              ? "Rotations"
-              : current.rule_reference?.includes("net")
-                ? "Blocking"
-                : "Faults"
-          }.`
-    );
-    saveAttempt.mutate({
-      question: current,
-      selected_option: selected,
-      correct
-    });
+  const loadSession = async (id: string, fallbackTitle: string) => {
+    const data = await responseData(await fetch(`/api/quiz-sessions/${id}`, { headers: { Authorization: `Bearer ${token}` } }));
+    setActiveSession({ id, title: data.session?.title || fallbackTitle, questions: data.questions });
+    setQuestionIndex(0); setSessionAnswers({}); setSessionResult(null);
   };
 
-  const options = useMemo(() => current?.options || [], [current]);
-  const visibleDifficulty = current?.adaptive_difficulty || adaptiveQuery.data?.current_difficulty || "medium";
-  const visibleDifficultyLabel = current?.difficulty_label || adaptiveQuery.data?.difficulty_label || "Intermediate";
-  const currentStreak = adaptiveQuery.data
-    ? adaptiveQuery.data.correct_streak > 0
-      ? `${adaptiveQuery.data.correct_streak} correct streak`
-      : adaptiveQuery.data.incorrect_streak > 0
-        ? `${adaptiveQuery.data.incorrect_streak} wrong streak`
-        : "No active streak"
-    : "Loading streak";
-  const quizAssignment = adaptiveQuery.data?.quiz_assignment;
+  const startSession = useMutation({
+    mutationFn: async (assignment: ProgramAssignment) => {
+      const data = await responseData(await fetch("/api/quiz-sessions", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ assignmentId: assignment.id }),
+      }));
+      if (data.questions) return { id: data.session.id, title: assignment.program.title, questions: data.questions as Question[] };
+      const existing = await responseData(await fetch(`/api/quiz-sessions/${data.sessionId}`, { headers: { Authorization: `Bearer ${token}` } }));
+      return { id: data.sessionId, title: assignment.program.title, questions: existing.questions as Question[] };
+    },
+    onSuccess: (value) => { setActiveSession(value); setQuestionIndex(0); setSessionAnswers({}); setSessionResult(null); },
+  });
+
+  const submitSession = useMutation({
+    mutationFn: async () => responseData(await fetch(`/api/quiz-sessions/${activeSession?.id}/submit`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+      body: JSON.stringify({ answers: activeSession?.questions.map((question) => ({ questionId: question.id, selectedAnswer: sessionAnswers[question.id] })) }),
+    })),
+    onSuccess: (result: SessionResult) => {
+      setSessionResult(result);
+      queryClient.invalidateQueries({ queryKey: ["quiz-program-assignments"] });
+    },
+  });
+
+  const currentSessionQuestion = activeSession?.questions[questionIndex];
+  const sessionFeedback = useMemo(() => sessionResult?.answers.find((item) => item.questionId === currentSessionQuestion?.id), [currentSessionQuestion?.id, sessionResult]);
+  const allAnswered = !!activeSession && activeSession.questions.every((question) => !!sessionAnswers[question.id]);
 
   return (
     <AuthGuard>
-      <div className="min-h-screen pt-24 pb-16">
-        <div className="max-w-4xl mx-auto px-6">
-          {/* Header Section */}
-          <motion.div
-            variants={fadeInUp}
-            initial="hidden"
-            animate="visible"
-            className="text-center mb-12"
-          >
-            <motion.div
-              initial={{ scale: 0 }}
-              animate={{ scale: 1 }}
-              transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
-              className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-accent/10 text-accent mb-6"
-            >
-              <Sparkles size={32} />
-            </motion.div>
-            <h1 className="text-4xl md:text-5xl font-display font-bold text-primary mb-4">
-              Adaptive Quiz
-            </h1>
-            <p className="text-muted text-lg max-w-xl mx-auto">
-              AI-generated questions from the official rulebook. Every answer is grounded and cited.
-            </p>
-          </motion.div>
+      <main className="min-h-screen pt-24 pb-16">
+        <div className="mx-auto max-w-5xl px-4 sm:px-6">
+          <header className="mb-8 border-b border-border pb-7">
+            <div className="flex items-center gap-3 text-accent"><Sparkles size={24} /><span className="text-xs font-bold uppercase tracking-[0.16em]">Official rules assessment</span></div>
+            <h1 className="mt-3 text-4xl font-display font-bold text-primary md:text-5xl">Referee quizzes</h1>
+            <p className="mt-3 max-w-2xl text-muted">Choose a discipline for adaptive practice or complete a frozen, assigned quiz program.</p>
+          </header>
 
-          {/* Adaptive status & New Question */}
-          <motion.div
-            variants={staggerContainer}
-            initial="hidden"
-            animate="visible"
-            className="flex flex-wrap items-center justify-center gap-3 mb-10"
-          >
-            <div className="inline-flex items-center gap-3 rounded-full bg-white border border-border px-5 py-2.5 shadow-sm">
-              <span className={`w-2 h-2 rounded-full ${difficultyColors[visibleDifficulty]}`} />
-              <span className="text-sm font-bold text-primary">
-                {visibleDifficultyLabel}
-              </span>
-              <span className="text-xs text-muted">{currentStreak}</span>
-            </div>
-            <motion.button
-              variants={staggerItem}
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.98 }}
-              onClick={() => generateMutation.mutate()}
-              disabled={generateMutation.isPending || adaptiveQuery.isLoading}
-              className="pill text-white"
-            >
-              {generateMutation.isPending ? (
-                <>
-                  <motion.span
-                    animate={{ rotate: 360 }}
-                    transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-                  >
-                    <Zap size={18} />
-                  </motion.span>
-                  Generating...
-                </>
-              ) : (
-                <>
-                  <Zap size={18} />
-                  New Question
-                </>
-              )}
-            </motion.button>
-          </motion.div>
-
-          {/* Feature Cards */}
-          <motion.div
-            variants={staggerContainer}
-            initial="hidden"
-            animate="visible"
-            className="grid grid-cols-3 gap-4 mb-10"
-          >
-            {[
-              { icon: Target, title: "Adaptive", desc: "Scales with you" },
-              { icon: BookOpen, title: "Cited", desc: "Rulebook grounded" },
-              { icon: Sparkles, title: "Tracked", desc: "Progress saved" },
-            ].map((item, i) => (
-              <motion.div
-                key={i}
-                variants={staggerItem}
-                className="card text-center py-4"
-              >
-                <item.icon size={20} className="mx-auto text-accent mb-2" />
-                <p className="text-sm font-semibold text-primary">{item.title}</p>
-                <p className="text-xs text-muted">{item.desc}</p>
-              </motion.div>
+          <div className="mb-8 inline-flex rounded-lg border border-border bg-white p-1">
+            {(["practice", "assigned"] as const).map((item) => (
+              <button key={item} type="button" onClick={() => setMode(item)} className={`rounded-md px-4 py-2 text-sm font-bold capitalize ${mode === item ? "bg-primary text-white" : "text-muted hover:text-primary"}`}>
+                {item === "practice" ? "Adaptive practice" : "Assigned programs"}
+              </button>
             ))}
-          </motion.div>
+          </div>
 
-          {quizAssignment?.assigned && (
-            <motion.div
-              variants={fadeInUp}
-              initial="hidden"
-              animate="visible"
-              className={`card mb-10 ${quizAssignment.passed ? "border-green-200 bg-green-50" : ""}`}
-            >
-              <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+          {mode === "practice" ? (
+            <section>
+              <div className="mb-7 flex flex-col gap-4 border-b border-border pb-7 sm:flex-row sm:items-end sm:justify-between">
                 <div>
-                  <p className="text-xs font-semibold uppercase tracking-wider text-muted mb-1">
-                    Assigned Quiz Quota
-                  </p>
-                  <h2 className="text-xl font-display font-bold text-primary">
-                    {quizAssignment.attempted}/{quizAssignment.question_quota} problems completed
-                  </h2>
-                  <p className="text-sm text-muted mt-1">
-                    {quizAssignment.correct} correct · {quizAssignment.score_percent}% score · required {quizAssignment.required_percent}%
-                  </p>
-                </div>
-                <span className={`inline-flex w-fit px-3 py-1 rounded-full text-sm font-bold border ${
-                  quizAssignment.passed
-                    ? "bg-green-100 text-green-700 border-green-200"
-                    : "bg-primary/10 text-primary border-primary/20"
-                }`}>
-                  {quizAssignment.passed ? "Quota Passed" : `${quizAssignment.remaining} remaining`}
-                </span>
-              </div>
-              <div className="mt-4 h-2 rounded-full bg-white border border-border overflow-hidden">
-                <div
-                  className={quizAssignment.passed ? "h-full bg-green-500" : "h-full bg-primary"}
-                  style={{ width: `${Math.min(100, Math.round((quizAssignment.attempted / quizAssignment.question_quota) * 100))}%` }}
-                />
-              </div>
-            </motion.div>
-          )}
-
-          {/* Question Card */}
-          <AnimatePresence mode="wait">
-            {current ? (
-              <motion.div
-                key={current.question}
-                variants={fadeInUp}
-                initial="hidden"
-                animate="visible"
-                exit={{ opacity: 0, y: 20 }}
-                className="card space-y-6"
-              >
-                {/* Question */}
-                <div>
-                  <div className="flex items-center gap-2 mb-3">
-                    <span className={`w-2 h-2 rounded-full ${difficultyColors[visibleDifficulty]}`} />
-                    <span className="text-xs font-semibold uppercase tracking-wider text-muted">
-                      {visibleDifficultyLabel} Question
-                    </span>
+                  <label className="text-xs font-bold uppercase tracking-[0.14em] text-muted">Discipline</label>
+                  <div className="mt-2 inline-flex rounded-lg border border-border bg-white p-1">
+                    <button type="button" disabled={generatePractice.isPending} onClick={() => setDiscipline("indoor")} className={`flex items-center gap-2 rounded-md px-4 py-2 text-sm font-bold ${discipline === "indoor" ? "bg-secondary text-white" : "text-muted"}`}><Target size={16} /> Indoor</button>
+                    <button type="button" disabled={generatePractice.isPending} onClick={() => setDiscipline("beach")} className={`flex items-center gap-2 rounded-md px-4 py-2 text-sm font-bold ${discipline === "beach" ? "bg-secondary text-white" : "text-muted"}`}><Waves size={16} /> Beach</button>
                   </div>
-                  <h2 className="text-xl md:text-2xl font-display font-bold text-primary">
-                    {current.question}
-                  </h2>
                 </div>
-
-                {/* Options */}
-                <div className="grid md:grid-cols-2 gap-3 relative z-10">
-                  {options.map((opt, idx) => {
-                    const letter = String.fromCharCode(65 + idx);
-                    const isSelected = selected === opt;
-                    const isCorrect = result && opt === current.answer;
-                    const isWrong = result === "incorrect" && isSelected;
-                    
-                    return (
-                      <button
-                        key={opt}
-                        type="button"
-                        onClick={() => !result && setSelected(opt)}
-                        disabled={!!result}
-                        className={`p-4 rounded-xl border-2 text-left transition-all hover:scale-[1.02] active:scale-[0.98] ${
-                          isCorrect
-                            ? "border-green-500 bg-green-50"
-                            : isWrong
-                              ? "border-red-500 bg-red-50"
-                              : isSelected
-                                ? "border-accent bg-accent/5"
-                                : "border-border hover:border-accent/40 bg-white"
-                        }`}
-                      >
-                        <div className="flex items-start gap-3">
-                          <span className={`flex-shrink-0 w-8 h-8 rounded-lg flex items-center justify-center font-bold text-sm ${
-                            isCorrect
-                              ? "bg-green-500 text-white"
-                              : isWrong
-                                ? "bg-red-500 text-white"
-                                : isSelected
-                                  ? "bg-accent text-white"
-                                  : "bg-surface text-primary"
-                          }`}>
-                            {isCorrect ? (
-                              <CheckCircle2 size={18} />
-                            ) : isWrong ? (
-                              <XCircle size={18} />
-                            ) : (
-                              letter
-                            )}
-                          </span>
-                          <span className={`text-sm md:text-base ${
-                            isCorrect || isWrong ? "font-medium" : ""
-                          } ${isCorrect ? "text-green-700" : isWrong ? "text-red-700" : "text-ink"}`}>
-                            {opt}
-                          </span>
-                        </div>
-                      </button>
-                    );
+                <button type="button" onClick={() => generatePractice.mutate()} disabled={generatePractice.isPending} className="inline-flex h-11 items-center justify-center gap-2 rounded-lg bg-primary px-5 text-sm font-bold text-white disabled:opacity-50">
+                  {generatePractice.isPending ? <Loader2 size={17} className="animate-spin" /> : <Zap size={17} />} {practiceQuestion ? "Generate another" : "Generate question"}
+                </button>
+              </div>
+              {generatePractice.isError && <ErrorMessage error={generatePractice.error as Error} />}
+              {practiceQuestion && (
+                <QuestionPanel question={practiceQuestion} selected={practiceSelection} onSelect={setPracticeSelection} locked={!!practiceFeedback} feedback={practiceFeedback}>
+                  {!practiceFeedback ? (
+                    <button type="button" onClick={() => submitPractice.mutate()} disabled={!practiceSelection || submitPractice.isPending} className="rounded-lg bg-accent px-5 py-3 text-sm font-bold text-white disabled:opacity-50">
+                      {submitPractice.isPending ? "Checking..." : "Submit answer"}
+                    </button>
+                  ) : <QuizQuestionReport accessToken={token} generatedQuizQuestionId={practiceQuestion.id} />}
+                </QuestionPanel>
+              )}
+            </section>
+          ) : activeSession ? (
+            <section>
+              <div className="mb-6 flex flex-wrap items-center justify-between gap-4 border-b border-border pb-5">
+                <div><p className="text-xs font-bold uppercase tracking-[0.14em] text-muted">{activeSession.title}</p><h2 className="mt-1 text-2xl font-display font-bold text-primary">Question {questionIndex + 1} of {activeSession.questions.length}</h2></div>
+                <button type="button" onClick={() => setActiveSession(null)} className="text-sm font-bold text-muted hover:text-primary">Exit session</button>
+              </div>
+              {sessionResult && <div className={`mb-6 border-l-4 p-4 ${sessionResult.passed ? "border-green-500 bg-green-50" : "border-red-500 bg-red-50"}`}><p className="text-2xl font-display font-bold text-primary">{sessionResult.scorePercent}% · {sessionResult.passed ? "Passed" : "Not passed"}</p><p className="mt-1 text-sm text-muted">{sessionResult.correctCount} of {sessionResult.questionCount} correct</p></div>}
+              {currentSessionQuestion && (
+                <QuestionPanel question={currentSessionQuestion} selected={sessionAnswers[currentSessionQuestion.id] || ""} onSelect={(answer) => setSessionAnswers((current) => ({ ...current, [currentSessionQuestion.id]: answer }))} locked={!!sessionResult} feedback={sessionFeedback || null}>
+                  <div className="flex flex-wrap items-center justify-between gap-3">
+                    <button type="button" onClick={() => setQuestionIndex((index) => Math.max(0, index - 1))} disabled={questionIndex === 0} className="inline-flex items-center gap-2 rounded-lg border border-border px-4 py-2 text-sm font-bold text-primary disabled:opacity-40"><ArrowLeft size={16} /> Previous</button>
+                    {sessionResult && <QuizQuestionReport accessToken={token} quizSessionQuestionId={currentSessionQuestion.id} />}
+                    {questionIndex < activeSession.questions.length - 1 ? (
+                      <button type="button" onClick={() => setQuestionIndex((index) => index + 1)} className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-bold text-white">Next <ArrowRight size={16} /></button>
+                    ) : !sessionResult ? (
+                      <button type="button" onClick={() => submitSession.mutate()} disabled={!allAnswered || submitSession.isPending} className="inline-flex items-center gap-2 rounded-lg bg-accent px-5 py-2 text-sm font-bold text-white disabled:opacity-50"><Trophy size={16} /> Submit quiz</button>
+                    ) : null}
+                  </div>
+                  {submitSession.isError && <ErrorMessage error={submitSession.error as Error} />}
+                </QuestionPanel>
+              )}
+            </section>
+          ) : (
+            <section>
+              <div className="mb-5"><h2 className="text-2xl font-display font-bold text-primary">Your programs</h2><p className="mt-1 text-sm text-muted">Discipline and referee level are fixed by the assignment.</p></div>
+              {programsQuery.isLoading ? <LoadingLabel label="Loading assigned programs" /> : programsQuery.isError ? <ErrorMessage error={programsQuery.error as Error} /> : (programsQuery.data?.assignments.length || 0) === 0 ? <p className="border-t border-border py-8 text-muted">No quiz programs are assigned.</p> : (
+                <div className="divide-y divide-border border-y border-border">
+                  {programsQuery.data?.assignments.map((assignment) => {
+                    const ready = assignment.sessions.find((item) => ["ready", "in_progress"].includes(item.status));
+                    const disabled = assignment.status === "completed" || assignment.status === "overdue";
+                    return <div key={assignment.id} className="grid gap-4 py-5 md:grid-cols-[1fr_auto] md:items-center">
+                      <div><div className="flex flex-wrap items-center gap-2"><h3 className="text-lg font-bold text-primary">{assignment.program.title}</h3><StatusBadge value={assignment.status} /></div><p className="mt-2 text-sm text-muted capitalize">{assignment.program.discipline} · {assignment.program.referee_level.replace("_", " ")} · {assignment.program.questions_per_quiz} questions · pass at {assignment.program.minimum_score_percent}%</p><p className="mt-1 text-sm font-semibold text-primary">{assignment.completedQuizzes}/{assignment.program.required_quiz_count} quizzes complete{assignment.program.due_at ? ` · Due ${new Date(assignment.program.due_at).toLocaleDateString()}` : ""}</p></div>
+                      <button type="button" disabled={disabled || startSession.isPending} onClick={() => ready ? loadSession(ready.id, assignment.program.title) : startSession.mutate(assignment)} className="h-10 rounded-lg bg-primary px-4 text-sm font-bold text-white disabled:opacity-40">{ready ? "Resume quiz" : "Start next quiz"}</button>
+                    </div>;
                   })}
                 </div>
-
-                {/* Submit Button */}
-                {!result && (
-                  <motion.button
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
-                    onClick={checkAnswer}
-                    disabled={!selected}
-                    className="pill text-white w-full justify-center disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
-                    Submit Answer
-                    <ArrowRight size={18} />
-                  </motion.button>
-                )}
-
-                {/* Result & Explanation */}
-                <AnimatePresence>
-                  {result && (
-                    <motion.div
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      className="space-y-4"
-                    >
-                      {/* Result Banner */}
-                      <div className={`p-4 rounded-xl ${
-                        result === "correct"
-                          ? "bg-green-100 border border-green-200"
-                          : "bg-red-100 border border-red-200"
-                      }`}>
-                        <div className="flex items-center gap-3">
-                          {result === "correct" ? (
-                            <CheckCircle2 className="text-green-600" size={24} />
-                          ) : (
-                            <XCircle className="text-red-600" size={24} />
-                          )}
-                          <span className={`font-bold text-lg ${
-                            result === "correct" ? "text-green-700" : "text-red-700"
-                          }`}>
-                            {result === "correct" ? "Correct!" : "Incorrect"}
-                          </span>
-                        </div>
-                      </div>
-
-                      {/* Explanation */}
-                      <div className="p-4 rounded-xl bg-surface border border-border">
-                        <p className="text-xs font-semibold uppercase tracking-wider text-muted mb-2">
-                          Explanation
-                        </p>
-                        <p className="text-ink">{current.explanation}</p>
-                        {current.rule_reference && (
-                          <p className="text-sm text-accent mt-3 font-medium">
-                            📖 Rule: {current.rule_reference}
-                          </p>
-                        )}
-                      </div>
-
-                      {/* Recommendation */}
-                      {recommendation && (
-                        <div className="p-4 rounded-xl bg-accent/10 border border-accent/20">
-                          <p className="text-sm font-semibold text-accent">
-                            💡 {recommendation}
-                          </p>
-                        </div>
-                      )}
-
-                      {/* Next Question Button */}
-                      <motion.button
-                        whileHover={{ scale: 1.02 }}
-                        whileTap={{ scale: 0.98 }}
-                        onClick={() => generateMutation.mutate()}
-                        disabled={generateMutation.isPending}
-                        className="pill text-white w-full justify-center disabled:opacity-80"
-                      >
-                        {generateMutation.isPending ? (
-                          <>
-                            <motion.span
-                              animate={{ rotate: 360 }}
-                              transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-                            >
-                              <Zap size={18} />
-                            </motion.span>
-                            Generating Question...
-                          </>
-                        ) : (
-                          <>
-                            Next Question
-                            <ArrowRight size={18} />
-                          </>
-                        )}
-                      </motion.button>
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-              </motion.div>
-            ) : (
-              <motion.div
-                variants={fadeInUp}
-                initial="hidden"
-                animate="visible"
-                className="card text-center py-16"
-              >
-                <motion.div
-                  animate={{ 
-                    scale: [1, 1.1, 1],
-                    rotate: [0, 5, -5, 0]
-                  }}
-                  transition={{ 
-                    duration: 2,
-                    repeat: Infinity,
-                    repeatType: "reverse"
-                  }}
-                  className="inline-flex items-center justify-center w-20 h-20 rounded-2xl bg-accent/10 text-accent mb-6"
-                >
-                  <Zap size={40} />
-                </motion.div>
-                <h3 className="text-xl font-display font-bold text-primary mb-2">
-                  Ready to Test Your Knowledge?
-                </h3>
-                <p className="text-muted mb-6">
-                  Click &quot;New Question&quot; to generate an AI-powered quiz question.
-                </p>
-                <motion.button
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.98 }}
-                  onClick={() => generateMutation.mutate()}
-                  disabled={generateMutation.isPending || adaptiveQuery.isLoading}
-                  className="pill text-white disabled:opacity-80"
-                >
-                  {generateMutation.isPending ? (
-                    <>
-                      <motion.span
-                        animate={{ rotate: 360 }}
-                        transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-                      >
-                        <Zap size={18} />
-                      </motion.span>
-                      Generating Question...
-                    </>
-                  ) : (
-                    <>
-                      <Zap size={18} />
-                      Generate Question
-                    </>
-                  )}
-                </motion.button>
-              </motion.div>
-            )}
-          </AnimatePresence>
+              )}
+              {startSession.isPending && <LoadingLabel label="Generating and validating the complete quiz" />}
+              {startSession.isError && <ErrorMessage error={startSession.error as Error} />}
+            </section>
+          )}
         </div>
-      </div>
+      </main>
     </AuthGuard>
   );
 }
+
+function QuestionPanel({ question, selected, onSelect, locked, feedback, children }: { question: Question; selected: string; onSelect: (value: string) => void; locked: boolean; feedback: Feedback | null; children: React.ReactNode }) {
+  return <div>
+    <div className="mb-4 flex flex-wrap gap-2 text-xs font-bold uppercase tracking-[0.12em] text-muted"><span>{question.discipline}</span><span>·</span><span>{question.difficulty}</span><span>·</span><span>{question.topic.replaceAll("_", " ")}</span></div>
+    <h2 className="max-w-3xl text-xl font-display font-bold leading-8 text-primary md:text-2xl">{question.question}</h2>
+    <div className="mt-6 grid gap-3">
+      {question.options.map((option, index) => {
+        const isCorrect = feedback?.answer === option;
+        const isWrong = !!feedback && selected === option && !feedback.correct;
+        return <button key={option} type="button" disabled={locked} onClick={() => onSelect(option)} className={`grid min-h-14 grid-cols-[2rem_1fr] items-center gap-3 rounded-lg border px-4 py-3 text-left text-sm font-semibold transition ${isCorrect ? "border-green-500 bg-green-50 text-green-900" : isWrong ? "border-red-400 bg-red-50 text-red-900" : selected === option ? "border-primary bg-primary/5 text-primary" : "border-border bg-white text-ink hover:border-primary/40"}`}><span className="flex h-8 w-8 items-center justify-center rounded-full border border-current text-xs">{String.fromCharCode(65 + index)}</span><span>{option}</span></button>;
+      })}
+    </div>
+    {feedback && <div className={`mt-5 border-l-4 p-4 ${feedback.correct ? "border-green-500 bg-green-50" : "border-red-500 bg-red-50"}`}><div className="flex items-center gap-2 font-bold text-primary">{feedback.correct ? <CheckCircle2 size={18} /> : <XCircle size={18} />}{feedback.correct ? "Correct" : "Incorrect"}</div><p className="mt-2 text-sm leading-6 text-ink">{feedback.explanation}</p><div className="mt-3 flex items-start gap-2 text-sm text-muted"><BookOpen size={16} className="mt-0.5 shrink-0" /><span><strong>{feedback.ruleReference}</strong>{feedback.sourceTitle ? ` · ${feedback.sourceTitle}` : ""}<br />{feedback.sourceExcerpt}</span></div></div>}
+    <div className="mt-6">{children}</div>
+  </div>;
+}
+
+function StatusBadge({ value }: { value: ProgramAssignment["status"] }) {
+  const style = value === "completed" ? "bg-green-100 text-green-800" : value === "overdue" ? "bg-red-100 text-red-800" : "bg-primary/10 text-primary";
+  return <span className={`rounded-full px-2.5 py-1 text-xs font-bold capitalize ${style}`}>{value.replace("_", " ")}</span>;
+}
+function ErrorMessage({ error }: { error: Error }) { return <p className="mt-4 border-l-4 border-red-500 bg-red-50 p-3 text-sm font-semibold text-red-700">{error.message}</p>; }
+function LoadingLabel({ label }: { label: string }) { return <p className="mt-5 inline-flex items-center gap-2 text-sm font-semibold text-muted"><Loader2 size={16} className="animate-spin" />{label}</p>; }

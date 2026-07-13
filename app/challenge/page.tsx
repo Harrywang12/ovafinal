@@ -34,7 +34,6 @@ export default function ChallengePage() {
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const hasPausedRef = useRef(false);
   const submittedRef = useRef(false);
-  const questionStartMsRef = useRef<number | null>(null);
 
   const isAnswered = useMemo(() => evaluationResult !== null || evaluationError !== null, [evaluationResult, evaluationError]);
 
@@ -49,9 +48,10 @@ export default function ChallengePage() {
       return res.json();
     }
   });
+  const question = challengeQuery.data?.question;
 
   useEffect(() => {
-    if (challengeQuery.data?.question) {
+    if (question) {
       setPhase("idle");
       setTimeLeftMs(null);
       setSelectedIndex(null);
@@ -60,7 +60,6 @@ export default function ChallengePage() {
 
       hasPausedRef.current = false;
       submittedRef.current = false;
-      questionStartMsRef.current = null;
 
       const v = videoRef.current;
       if (v) {
@@ -72,7 +71,7 @@ export default function ChallengePage() {
         }
       }
     }
-  }, [challengeQuery.data?.question?.id]);
+  }, [question]);
 
   // Answer-window countdown (ms precision)
   useEffect(() => {
@@ -81,7 +80,6 @@ export default function ChallengePage() {
 
     const totalMs = (q.answer_window_seconds as number) * 1000;
     const start = performance.now();
-    questionStartMsRef.current = start;
     setTimeLeftMs(totalMs);
 
     const interval = window.setInterval(() => {
@@ -138,7 +136,6 @@ export default function ChallengePage() {
     }
   });
 
-  const question = challengeQuery.data?.question;
   const leaderboard = challengeQuery.data?.leaderboard || [];
   const alreadyAttempted = challengeQuery.data?.already_attempted === true;
 
@@ -181,8 +178,8 @@ export default function ChallengePage() {
     setSelectedIndex(idx);
     setEvaluationError(null);
 
-    const started = questionStartMsRef.current;
-    const timeTakenMs = started ? Math.max(0, Math.floor(performance.now() - started)) : undefined;
+    const totalMs = question.answer_window_seconds * 1000;
+    const timeTakenMs = timeLeftMs === null ? undefined : Math.max(0, Math.floor(totalMs - timeLeftMs));
 
     submitMutation.mutate({
       question_id: question.id,
@@ -414,7 +411,7 @@ export default function ChallengePage() {
                                 whileHover={!locked ? { scale: 1.01 } : {}}
                                 whileTap={!locked ? { scale: 0.99 } : {}}
                                 onClick={() => submitSelection(idx)}
-                                disabled={locked || submitMutation.isPending || submittedRef.current}
+                                disabled={locked || submitMutation.isPending}
                                 className={`w-full text-left px-4 py-3 rounded-xl border transition-colors ${
                                   isPicked
                                     ? "border-accent bg-accent/10 text-ink"

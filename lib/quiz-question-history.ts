@@ -2,11 +2,11 @@ import { createHash } from "crypto";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { QuestionLevel } from "./learning";
 
-export type QuizQuestionScope = "adaptive" | "module";
+export type QuizQuestionScope = "adaptive" | "module" | "program";
 
 export type QuizQuestionNovelty = {
   duplicate: boolean;
-  reason: "exact" | "similar" | null;
+  reason: "exact" | "similar" | "rule" | "topic" | "scenario" | "role" | "decision" | null;
   maxSimilarity: number;
   similarQuestion: string | null;
 };
@@ -21,9 +21,27 @@ type HistoryScopeParams = {
 type RecordHistoryParams = HistoryScopeParams & {
   questionLevel?: QuestionLevel | null;
   question: unknown;
+  quizSessionId?: string | null;
 };
 
 type AssessNoveltyParams = HistoryScopeParams & {
+  questionText: string;
+  metadata?: QuizQuestionMetadata;
+};
+
+export type QuizQuestionMetadata = {
+  discipline?: string | null;
+  refereeLevel?: string | null;
+  topic?: string | null;
+  subtopic?: string | null;
+  ruleId?: string | null;
+  ruleReference?: string | null;
+  scenarioType?: string | null;
+  refereeRole?: string | null;
+  decisionType?: string | null;
+};
+
+export type StructuredQuizHistory = QuizQuestionMetadata & {
   questionText: string;
 };
 
@@ -142,12 +160,71 @@ export async function getRecentQuizQuestionHistory({
   }
 }
 
+export async function getRecentStructuredQuizHistory({
+  supabase,
+  userId,
+  scope,
+  moduleId = null,
+}: HistoryScopeParams): Promise<StructuredQuizHistory[]> {
+  try {
+    let query = supabase
+      .from("quiz_question_history")
+      .select("question_text, discipline, referee_level, topic, subtopic, rule_id, rule_reference, scenario_type, referee_role, decision_type")
+      .eq("user_id", userId)
+      .eq("scope", scope)
+      .order("created_at", { ascending: false })
+      .limit(RECENT_PROMPT_HISTORY_LIMIT);
+    query = applyModuleFilter(query, moduleId);
+    const { data, error } = await query;
+    if (error) throw error;
+    return (data || []).map((row) => ({
+      questionText: row.question_text,
+      discipline: row.discipline,
+      refereeLevel: row.referee_level,
+      topic: row.topic,
+      subtopic: row.subtopic,
+      ruleId: row.rule_id,
+      ruleReference: row.rule_reference,
+      scenarioType: row.scenario_type,
+      refereeRole: row.referee_role,
+      decisionType: row.decision_type,
+    }));
+  } catch (error) {
+    console.warn("Structured quiz history lookup failed:", error);
+    return [];
+  }
+}
+
+export function assessStructuredRepetition(
+  recent: StructuredQuizHistory[],
+  metadata: QuizQuestionMetadata
+): QuizQuestionNovelty | null {
+  const checks: Array<{ key: keyof QuizQuestionMetadata; limit: number; max: number; reason: NonNullable<QuizQuestionNovelty["reason"]> }> = [
+    { key: "ruleId", limit: 8, max: 0, reason: "rule" },
+    { key: "scenarioType", limit: 5, max: 0, reason: "scenario" },
+    { key: "decisionType", limit: 5, max: 0, reason: "decision" },
+    { key: "topic", limit: 10, max: 2, reason: "topic" },
+    { key: "subtopic", limit: 10, max: 1, reason: "topic" },
+    { key: "refereeRole", limit: 10, max: 3, reason: "role" },
+  ];
+  for (const check of checks) {
+    const value = metadata[check.key];
+    if (!value) continue;
+    const count = recent.slice(0, check.limit).filter((item) => item[check.key] === value).length;
+    if (count > check.max) {
+      return { duplicate: true, reason: check.reason, maxSimilarity: 1, similarQuestion: null };
+    }
+  }
+  return null;
+}
+
 export async function assessQuizQuestionNovelty({
   supabase,
   userId,
   scope,
   moduleId = null,
   questionText,
+  metadata,
 }: AssessNoveltyParams): Promise<QuizQuestionNovelty> {
   const trimmedText = questionText.trim();
   if (!trimmedText) {
@@ -172,6 +249,12 @@ export async function assessQuizQuestionNovelty({
     query = applyModuleFilter(query, moduleId);
     const { data, error } = await query;
     if (error) throw error;
+
+    if (metadata) {
+      const structured = await getRecentStructuredQuizHistory({ supabase, userId, scope, moduleId });
+      const repetition = assessStructuredRepetition(structured, metadata);
+      if (repetition) return repetition;
+    }
 
     const currentCounts = tokenCounts(trimmedText);
     let maxSimilarity = 0;
@@ -247,11 +330,13 @@ export async function recordQuizQuestionHistory({
   moduleId = null,
   questionLevel = null,
   question,
+  quizSessionId = null,
 }: RecordHistoryParams): Promise<void> {
   const questionText = extractQuizQuestionText(question);
   if (!questionText) return;
 
   try {
+    const metadata = question as QuizQuestionMetadata;
     const { error } = await supabase.from("quiz_question_history").insert({
       user_id: userId,
       scope,
@@ -259,6 +344,16 @@ export async function recordQuizQuestionHistory({
       question_level: questionLevel,
       question_text: questionText,
       question_signature: quizQuestionSignature(questionText),
+      discipline: metadata.discipline ?? null,
+      referee_level: metadata.refereeLevel ?? null,
+      topic: metadata.topic ?? null,
+      subtopic: metadata.subtopic ?? null,
+      rule_id: metadata.ruleId ?? null,
+      rule_reference: metadata.ruleReference ?? null,
+      scenario_type: metadata.scenarioType ?? null,
+      referee_role: metadata.refereeRole ?? null,
+      decision_type: metadata.decisionType ?? null,
+      quiz_session_id: quizSessionId,
     });
     if (error && error.code !== "23505") throw error;
     await pruneQuizQuestionHistory({ supabase, userId, scope, moduleId });

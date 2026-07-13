@@ -6,6 +6,8 @@ import { requireAdminFromRequest } from "../../../../lib/admin";
 
 export const runtime = "nodejs";
 export const maxDuration = 60; // 60 seconds for upload processing
+const MAX_VIDEO_BYTES = 100 * 1024 * 1024;
+const ALLOWED_VIDEO_TYPES = new Set(["video/mp4", "video/webm", "video/quicktime"]);
 
 /**
  * POST /api/admin/upload-video
@@ -43,6 +45,13 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "No file provided" }, { status: 400 });
   }
 
+  if (!ALLOWED_VIDEO_TYPES.has(file.type)) {
+    return NextResponse.json({ error: "Only MP4, WebM, and QuickTime video files are accepted" }, { status: 415 });
+  }
+  if (file.size <= 0 || file.size > MAX_VIDEO_BYTES) {
+    return NextResponse.json({ error: "Video must be between 1 byte and 100 MB" }, { status: 413 });
+  }
+
   const buffer = Buffer.from(await file.arrayBuffer());
   const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, "-");
   const path = `videos/${crypto.randomUUID()}-${safeName}`;
@@ -50,7 +59,7 @@ export async function POST(request: Request) {
   const supabase = getServerSupabase();
   const { data, error } = await supabase.storage
     .from("practice-clips")
-    .upload(path, buffer, { contentType: file.type || "video/mp4", upsert: true });
+    .upload(path, buffer, { contentType: file.type, upsert: false });
 
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 500 });

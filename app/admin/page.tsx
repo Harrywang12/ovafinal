@@ -19,6 +19,8 @@ import {
   Library,
   Activity,
   Settings2,
+  ClipboardList,
+  Flag,
 } from "lucide-react";
 import { AuthGuard } from "../../components/auth-guard";
 import { useSupabaseAuth } from "../../lib/useSupabaseAuth";
@@ -445,6 +447,8 @@ export default function AdminPage() {
                       {panel === "videos" ? "Video library" : panel === "learning" ? "Learning" : "Admin access"}
                     </motion.button>
                   ))}
+                  <Link className="admin-tab" href="/admin/quiz-programs"><ClipboardList size={16} /> Quiz programs</Link>
+                  <Link className="admin-tab" href="/admin/question-flags"><Flag size={16} /> Question reports</Link>
                 </div>
 
                 <div className="flex items-center gap-2">

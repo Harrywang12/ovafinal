@@ -20,9 +20,9 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Invalid JSON body" }, { status: 400 });
   }
 
-  const module = body.module_id ? getModuleBySlug(body.module_id) : undefined;
-  const lesson = module?.lessons.find((l) => l.id === body.lesson_id);
-  if (!module || !lesson) {
+  const learningModule = body.module_id ? getModuleBySlug(body.module_id) : undefined;
+  const lesson = learningModule?.lessons.find((l) => l.id === body.lesson_id);
+  if (!learningModule || !lesson) {
     return NextResponse.json({ error: "Valid module_id and lesson_id required" }, { status: 400 });
   }
 
@@ -30,7 +30,7 @@ export async function POST(request: Request) {
   const { error } = await supabase.from("module_lesson_progress").upsert(
     {
       user_id: user.userId,
-      module_id: module.id,
+      module_id: learningModule.id,
       lesson_id: lesson.id,
       viewed_at: new Date().toISOString(),
     },
