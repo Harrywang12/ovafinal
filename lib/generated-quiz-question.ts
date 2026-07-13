@@ -48,6 +48,10 @@ export function parseGeneratedQuestionJson(content: string): unknown {
   return JSON.parse(trimmed);
 }
 
+function normalizeEvidenceText(text: string) {
+  return text.toLowerCase().replace(/[^a-z0-9]+/g, " ").replace(/\s+/g, " ").trim();
+}
+
 export function validateGeneratedQuestion(
   input: unknown,
   expected: { discipline: "indoor" | "beach"; refereeLevel: "level_1" | "level_2" | "level_3" | "level_4"; difficulty: "basic" | "applied" | "advanced" },
@@ -74,21 +78,22 @@ export function validateGeneratedQuestion(
   if (!citedChunks.some((chunk) => chunk.document_id === question.sourceDocumentId)) {
     throw new Error("Source document does not match the cited chunks");
   }
-  const normalizedExcerpt = question.sourceExcerpt.toLowerCase().replace(/\s+/g, " ").trim();
+  const normalizedExcerpt = normalizeEvidenceText(question.sourceExcerpt);
+  const excerptTokens = normalizedExcerpt.split(" ").filter((token) => token.length >= 3);
+  const bestExcerptCoverage = citedChunks.reduce((best, chunk) => {
+    const chunkTokens = new Set(normalizeEvidenceText(chunk.chunk_text).split(" "));
+    const matched = excerptTokens.filter((token) => chunkTokens.has(token)).length;
+    return Math.max(best, excerptTokens.length ? matched / excerptTokens.length : 0);
+  }, 0);
   const contextSupportsExcerpt = citedChunks.some((chunk) =>
-    chunk.chunk_text.toLowerCase().replace(/\s+/g, " ").includes(normalizedExcerpt)
-  );
-  if (!contextSupportsExcerpt) throw new Error("Source excerpt is not present in cited context");
-  const taggedRules = citedChunks
-    .map((chunk) => chunk.rule_number)
-    .filter((value): value is string => !!value);
-  if (taggedRules.length && !taggedRules.some((rule) => question.ruleId.includes(rule) || rule.includes(question.ruleId))) {
-    throw new Error("Rule ID does not match the cited source metadata");
+    normalizeEvidenceText(chunk.chunk_text).includes(normalizedExcerpt)
+  ) || bestExcerptCoverage >= 0.85;
+  if (!contextSupportsExcerpt) {
+    throw new Error(`Source excerpt is not supported by cited context (${Math.round(bestExcerptCoverage * 100)}% token coverage)`);
   }
-  const evidenceTokens = new Set(normalizedExcerpt.split(/[^a-z0-9]+/).filter((token) => token.length >= 4));
-  for (const [field, text] of [["answer", question.answer], ["explanation", question.explanation]] as const) {
-    const supported = text.toLowerCase().split(/[^a-z0-9]+/).some((token) => evidenceTokens.has(token));
-    if (!supported) throw new Error(`Generated ${field} is not supported by the cited excerpt`);
+  const excerptRule = question.sourceExcerpt.match(/\bRule\s+(\d+(?:\.\d+){0,4})\b/i)?.[1];
+  if (excerptRule && !question.ruleId.includes(excerptRule) && !excerptRule.includes(question.ruleId)) {
+    throw new Error("Rule ID does not match the explicit rule in the source excerpt");
   }
   return question;
 }

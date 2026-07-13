@@ -25,14 +25,14 @@ type GenerateQuestionInput = {
 
 function historySummary(history: StructuredQuizHistory[]) {
   const compact = <K extends keyof StructuredQuizHistory>(key: K) =>
-    Array.from(new Set(history.map((item) => item[key]).filter(Boolean))).slice(0, 20);
+    Array.from(new Set(history.map((item) => item[key]).filter(Boolean))).slice(0, 12);
   return {
     recentRuleIds: compact("ruleId"),
     recentTopics: compact("topic"),
     recentScenarioTypes: compact("scenarioType"),
     recentDecisionTypes: compact("decisionType"),
     recentRefereeRoles: compact("refereeRole"),
-    recentQuestionTexts: history.map((item) => item.questionText).filter(Boolean).slice(0, 30),
+    recentQuestionTexts: history.map((item) => item.questionText).filter(Boolean).slice(0, 15),
   };
 }
 
@@ -45,7 +45,7 @@ function formatSourceContext(chunks: RetrievedRuleChunk[]) {
     `RULESET: ${chunk.ruleset}`,
     `RULE_NUMBER: ${chunk.rule_number || "not tagged"}`,
     `SECTION: ${chunk.section_title || "not tagged"}`,
-    `TEXT: ${chunk.chunk_text}`,
+    `TEXT: ${chunk.chunk_text.slice(0, 3500)}`,
   ].join("\n")).join("\n\n---\n\n");
 }
 
@@ -64,6 +64,8 @@ function generationPrompt(input: GenerateQuestionInput, chunks: RetrievedRuleChu
 
 Requirements:
 - Exactly four unique, plausible, non-empty options and exactly one correct answer.
+- Every string field must contain a specific, non-empty value. In particular, subtopic must be a narrow concept such as "service_authorization" and must never be empty.
+- scenarioType and decisionType must be specific snake_case concepts such as "wrong_server_after_sideout" and "service_order_correction". Never use generic labels such as "game_scenario", "game scenario", "rule_application", or "decision".
 - The answer must exactly equal one option.
 - Copy a short supporting sourceExcerpt verbatim from one cited source chunk.
 - sourceChunkIds may contain only supplied SOURCE_CHUNK_ID values.
@@ -95,7 +97,7 @@ export async function generateGroundedQuizQuestion(input: GenerateQuestionInput)
   const chunks = await searchRuleChunks(
     `${input.discipline} volleyball ${input.topic} referee ${input.refereeLevel}`,
     { discipline: input.discipline, refereeLevel: input.refereeLevel, topic: input.topic, rulesets: [requiredRuleset] },
-    8
+    3
   );
   if (!chunks.length) {
     throw new QuizGenerationError("INSUFFICIENT_SOURCE_CONTEXT", "No suitable official source material was found for this question.", 422);
@@ -109,14 +111,22 @@ export async function generateGroundedQuizQuestion(input: GenerateQuestionInput)
   const history = [...(input.sessionHistory || []), ...databaseHistory];
   let lastError: unknown = null;
   const rejected: StructuredQuizHistory[] = [];
+  const generationStartedAt = Date.now();
 
-  for (let attempt = 0; attempt < (input.maxAttempts ?? 5); attempt += 1) {
+  for (let attempt = 0; attempt < (input.maxAttempts ?? 2); attempt += 1) {
+    const attemptStartedAt = Date.now();
     try {
       const prompt = generationPrompt(input, chunks, [...rejected, ...history]);
       const content = await llmChat([
         { role: "system", content: prompt.system },
         { role: "user", content: prompt.user },
-      ], input.refereeLevel === "level_1" ? "gpt-4o-mini" : "gpt-4o", { temperature: 0.75 });
+      ], input.refereeLevel === "level_1" ? "gpt-4o-mini" : "gpt-4o", {
+        temperature: 0.55,
+        maxTokens: 1000,
+        timeoutMs: 20_000,
+        maxRetries: 0,
+        jsonObject: true,
+      });
       const parsed = parseGeneratedQuestionJson(content);
       const question = validateGeneratedQuestion(parsed, input, chunks);
       const sessionRepetition = assessStructuredRepetition(input.sessionHistory || [], question);
@@ -132,18 +142,39 @@ export async function generateGroundedQuizQuestion(input: GenerateQuestionInput)
         questionText: question.question,
         metadata: question,
       });
-      if (!novelty.duplicate) return question;
+      if (!novelty.duplicate) {
+        console.info("Quiz generation accepted", {
+          discipline: input.discipline,
+          refereeLevel: input.refereeLevel,
+          topic: input.topic,
+          attempt: attempt + 1,
+          attemptMs: Date.now() - attemptStartedAt,
+          totalMs: Date.now() - generationStartedAt,
+        });
+        return question;
+      }
       rejected.unshift({ ...question, questionText: question.question });
       lastError = new Error(`Rejected repeated ${novelty.reason || "question"}`);
     } catch (error) {
       lastError = error;
     }
+    console.warn("Quiz generation attempt rejected", {
+      discipline: input.discipline,
+      refereeLevel: input.refereeLevel,
+      topic: input.topic,
+      attempt: attempt + 1,
+      attemptMs: Date.now() - attemptStartedAt,
+      reason: lastError instanceof Error ? lastError.message : "unknown",
+      candidateScenarioType: rejected[0]?.scenarioType || null,
+      candidateRuleId: rejected[0]?.ruleId || null,
+    });
   }
   console.warn("Quiz generation failed", {
     code: "UNIQUE_QUESTION_GENERATION_FAILED",
     discipline: input.discipline,
     refereeLevel: input.refereeLevel,
     topic: input.topic,
+    totalMs: Date.now() - generationStartedAt,
     reason: lastError instanceof Error ? lastError.message : "unknown",
   });
   throw new QuizGenerationError("UNIQUE_QUESTION_GENERATION_FAILED", "A sufficiently distinct question could not be generated.", 422);

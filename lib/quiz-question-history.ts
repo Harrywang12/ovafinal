@@ -201,8 +201,8 @@ export function assessStructuredRepetition(
 ): QuizQuestionNovelty | null {
   const checks: Array<{ key: keyof QuizQuestionMetadata; limit: number; max: number; reason: NonNullable<QuizQuestionNovelty["reason"]> }> = [
     { key: "ruleId", limit: 8, max: 0, reason: "rule" },
-    { key: "scenarioType", limit: 5, max: 0, reason: "scenario" },
-    { key: "decisionType", limit: 5, max: 0, reason: "decision" },
+    { key: "scenarioType", limit: 5, max: 1, reason: "scenario" },
+    { key: "decisionType", limit: 5, max: 1, reason: "decision" },
     { key: "topic", limit: 10, max: 2, reason: "topic" },
     { key: "subtopic", limit: 10, max: 1, reason: "topic" },
     { key: "refereeRole", limit: 10, max: 3, reason: "role" },

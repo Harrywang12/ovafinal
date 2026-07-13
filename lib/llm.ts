@@ -16,6 +16,9 @@ export interface ChatMessage {
 export interface LLMOptions {
   temperature?: number;
   maxTokens?: number;
+  timeoutMs?: number;
+  maxRetries?: number;
+  jsonObject?: boolean;
 }
 
 export async function llmChat(
@@ -23,13 +26,17 @@ export async function llmChat(
   model: LLMModel = DEFAULT_MODEL,
   options: LLMOptions = {}
 ) {
-  const { temperature = 0.7, maxTokens } = options;
+  const { temperature = 0.7, maxTokens, timeoutMs, maxRetries, jsonObject } = options;
   
   const completion = await client.chat.completions.create({
     model,
     messages,
     temperature,
-    ...(maxTokens && { max_tokens: maxTokens })
+    ...(maxTokens && { max_tokens: maxTokens }),
+    ...(jsonObject ? { response_format: { type: "json_object" as const } } : {}),
+  }, {
+    ...(timeoutMs ? { timeout: timeoutMs } : {}),
+    ...(maxRetries !== undefined ? { maxRetries } : {}),
   });
   return completion.choices[0]?.message?.content ?? "";
 }

@@ -38,7 +38,7 @@ describe("grounded generation integration", () => {
 
   it("generates an authenticated Beach Level 1-shaped question from Beach context", async () => {
     await expect(generateGroundedQuizQuestion(input)).resolves.toMatchObject({ discipline: "beach", refereeLevel: "level_1" });
-    expect(searchRuleChunks).toHaveBeenCalledWith(expect.any(String), expect.objectContaining({ discipline: "beach", refereeLevel: "level_1", rulesets: ["beach"] }), 8);
+    expect(searchRuleChunks).toHaveBeenCalledWith(expect.any(String), expect.objectContaining({ discipline: "beach", refereeLevel: "level_1", rulesets: ["beach"] }), 3);
   });
 
   it("regenerates an indoor metadata mismatch and never returns it", async () => {
@@ -55,6 +55,6 @@ describe("grounded generation integration", () => {
   it("never returns a duplicate fallback", async () => {
     vi.mocked(assessQuizQuestionNovelty).mockResolvedValue({ duplicate: true, reason: "similar", maxSimilarity: 0.9, similarQuestion: "old" });
     await expect(generateGroundedQuizQuestion(input)).rejects.toEqual(expect.objectContaining<Partial<QuizGenerationError>>({ code: "UNIQUE_QUESTION_GENERATION_FAILED" }));
-    expect(llmChat).toHaveBeenCalledTimes(5);
+    expect(llmChat).toHaveBeenCalledTimes(2);
   });
 });

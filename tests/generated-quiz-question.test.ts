@@ -51,6 +51,18 @@ describe("generated quiz question validation", () => {
     expect(() => validateGeneratedQuestion({ ...valid, sourceChunkIds: ["33333333-3333-4333-8333-333333333333"] }, { discipline: "beach", refereeLevel: "level_1", difficulty: "basic" }, [chunk])).toThrow(/unretrieved/i);
   });
 
+  it("accepts harmless punctuation differences in a verbatim source excerpt", () => {
+    const punctuatedChunk = {
+      ...chunk,
+      chunk_text: "Rule 12.4 — the server must contact the ball within the permitted service-time.",
+    };
+    expect(() => validateGeneratedQuestion(
+      { ...valid, sourceExcerpt: "the server must contact the ball within the permitted service time" },
+      { discipline: "beach", refereeLevel: "level_1", difficulty: "basic" },
+      [punctuatedChunk]
+    )).not.toThrow();
+  });
+
   it("rejects Rallyball wording from a standard Indoor question", () => {
     const indoorChunk = {
       ...chunk,

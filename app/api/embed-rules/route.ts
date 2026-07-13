@@ -25,7 +25,7 @@ const inputSchema = z.object({
 });
 
 function chunkMetadata(chunk: string) {
-  const rule = chunk.match(/\b(?:Rule\s+)?(\d+(?:\.\d+){0,4})\b/i)?.[1] || null;
+  const rule = chunk.match(/\bRule\s+(\d+(?:\.\d+){0,4})\b/i)?.[1] || null;
   const caseNumber = chunk.match(/\bCase\s+(\d+(?:\.\d+)*)\b/i)?.[1] || null;
   const firstLine = chunk.split(/\n/).map((line) => line.trim()).find((line) => line.length >= 4 && line.length <= 120);
   return { rule_number: rule, case_number: caseNumber, section_title: firstLine || null };

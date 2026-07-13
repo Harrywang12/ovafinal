@@ -8,7 +8,10 @@ describe("question history", () => {
   });
 
   it("rejects recently repeated rule and scenario concepts", () => {
-    const history = [{ questionText: "Previous", ruleId: "12.4", scenarioType: "service_fault" }];
+    const history = [
+      { questionText: "Previous", ruleId: "12.4", scenarioType: "service_fault" },
+      { questionText: "Earlier", ruleId: "9.1", scenarioType: "service_fault" },
+    ];
     expect(assessStructuredRepetition(history, { ruleId: "12.4" })?.reason).toBe("rule");
     expect(assessStructuredRepetition(history, { scenarioType: "service_fault" })?.reason).toBe("scenario");
   });

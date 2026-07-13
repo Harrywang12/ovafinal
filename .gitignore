@@ -47,3 +47,4 @@ coverage/
 .turbo/
 .vercel/
 .netlify/
+.vercel
