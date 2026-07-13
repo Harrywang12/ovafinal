@@ -1,5 +1,6 @@
 import { embedText } from "./embeddings";
 import { getServerSupabase } from "./supabase";
+import type { RuleSet } from "./rule-source-classification";
 
 export interface RetrievedChunk {
   chunk: string;
@@ -12,6 +13,7 @@ export interface RetrievedRuleChunk {
   document_title: string;
   document_type: string;
   discipline: "indoor" | "beach";
+  ruleset: RuleSet;
   chunk_text: string;
   page_number: number | null;
   rule_number: string | null;
@@ -28,6 +30,7 @@ export type RuleSearchFilters = {
   refereeLevel: "level_1" | "level_2" | "level_3" | "level_4";
   documentTypes?: string[];
   topic?: string;
+  rulesets?: RuleSet[];
 };
 
 export function chunkText(text: string, chunkSize = 800, overlap = 80): string[] {
@@ -69,6 +72,7 @@ export async function searchRuleChunks(
     filter_referee_level: filters.refereeLevel,
     filter_document_types: filters.documentTypes?.length ? filters.documentTypes : null,
     filter_topic: filters.topic || null,
+    filter_rulesets: filters.rulesets?.length ? filters.rulesets : null,
   });
   if (error) throw error;
   return (data as RetrievedRuleChunk[]) || [];

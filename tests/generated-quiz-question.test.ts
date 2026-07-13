@@ -4,6 +4,7 @@ import { generatedQuizQuestionSchema, validateGeneratedQuestion } from "../lib/g
 const chunk = {
   id: "11111111-1111-4111-8111-111111111111",
   document_id: "22222222-2222-4222-8222-222222222222",
+  ruleset: "beach" as const,
   chunk_text: "Rule 12.4 requires the server to contact the ball within the permitted service time.",
 };
 
@@ -48,5 +49,26 @@ describe("generated quiz question validation", () => {
   it("rejects source excerpts and IDs outside retrieved context", () => {
     expect(() => validateGeneratedQuestion({ ...valid, sourceExcerpt: "This sentence does not occur in the source context." }, { discipline: "beach", refereeLevel: "level_1", difficulty: "basic" }, [chunk])).toThrow(/excerpt/i);
     expect(() => validateGeneratedQuestion({ ...valid, sourceChunkIds: ["33333333-3333-4333-8333-333333333333"] }, { discipline: "beach", refereeLevel: "level_1", difficulty: "basic" }, [chunk])).toThrow(/unretrieved/i);
+  });
+
+  it("rejects Rallyball wording from a standard Indoor question", () => {
+    const indoorChunk = {
+      ...chunk,
+      ruleset: "standard_indoor" as const,
+      chunk_text: "A team rotates before serving when it has gained the right to serve.",
+    };
+    const indoorQuestion = {
+      ...valid,
+      discipline: "indoor",
+      question: "After a three-ball sequence, which player serves next?",
+      answer: "Serve within the permitted time",
+      explanation: "The player must serve within the permitted sequence.",
+      sourceExcerpt: "A team rotates before serving when it has gained the right to serve.",
+    };
+    expect(() => validateGeneratedQuestion(
+      indoorQuestion,
+      { discipline: "indoor", refereeLevel: "level_1", difficulty: "basic" },
+      [indoorChunk]
+    )).toThrow(/Rallyball|Tripleball/i);
   });
 });

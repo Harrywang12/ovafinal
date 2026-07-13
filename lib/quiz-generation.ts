@@ -42,6 +42,7 @@ function formatSourceContext(chunks: RetrievedRuleChunk[]) {
     `SOURCE_DOCUMENT_ID: ${chunk.document_id}`,
     `SOURCE_TITLE: ${chunk.document_title}`,
     `DOCUMENT_TYPE: ${chunk.document_type}`,
+    `RULESET: ${chunk.ruleset}`,
     `RULE_NUMBER: ${chunk.rule_number || "not tagged"}`,
     `SECTION: ${chunk.section_title || "not tagged"}`,
     `TEXT: ${chunk.chunk_text}`,
@@ -54,8 +55,11 @@ function generationPrompt(input: GenerateQuestionInput, chunks: RetrievedRuleChu
     : input.refereeLevel === "level_2"
       ? "Test referee responsibilities, authority, positioning, cooperation, communication, procedures, or match management through a role-based scenario; do not merely ask harder rule recall."
       : "Stay within the assigned referee level while using a realistic applied officiating scenario.";
+  const formatGuidance = input.discipline === "indoor"
+    ? "This is standard six-player Indoor volleyball. Never use Rallyball, Tripleball, tossed-ball sequences, three-ball sequences, or youth game variations."
+    : "This is two-player Beach volleyball. Do not use Indoor or Rallyball procedures.";
   return {
-    system: `You generate official-source-grounded volleyball referee MCQs. Generate exactly one ${input.discipline} question for ${input.refereeLevel}. Use only the supplied source excerpts. Never use outside knowledge or unsupported assumptions. ${levelGuidance} Return JSON only.`,
+    system: `You generate official-source-grounded volleyball referee MCQs. Generate exactly one ${input.discipline} question for ${input.refereeLevel}. ${formatGuidance} Use only the supplied source excerpts. Never use outside knowledge or unsupported assumptions. ${levelGuidance} Return JSON only.`,
     user: `Create one realistic game scenario for topic "${input.topic}" at ${input.difficulty} difficulty.
 
 Requirements:
@@ -87,9 +91,10 @@ ${JSON.stringify({
 }
 
 export async function generateGroundedQuizQuestion(input: GenerateQuestionInput): Promise<GeneratedQuizQuestion> {
+  const requiredRuleset = input.discipline === "indoor" ? "standard_indoor" : "beach";
   const chunks = await searchRuleChunks(
     `${input.discipline} volleyball ${input.topic} referee ${input.refereeLevel}`,
-    { discipline: input.discipline, refereeLevel: input.refereeLevel, topic: input.topic },
+    { discipline: input.discipline, refereeLevel: input.refereeLevel, topic: input.topic, rulesets: [requiredRuleset] },
     8
   );
   if (!chunks.length) {

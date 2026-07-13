@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { quizDifficultySchema, quizDisciplineSchema, refereeLevelSchema } from "./quiz-programs";
+import { containsRallyballContent, type RuleSet } from "./rule-source-classification";
 
 export const refereeRoleSchema = z.enum([
   "first_referee",
@@ -50,12 +51,22 @@ export function parseGeneratedQuestionJson(content: string): unknown {
 export function validateGeneratedQuestion(
   input: unknown,
   expected: { discipline: "indoor" | "beach"; refereeLevel: "level_1" | "level_2" | "level_3" | "level_4"; difficulty: "basic" | "applied" | "advanced" },
-  validChunks: Array<{ id: string; document_id: string; chunk_text: string }>
+  validChunks: Array<{ id: string; document_id: string; chunk_text: string; ruleset: RuleSet; rule_number?: string | null }>
 ): GeneratedQuizQuestion {
   const question = generatedQuizQuestionSchema.parse(input);
   if (question.discipline !== expected.discipline) throw new Error("Generated discipline does not match the request");
   if (question.refereeLevel !== expected.refereeLevel) throw new Error("Generated referee level does not match the request");
   if (question.difficulty !== expected.difficulty) throw new Error("Generated difficulty does not match the request");
+  const requiredRuleset = expected.discipline === "indoor" ? "standard_indoor" : "beach";
+  if (validChunks.some((chunk) => chunk.ruleset !== requiredRuleset)) {
+    throw new Error(`Retrieved source ruleset does not match ${expected.discipline} generation`);
+  }
+  if (expected.discipline === "indoor") {
+    const generatedText = [question.question, ...question.options, question.explanation, question.sourceExcerpt].join(" ");
+    if (containsRallyballContent(generatedText)) {
+      throw new Error("Generated Indoor question contains Rallyball or Tripleball content");
+    }
+  }
 
   const validIds = new Set(validChunks.map((chunk) => chunk.id));
   if (question.sourceChunkIds.some((id) => !validIds.has(id))) throw new Error("Generated question cited an unretrieved source chunk");
@@ -69,7 +80,7 @@ export function validateGeneratedQuestion(
   );
   if (!contextSupportsExcerpt) throw new Error("Source excerpt is not present in cited context");
   const taggedRules = citedChunks
-    .map((chunk) => (chunk as typeof chunk & { rule_number?: string | null }).rule_number)
+    .map((chunk) => chunk.rule_number)
     .filter((value): value is string => !!value);
   if (taggedRules.length && !taggedRules.some((rule) => question.ruleId.includes(rule) || rule.includes(question.ruleId))) {
     throw new Error("Rule ID does not match the cited source metadata");

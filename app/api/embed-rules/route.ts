@@ -5,6 +5,7 @@ import { requireAdminFromRequest } from "../../../lib/admin";
 import { embedChunks } from "../../../lib/embeddings";
 import { quizDisciplineSchema, refereeLevelSchema } from "../../../lib/quiz-programs";
 import { chunkText } from "../../../lib/rag";
+import { classifyRuleChunk } from "../../../lib/rule-source-classification";
 import { getServerSupabase } from "../../../lib/supabase";
 import { assertEnv } from "../../../lib/utils";
 
@@ -62,6 +63,7 @@ export async function POST(request: Request) {
       embedding: embeddings[index],
       page_number: null,
       topic: input.topic || null,
+      ruleset: classifyRuleChunk(chunk, input.discipline),
       minimum_referee_level: input.minimumRefereeLevel || "level_1",
       maximum_referee_level: input.maximumRefereeLevel || "level_4",
       ...chunkMetadata(chunk),

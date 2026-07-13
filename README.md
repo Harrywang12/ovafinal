@@ -109,6 +109,7 @@ Open `http://localhost:3000`.
 - The migration adds normalized sources, secure generated questions, quiz programs, assignments, frozen sessions, server-graded answers, structured history, flags, quotas, indexes, and RLS policies.
 - Existing `rules_embeddings` rows are preserved for compatibility, but cannot be safely classified as Indoor or Beach. Re-upload and embed official PDFs with metadata. Scored generation returns `INSUFFICIENT_SOURCE_CONTEXT` instead of falling back to unrelated text.
 - The filtered `match_rule_chunks` RPC powers scored quiz generation. Legacy `match_rules` remains for existing tutor and module features.
+- Apply `supabase/migrations/20260713000000_rule_chunk_rulesets.sql` after the structured quiz migration. It separates standard Indoor chunks from Rallyball, Tripleball, and other variations contained in combined rulebooks.
 
 ## Notes
 - All API routes use Node runtime for OpenAI + PDF parsing.
