@@ -1,4 +1,5 @@
 import { getServerSupabase } from "./supabase";
+import { getRequestSupabase } from "./supabase-server";
 import {
   normalizeRefereeLevel,
   questionLevelForRefereeLevel,
@@ -17,15 +18,15 @@ export type RequestUser =
 export async function requireUserFromRequest(request: Request): Promise<RequestUser> {
   const authHeader = request.headers.get("authorization") || request.headers.get("Authorization") || "";
   const token = authHeader.startsWith("Bearer ") ? authHeader.slice(7) : "";
-  if (!token) {
+  const authClient = token ? getServerSupabase() : await getRequestSupabase();
+  const { data, error } = token
+    ? await authClient.auth.getUser(token)
+    : await authClient.auth.getUser();
+  if (error || !data?.user) {
     return { ok: false, status: 401, error: "Unauthorized" };
   }
 
   const supabase = getServerSupabase();
-  const { data, error } = await supabase.auth.getUser(token);
-  if (error || !data?.user) {
-    return { ok: false, status: 401, error: "Unauthorized" };
-  }
 
   const email = data.user.email ?? null;
   const metadataLevel = normalizeRefereeLevel(data.user.user_metadata?.referee_level);

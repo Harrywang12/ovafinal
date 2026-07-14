@@ -29,19 +29,21 @@ export async function GET(request: Request) {
     const profile = (profiles || []).find((item) => item.user_id === assignment.user_id);
     if (!program) return [];
     const relevant = (sessions || []).filter((session) => session.quiz_program_id === program.id && session.user_id === assignment.user_id && session.status === "submitted");
+    const passed = relevant.filter((session) => session.passed === true);
     const scores = relevant.map((session) => Number(session.score_percent || 0));
-    const status = calculateQuizProgramStatus({ completedQuizzes: relevant.length, requiredQuizzes: program.required_quiz_count, dueAt: program.due_at });
+    const status = calculateQuizProgramStatus({ completedQuizzes: passed.length, requiredQuizzes: program.required_quiz_count, dueAt: program.due_at });
     return [{
       learner_email: profile?.email || assignment.user_id,
       referee_level: profile?.referee_level || program.referee_level,
       discipline: program.discipline,
       program_id: program.id,
       program: program.title,
-      quizzes_completed: relevant.length,
+      quizzes_completed: passed.length,
+      quizzes_attempted: relevant.length,
       quizzes_required: program.required_quiz_count,
       average_score: scores.length ? Math.round(scores.reduce((sum, score) => sum + score, 0) / scores.length) : 0,
       latest_score: scores[0] ?? null,
-      passed_quizzes: relevant.filter((session) => session.passed).length,
+      passed_quizzes: passed.length,
       start_date: program.start_at,
       due_date: program.due_at,
       status,
@@ -77,7 +79,7 @@ export async function GET(request: Request) {
   }))]));
 
   if (params.get("format") === "csv") {
-    const columns = ["learner_email", "referee_level", "discipline", "program", "quizzes_completed", "quizzes_required", "average_score", "latest_score", "passed_quizzes", "start_date", "due_date", "status", "last_activity"] as const;
+    const columns = ["learner_email", "referee_level", "discipline", "program", "quizzes_attempted", "quizzes_completed", "quizzes_required", "average_score", "latest_score", "passed_quizzes", "start_date", "due_date", "status", "last_activity"] as const;
     const csv = [columns.join(","), ...rows.map((row) => columns.map((column) => csvCell(row[column])).join(","))].join("\n");
     return new NextResponse(csv, { headers: { "Content-Type": "text/csv; charset=utf-8", "Content-Disposition": "attachment; filename=quiz-program-report.csv" } });
   }

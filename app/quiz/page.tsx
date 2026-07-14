@@ -2,10 +2,12 @@
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { ArrowLeft, ArrowRight, BookOpen, CheckCircle2, Loader2, Sparkles, Target, Trophy, Waves, XCircle, Zap } from "lucide-react";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { AuthGuard } from "../../components/auth-guard";
 import { QuizQuestionReport } from "../../components/quiz-question-report";
 import { useSupabaseAuth } from "../../lib/useSupabaseAuth";
+import type { AssignedWork } from "../../lib/assigned-work";
+import { AssignedWorkPanel } from "../../components/assigned-work-panel";
 
 type Discipline = "indoor" | "beach";
 type Question = {
@@ -28,6 +30,7 @@ type ProgramAssignment = {
   id: string;
   status: "not_started" | "in_progress" | "completed" | "overdue";
   completedQuizzes: number;
+  attemptedQuizzes: number;
   program: {
     id: string; title: string; discipline: Discipline; referee_level: string; required_quiz_count: number;
     questions_per_quiz: number; minimum_score_percent: number; start_at: string | null; due_at: string | null;
@@ -58,6 +61,18 @@ export default function QuizPage() {
   const [questionIndex, setQuestionIndex] = useState(0);
   const [sessionAnswers, setSessionAnswers] = useState<Record<string, string>>({});
   const [sessionResult, setSessionResult] = useState<SessionResult | null>(null);
+  const selectedInitialMode = useRef(false);
+
+  const assignedWorkQuery = useQuery<AssignedWork>({
+    queryKey: ["assigned-work"],
+    queryFn: async () => responseData(await fetch("/api/assigned-work")),
+  });
+
+  useEffect(() => {
+    if (selectedInitialMode.current || !assignedWorkQuery.data) return;
+    selectedInitialMode.current = true;
+    if (assignedWorkQuery.data.summary.hasOutstandingWork) setMode("assigned");
+  }, [assignedWorkQuery.data]);
 
   const programsQuery = useQuery<{ assignments: ProgramAssignment[] }>({
     queryKey: ["quiz-program-assignments"],
@@ -85,6 +100,8 @@ export default function QuizPage() {
     onSuccess: (feedback: Feedback) => {
       setPracticeFeedback(feedback);
       queryClient.invalidateQueries({ queryKey: ["quiz-adaptive-state"] });
+      queryClient.invalidateQueries({ queryKey: ["assigned-work"] });
+      queryClient.invalidateQueries({ queryKey: ["dashboard"] });
     },
   });
 
@@ -117,6 +134,8 @@ export default function QuizPage() {
     onSuccess: (result: SessionResult) => {
       setSessionResult(result);
       queryClient.invalidateQueries({ queryKey: ["quiz-program-assignments"] });
+      queryClient.invalidateQueries({ queryKey: ["assigned-work"] });
+      queryClient.invalidateQueries({ queryKey: ["dashboard"] });
     },
   });
 
@@ -133,6 +152,8 @@ export default function QuizPage() {
             <h1 className="mt-3 text-4xl font-display font-bold text-primary md:text-5xl">Referee quizzes</h1>
             <p className="mt-3 max-w-2xl text-muted">Choose a discipline for adaptive practice or complete a frozen, assigned quiz program.</p>
           </header>
+
+          {assignedWorkQuery.data ? <div className="mb-8"><AssignedWorkPanel work={assignedWorkQuery.data} compact /></div> : null}
 
           <div className="mb-8 inline-flex rounded-lg border border-border bg-white p-1">
             {(["practice", "assigned"] as const).map((item) => (
@@ -198,7 +219,7 @@ export default function QuizPage() {
                     const ready = assignment.sessions.find((item) => ["ready", "in_progress"].includes(item.status));
                     const disabled = assignment.status === "completed" || assignment.status === "overdue";
                     return <div key={assignment.id} className="grid gap-4 py-5 md:grid-cols-[1fr_auto] md:items-center">
-                      <div><div className="flex flex-wrap items-center gap-2"><h3 className="text-lg font-bold text-primary">{assignment.program.title}</h3><StatusBadge value={assignment.status} /></div><p className="mt-2 text-sm text-muted capitalize">{assignment.program.discipline} · {assignment.program.referee_level.replace("_", " ")} · {assignment.program.questions_per_quiz} questions · pass at {assignment.program.minimum_score_percent}%</p><p className="mt-1 text-sm font-semibold text-primary">{assignment.completedQuizzes}/{assignment.program.required_quiz_count} quizzes complete{assignment.program.due_at ? ` · Due ${new Date(assignment.program.due_at).toLocaleDateString()}` : ""}</p></div>
+                      <div><div className="flex flex-wrap items-center gap-2"><h3 className="text-lg font-bold text-primary">{assignment.program.title}</h3><StatusBadge value={assignment.status} /></div><p className="mt-2 text-sm text-muted capitalize">{assignment.program.discipline} · {assignment.program.referee_level.replace("_", " ")} · {assignment.program.questions_per_quiz} questions · pass at {assignment.program.minimum_score_percent}%</p><p className="mt-1 text-sm font-semibold text-primary">{assignment.completedQuizzes}/{assignment.program.required_quiz_count} passing quizzes complete · {assignment.attemptedQuizzes} attempt(s){assignment.program.due_at ? ` · Due ${new Date(assignment.program.due_at).toLocaleDateString()}` : ""}</p></div>
                       <button type="button" disabled={disabled || startSession.isPending} onClick={() => ready ? loadSession(ready.id, assignment.program.title) : startSession.mutate(assignment)} className="h-10 rounded-lg bg-primary px-4 text-sm font-bold text-white disabled:opacity-40">{ready ? "Resume quiz" : "Start next quiz"}</button>
                     </div>;
                   })}

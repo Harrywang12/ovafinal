@@ -26,6 +26,7 @@ export function Navbar() {
   
   const [scrolled, setScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [signingOut, setSigningOut] = useState(false);
   
   // Track scroll position for navbar style changes
   useEffect(() => {
@@ -38,8 +39,10 @@ export function Navbar() {
   }, []);
 
   const handleLogout = async () => {
+    setSigningOut(true);
     await supabase.auth.signOut();
     router.replace("/");
+    router.refresh();
   };
 
   const isHome = pathname === "/";
@@ -128,13 +131,14 @@ export function Navbar() {
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.98 }}
                   onClick={handleLogout}
+                  disabled={signingOut}
                   className={`text-sm font-medium px-4 py-2 rounded-full transition-colors ${
                     scrolled || !isHome
                       ? "text-ink hover:bg-ink/5"
                       : "text-ink hover:bg-white/20"
                   }`}
                 >
-                  Sign out
+                  {signingOut ? "Signing out…" : "Sign out"}
                 </motion.button>
               </>
             ) : (
@@ -156,6 +160,8 @@ export function Navbar() {
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
             className="md:hidden p-2 rounded-lg hover:bg-ink/5 transition-colors"
             aria-label="Toggle menu"
+            aria-expanded={mobileMenuOpen}
+            aria-controls="mobile-navigation"
           >
             {mobileMenuOpen ? (
               <X size={24} className="text-ink" />
@@ -176,7 +182,7 @@ export function Navbar() {
             transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
             className="fixed inset-0 z-40 bg-white pt-24 px-6 md:hidden"
           >
-            <nav className="flex flex-col gap-2">
+            <nav id="mobile-navigation" className="flex flex-col gap-2">
               {links.map((link, i) => {
                 const isActive = pathname === link.href;
                 return (
@@ -243,9 +249,10 @@ export function Navbar() {
                         handleLogout();
                         setMobileMenuOpen(false);
                       }}
+                      disabled={signingOut}
                       className="w-full px-4 py-3 rounded-xl text-muted hover:bg-ink/5 text-center"
                     >
-                      Sign out
+                      {signingOut ? "Signing out…" : "Sign out"}
                     </button>
                   </div>
                 ) : (

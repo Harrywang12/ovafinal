@@ -25,14 +25,16 @@ export async function GET(request: Request) {
       assignments: (assignments || []).map((assignment) => {
         const program = Array.isArray(assignment.program) ? assignment.program[0] : assignment.program;
         const submitted = (sessions || []).filter((session) => session.quiz_program_id === program?.id && session.status === "submitted");
+        const passed = submitted.filter((session) => session.passed === true);
         return {
           id: assignment.id,
           assignedAt: assignment.assigned_at,
           completedAt: assignment.completed_at,
           program,
-          completedQuizzes: submitted.length,
+          completedQuizzes: passed.length,
+          attemptedQuizzes: submitted.length,
           status: calculateQuizProgramStatus({
-            completedQuizzes: submitted.length,
+            completedQuizzes: passed.length,
             requiredQuizzes: program?.required_quiz_count || 1,
             dueAt: program?.due_at,
           }),

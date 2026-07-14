@@ -26,16 +26,18 @@ export async function GET(request: Request) {
   const enriched = (assignments || []).map((assignment) => {
     const program = Array.isArray(assignment.program) ? assignment.program[0] : assignment.program;
     const relevant = (sessions || []).filter((session) => session.quiz_program_id === assignment.quiz_program_id && session.user_id === assignment.user_id && session.status === "submitted");
+    const passed = relevant.filter((session) => session.passed === true);
     const scores = relevant.map((session) => Number(session.score_percent || 0));
     return {
       ...assignment,
       program,
-      completed_quizzes: relevant.length,
+      completed_quizzes: passed.length,
+      attempted_quizzes: relevant.length,
       average_score: scores.length ? Math.round(scores.reduce((sum, score) => sum + score, 0) / scores.length) : 0,
       latest_score: scores[0] ?? null,
-      passed_quizzes: relevant.filter((session) => session.passed).length,
+      passed_quizzes: passed.length,
       last_activity: relevant[0]?.submitted_at || relevant[0]?.created_at || assignment.assigned_at,
-      status: calculateQuizProgramStatus({ completedQuizzes: relevant.length, requiredQuizzes: program?.required_quiz_count || 1, dueAt: program?.due_at }),
+      status: calculateQuizProgramStatus({ completedQuizzes: passed.length, requiredQuizzes: program?.required_quiz_count || 1, dueAt: program?.due_at }),
     };
   });
   return NextResponse.json({ learners: profiles || [], assignments: enriched });

@@ -1,29 +1,14 @@
 import { NextResponse } from "next/server";
 import { getServerSupabase } from "../../../lib/supabase";
 import { assertEnv, difficultyToDuration } from "../../../lib/utils";
+import { requireUserFromRequest } from "../../../lib/auth";
 
 export const runtime = "nodejs";
 
-async function requireUserId(request: Request) {
-  const authHeader = request.headers.get("authorization") || "";
-  const token = authHeader.startsWith("Bearer ") ? authHeader.slice(7) : "";
-  if (!token) {
-    return { error: "Unauthorized", status: 401 } as const;
-  }
-
-  const supabase = getServerSupabase();
-  const { data, error } = await supabase.auth.getUser(token);
-  if (error || !data?.user) {
-    return { error: "Unauthorized", status: 401 } as const;
-  }
-
-  return { userId: data.user.id } as const;
-}
-
 export async function GET(request: Request) {
   assertEnv(["SUPABASE_URL", "SUPABASE_SERVICE_KEY"]);
-  const user = await requireUserId(request);
-  if ("error" in user) {
+  const user = await requireUserFromRequest(request);
+  if (!user.ok) {
     return NextResponse.json({ error: user.error }, { status: user.status });
   }
 
@@ -81,8 +66,8 @@ export async function GET(request: Request) {
 
 export async function POST(request: Request) {
   assertEnv(["SUPABASE_URL", "SUPABASE_SERVICE_KEY"]);
-  const user = await requireUserId(request);
-  if ("error" in user) {
+  const user = await requireUserFromRequest(request);
+  if (!user.ok) {
     return NextResponse.json({ error: user.error }, { status: user.status });
   }
 

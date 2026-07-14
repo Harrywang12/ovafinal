@@ -289,13 +289,6 @@ alter table if exists public.profiles enable row level security;
 create policy "user read own profile"
   on public.profiles for select
   using (auth.uid() = user_id or public.is_admin());
-create policy "user update own profile"
-  on public.profiles for update
-  using (auth.uid() = user_id)
-  with check (auth.uid() = user_id);
-create policy "user insert own profile"
-  on public.profiles for insert
-  with check (auth.uid() = user_id);
 
 alter table if exists public.admin_users enable row level security;
 create policy "admin read admin_users"

@@ -1,6 +1,7 @@
 import { createClient } from "@supabase/supabase-js";
 import { getServerSupabase } from "./supabase";
 import { assertEnv } from "./utils";
+import { getRequestSupabase } from "./supabase-server";
 
 export type AdminAuthResult =
   | { ok: true; userId: string; email: string }
@@ -46,7 +47,11 @@ export async function getRequestIdentity(request: Request): Promise<AdminAuthRes
   const token = match?.[1];
 
   if (!token) {
-    return { ok: false, status: 401, error: "Missing Authorization bearer token" };
+    const { data, error } = await (await getRequestSupabase()).auth.getUser();
+    if (error || !data.user) return { ok: false, status: 401, error: "Unauthenticated" };
+    const email = normalizeEmail(data.user.email || "");
+    if (!email) return { ok: false, status: 403, error: "An email address is required for admin access" };
+    return { ok: true, userId: data.user.id, email };
   }
 
   const supabaseUrl = process.env.SUPABASE_URL!;

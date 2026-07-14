@@ -19,6 +19,8 @@ import {
 import { AuthGuard } from "../../components/auth-guard";
 import { fadeInUp, staggerContainer, staggerItem } from "../../lib/animations";
 import { useSupabaseAuth } from "../../lib/useSupabaseAuth";
+import type { AssignedWork } from "../../lib/assigned-work";
+import { AssignedWorkPanel } from "../../components/assigned-work-panel";
 
 type Difficulty = "easy" | "medium" | "hard";
 
@@ -63,6 +65,7 @@ type DashboardResponse = {
     completed_at: string | null;
     assigned_at: string | null;
   };
+  assignedWork: AssignedWork;
   video_practice: {
     attempted: number;
     solved: number;
@@ -237,6 +240,9 @@ export default function DashboardPage() {
 
           {dashboardQuery.data && overview && (
             <>
+              <motion.div variants={fadeInUp} initial="hidden" animate="visible" className="mb-8">
+                <AssignedWorkPanel work={dashboardQuery.data.assignedWork} />
+              </motion.div>
               {/* Account + Overview */}
               <motion.div
                 variants={staggerContainer}
@@ -298,29 +304,6 @@ export default function DashboardPage() {
                         {dashboardQuery.data.learning.last_activity_at ? ` · latest activity ${formatDateTime(dashboardQuery.data.learning.last_activity_at)}` : ""}
                       </p>
                     </div>
-
-                    {dashboardQuery.data.quiz_assignment.assigned && (
-                      <div className="p-4 rounded-xl bg-surface border border-border md:col-span-2">
-                        <div className="flex items-center justify-between mb-2">
-                          <p className="text-xs font-semibold uppercase tracking-wider text-muted">Assigned Quiz Quota</p>
-                          <Link href="/quiz" className="text-xs font-semibold text-accent hover:underline inline-flex items-center gap-1">
-                            Quiz <ArrowRight size={14} />
-                          </Link>
-                        </div>
-                        <p className="text-2xl font-display font-bold text-primary">
-                          {dashboardQuery.data.quiz_assignment.attempted} / {dashboardQuery.data.quiz_assignment.question_quota}
-                        </p>
-                        <div className="mt-3 h-2 rounded-full bg-border overflow-hidden">
-                          <div
-                            className={`h-full ${dashboardQuery.data.quiz_assignment.passed ? "bg-green-500" : "bg-accent"}`}
-                            style={{ width: `${percent(dashboardQuery.data.quiz_assignment.attempted, dashboardQuery.data.quiz_assignment.question_quota)}%` }}
-                          />
-                        </div>
-                        <p className="mt-2 text-xs text-muted">
-                          {dashboardQuery.data.quiz_assignment.correct} correct · {dashboardQuery.data.quiz_assignment.score_percent}% score · required {dashboardQuery.data.quiz_assignment.required_percent}%
-                        </p>
-                      </div>
-                    )}
 
                     <div className="p-4 rounded-xl bg-surface border border-border">
                       <div className="flex items-center justify-between mb-2">

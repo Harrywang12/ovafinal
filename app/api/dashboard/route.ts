@@ -3,7 +3,8 @@ import { getServerSupabase } from "../../../lib/supabase";
 import { assertEnv } from "../../../lib/utils";
 import { getAllModules } from "../../../lib/module-content";
 import { calculateLatestScore, normalizeRefereeLevel, questionLevelForRefereeLevel } from "../../../lib/learning";
-import { getQuizAssignmentProgress } from "../../../lib/quiz-assignments";
+import { getAssignedWork } from "../../../lib/assigned-work";
+import { requireUserFromRequest } from "../../../lib/auth";
 
 export const runtime = "nodejs";
 
@@ -68,35 +69,14 @@ function later(a: string | null, b: string | null) {
   return Date.parse(a) >= Date.parse(b) ? a : b;
 }
 
-async function requireUserId(request: Request) {
-  const authHeader = request.headers.get("authorization") || "";
-  const token = authHeader.startsWith("Bearer ") ? authHeader.slice(7) : "";
-  if (!token) {
-    return { error: "Unauthorized", status: 401 } as const;
-  }
-
-  const supabase = getServerSupabase();
-  const { data, error } = await supabase.auth.getUser(token);
-  if (error || !data?.user) {
-    return { error: "Unauthorized", status: 401 } as const;
-  }
-
-  return { userId: data.user.id } as const;
-}
-
 export async function GET(request: Request) {
   assertEnv(["SUPABASE_URL", "SUPABASE_SERVICE_KEY"]);
-  const user = await requireUserId(request);
-  if ("error" in user) {
+  const user = await requireUserFromRequest(request);
+  if (!user.ok) {
     return NextResponse.json({ error: user.error }, { status: user.status });
   }
 
   const supabase = getServerSupabase();
-  const { data: authData, error: authError } = await supabase.auth.admin.getUserById(user.userId);
-  if (authError) {
-    return NextResponse.json({ error: authError.message }, { status: 500 });
-  }
-
   const { data, error } = await supabase
     .from("video_question_attempts")
     .select("id, question_id, correct, timed_out, time_taken_ms, created_at, question:video_questions(kind, difficulty, is_weekly)")
@@ -245,7 +225,7 @@ export async function GET(request: Request) {
     };
   });
 
-  const userEmail = authData?.user?.email ?? null;
+  const userEmail = user.email;
 
   const [{ data: profile }, { data: learningLessons, error: learningLessonError }, { data: learningAttempts, error: learningAttemptError }, { data: learningPasses, error: learningPassError }, { data: learningAssignments, error: learningAssignmentError }] =
     await Promise.all([
@@ -315,7 +295,19 @@ export async function GET(request: Request) {
   const assignedPassed = assignedModules.filter((m) => m.passed).length;
   const lastLearningActivity = learningModules.reduce<string | null>((acc, row) => later(acc, row.last_activity_at), null);
   const refereeLevel = normalizeRefereeLevel((profile as { referee_level?: string } | null)?.referee_level);
-  const quizAssignment = await getQuizAssignmentProgress(supabase, user.userId);
+  const assignedWork = await getAssignedWork(supabase, user.userId);
+  const quizAssignment = {
+    assigned: assignedWork.adaptive.assigned,
+    question_quota: assignedWork.adaptive.questionQuota,
+    required_percent: assignedWork.adaptive.requiredPercent,
+    attempted: assignedWork.adaptive.attempted,
+    correct: assignedWork.adaptive.correct,
+    score_percent: assignedWork.adaptive.scorePercent,
+    remaining: assignedWork.adaptive.remainingQuestions,
+    passed: assignedWork.adaptive.passed,
+    completed_at: assignedWork.adaptive.completedAt,
+    assigned_at: assignedWork.adaptive.assignedAt,
+  };
 
   return NextResponse.json({
     user: {
@@ -334,6 +326,7 @@ export async function GET(request: Request) {
       modules: learningModules,
     },
     quiz_assignment: quizAssignment,
+    assignedWork,
     video_practice: {
       attempted: practiceAttempted,
       solved: practiceSolved,

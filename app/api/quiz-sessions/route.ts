@@ -36,9 +36,10 @@ export async function POST(request: Request) {
     if (program.due_at && Date.parse(program.due_at) < now) return NextResponse.json({ error: "This quiz program is overdue" }, { status: 409 });
 
     const { data: previous, error: previousError } = await supabase.from("quiz_sessions")
-      .select("id, status").eq("quiz_program_id", program.id).eq("user_id", user.userId);
+      .select("id, status, passed").eq("quiz_program_id", program.id).eq("user_id", user.userId);
     if (previousError) throw previousError;
-    const completed = (previous || []).filter((session) => session.status === "submitted").length;
+    const attempted = (previous || []).filter((session) => session.status === "submitted").length;
+    const completed = (previous || []).filter((session) => session.status === "submitted" && session.passed === true).length;
     if (completed >= program.required_quiz_count) return NextResponse.json({ error: "All required quizzes are complete" }, { status: 409 });
     const existingActive = (previous || []).find((session) => ["generating", "ready", "in_progress"].includes(session.status));
     if (existingActive) return NextResponse.json({ sessionId: existingActive.id, existing: true }, { status: 200 });
@@ -47,7 +48,7 @@ export async function POST(request: Request) {
     const topics = expandTopicBlueprint(blueprint);
     if (topics.length !== program.questions_per_quiz) throw new Error("Stored topic blueprint does not match questions_per_quiz");
     const progression = difficultyProgressionSchema.parse(program.difficulty_progression);
-    const quizNumber = completed + 1;
+    const quizNumber = attempted + 1;
     const mix = progression.find((step) => step.throughQuiz === null || quizNumber <= step.throughQuiz)?.mix;
     if (!mix) throw new Error("Difficulty progression does not cover this quiz number");
     const difficulties = allocateDifficulties(topics.length, mix);

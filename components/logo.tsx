@@ -16,9 +16,11 @@ const sizes = {
   lg: { icon: 56, text: "text-2xl" },
   xl: { icon: 80, text: "text-4xl" },
 };
+const LOGO_ASPECT_RATIO = 466 / 535;
 
 export function Logo({ size = "md", showText = true, animate = true, className = "" }: LogoProps) {
   const { icon, text } = sizes[size];
+  const iconHeight = Math.round(icon * LOGO_ASPECT_RATIO);
   
   return (
     <div className={`flex items-center gap-3 ${className}`}>
@@ -27,14 +29,14 @@ export function Logo({ size = "md", showText = true, animate = true, className =
         whileHover={animate ? { rotate: 360, scale: 1.1 } : {}}
         transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
         className="relative flex items-center justify-center"
-        style={{ width: icon, height: "auto" }}
+        style={{ width: icon, height: iconHeight }}
       >
         <Image
           src="/logo.png"
           alt="Volley Ref Lab Logo"
           width={icon}
-          height={icon}
-          className="w-full h-auto object-contain"
+          height={iconHeight}
+          className="object-contain"
           priority
         />
       </motion.div>
@@ -56,14 +58,15 @@ export function Logo({ size = "md", showText = true, animate = true, className =
 
 // Simplified icon-only version for favicons/small spaces
 export function LogoIcon({ size = 40, className = "" }: { size?: number; className?: string }) {
+  const height = Math.round(size * LOGO_ASPECT_RATIO);
   return (
     <div className={`inline-block ${className}`} style={{ width: size }}>
       <Image
         src="/logo.png"
         alt="Volley Ref Lab Logo"
         width={size}
-        height={size}
-        className="w-full h-auto object-contain"
+        height={height}
+        className="object-contain"
         priority
       />
     </div>
@@ -72,22 +75,22 @@ export function LogoIcon({ size = 40, className = "" }: { size?: number; classNa
 
 // Animated logo for loading states
 export function LogoAnimated({ size = 60 }: { size?: number }) {
+  const height = Math.round(size * LOGO_ASPECT_RATIO);
   return (
     <motion.div
       animate={{ rotate: 360 }}
       transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
       className="flex items-center justify-center"
-      style={{ width: size, height: "auto" }}
+      style={{ width: size, height }}
     >
       <Image
         src="/logo.png"
         alt="Volley Ref Lab Logo"
         width={size}
-        height={size}
-        className="w-full h-auto object-contain"
+        height={height}
+        className="object-contain"
         priority
       />
     </motion.div>
   );
 }
-

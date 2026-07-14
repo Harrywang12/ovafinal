@@ -25,25 +25,7 @@ function AuthGuardInner({ children }: { children: ReactNode }) {
     }
   }, [loading, session, router, nextUrl]);
 
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <motion.div
-          initial={{ opacity: 0, scale: 0.9 }}
-          animate={{ opacity: 1, scale: 1 }}
-          className="flex flex-col items-center gap-4"
-        >
-          <motion.div
-            animate={{ rotate: 360 }}
-            transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-          >
-            <Loader2 size={32} className="text-primary" />
-          </motion.div>
-          <p className="text-muted text-sm">Checking your session...</p>
-        </motion.div>
-      </div>
-    );
-  }
+  if (loading) return <>{children}</>;
 
   if (!session) {
     return null;
@@ -79,4 +61,3 @@ export function AuthGuard({ children }: { children: ReactNode }) {
     </Suspense>
   );
 }
-

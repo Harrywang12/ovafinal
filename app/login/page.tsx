@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import Link from "next/link";
 import { useMemo, useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
@@ -9,6 +10,7 @@ import { getBrowserSupabase } from "../../lib/supabase-browser";
 import { fadeInUp, staggerContainer, staggerItem } from "../../lib/animations";
 import { Logo } from "../../components/logo";
 import type { RefereeLevel } from "../../lib/learning";
+import { safeRedirectPath } from "../../lib/safe-redirect";
 
 const heroImage = "/images/editorial/referee-signal.jpg";
 
@@ -18,7 +20,7 @@ function AuthForm() {
   const supabase = useMemo(() => getBrowserSupabase(), []);
   const router = useRouter();
   const search = useSearchParams();
-  const nextUrl = search.get("next") || "/";
+  const nextUrl = safeRedirectPath(search.get("next"));
 
   const [activeTab, setActiveTab] = useState<AuthTab>("signin");
   const [email, setEmail] = useState("");
@@ -27,7 +29,7 @@ function AuthForm() {
   const [refereeLevel, setRefereeLevel] = useState<RefereeLevel>("level_1");
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(search.get("error") === "confirmation" ? "That confirmation link is invalid or expired." : null);
 
   const resetMessages = () => {
     setError(null);
@@ -46,14 +48,15 @@ function AuthForm() {
     setLoading(true);
     resetMessages();
 
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
+    const { error } = await supabase.auth.signInWithPassword({ email: email.trim(), password });
     setLoading(false);
 
     if (error) {
-      setError(error.message);
+      setError("We couldn’t sign you in with those credentials.");
       return;
     }
     router.replace(nextUrl);
+    router.refresh();
   };
 
   const handleSignUp = async (e: React.FormEvent) => {
@@ -65,17 +68,18 @@ function AuthForm() {
       return;
     }
 
-    if (password.length < 6) {
-      setError("Password must be at least 6 characters.");
+    if (password.length < 8) {
+      setError("Password must be at least 8 characters.");
       return;
     }
 
     setLoading(true);
 
     const { data, error } = await supabase.auth.signUp({
-      email,
+      email: email.trim(),
       password,
       options: {
+        emailRedirectTo: `${window.location.origin}/auth/callback?next=${encodeURIComponent(nextUrl)}`,
         data: {
           referee_level: refereeLevel,
         },
@@ -84,31 +88,21 @@ function AuthForm() {
 
     if (error) {
       setLoading(false);
-      setError(error.message);
+      setError("We couldn’t create the account. Check your details or try signing in.");
       return;
     }
 
     // If email confirmation is disabled in Supabase, user is auto-confirmed
     // and we can redirect immediately
     if (data.session) {
-      if (data.user) {
-        await supabase.from("profiles").upsert(
-          {
-            user_id: data.user.id,
-            email: data.user.email,
-            referee_level: refereeLevel,
-          },
-          { onConflict: "user_id" }
-        );
-      }
       router.replace(nextUrl);
+      router.refresh();
       return;
     }
 
     // If email confirmation is still enabled, show message
     setLoading(false);
-    setMessage("Account created! You can now sign in.");
-    setActiveTab("signin");
+    setMessage("Account created. Check your email to confirm your address, then return here to sign in.");
   };
 
   const tabContent = {
@@ -194,13 +188,16 @@ function AuthForm() {
         onSubmit={activeTab === "signin" ? handlePasswordSignIn : handleSignUp}
       >
         <div>
-          <label className="block text-sm font-medium text-primary mb-2">
+          <label htmlFor="auth-email" className="block text-sm font-medium text-primary mb-2">
             Email Address
           </label>
           <div className="relative">
             <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-muted" size={18} />
             <input
               type="email"
+              id="auth-email"
+              name="email"
+              autoComplete="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
@@ -211,23 +208,26 @@ function AuthForm() {
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-primary mb-2">
+          <label htmlFor="auth-password" className="block text-sm font-medium text-primary mb-2">
             Password
           </label>
           <div className="relative">
             <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-muted" size={18} />
             <input
               type="password"
+              id="auth-password"
+              name="password"
+              autoComplete={activeTab === "signup" ? "new-password" : "current-password"}
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
-              minLength={activeTab === "signup" ? 6 : undefined}
+              minLength={activeTab === "signup" ? 8 : undefined}
               className="w-full pl-12 pr-4 py-3 rounded-xl bg-white border border-border text-ink placeholder:text-muted focus:outline-none focus:ring-2 focus:ring-accent/30"
               placeholder="••••••••"
             />
           </div>
           {activeTab === "signup" && (
-            <p className="mt-1 text-xs text-muted">Minimum 6 characters</p>
+            <p className="mt-1 text-xs text-muted">Minimum 8 characters</p>
           )}
         </div>
 
@@ -239,13 +239,17 @@ function AuthForm() {
               exit={{ opacity: 0, height: 0 }}
               transition={{ duration: 0.2 }}
             >
-              <label className="block text-sm font-medium text-primary mb-2">
+              <label htmlFor="auth-confirm-password" className="block text-sm font-medium text-primary mb-2">
                 Confirm Password
               </label>
               <div className="relative">
                 <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-muted" size={18} />
                 <input
                   type="password"
+                  id="auth-confirm-password"
+                  name="confirmPassword"
+                  autoComplete="new-password"
+                  minLength={8}
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
                   required
@@ -257,6 +261,14 @@ function AuthForm() {
           )}
         </AnimatePresence>
 
+        {activeTab === "signin" ? (
+          <div className="-mt-2 text-right">
+            <Link href="/forgot-password" className="text-sm font-semibold text-primary hover:text-accent">
+              Forgot password?
+            </Link>
+          </div>
+        ) : null}
+
         <AnimatePresence mode="wait">
           {activeTab === "signup" && (
             <motion.div
@@ -266,10 +278,11 @@ function AuthForm() {
               transition={{ duration: 0.2 }}
               className="space-y-2"
             >
-              <label className="block text-sm font-medium text-primary">
+              <label htmlFor="auth-referee-level" className="block text-sm font-medium text-primary">
                 Referee Level
               </label>
               <select
+                id="auth-referee-level"
                 value={refereeLevel}
                 onChange={(e) => setRefereeLevel(e.target.value as RefereeLevel)}
                 required
@@ -305,26 +318,28 @@ function AuthForm() {
         </motion.button>
       </form>
 
-      {message && (
+      {message ? (
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           className="mt-4 p-4 rounded-xl bg-green-50 border border-green-200 text-green-700 text-sm flex items-center gap-2"
+          role="status"
         >
           <CheckCircle2 size={18} className="flex-shrink-0" />
           {message}
         </motion.div>
-      )}
+      ) : null}
 
-      {error && (
+      {error ? (
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           className="mt-4 p-4 rounded-xl bg-red-50 border border-red-200 text-red-700 text-sm"
+          role="alert"
         >
           {error}
         </motion.div>
-      )}
+      ) : null}
 
       <p className="mt-6 text-center text-sm text-muted">
         {activeTab === "signin" ? (
@@ -335,9 +350,7 @@ function AuthForm() {
         ) : (
           <>
             By signing up, you agree to our{" "}
-            <span className="font-medium text-primary cursor-pointer hover:underline">
-              Terms of Service
-            </span>
+            <Link href="/terms" className="font-medium text-primary hover:underline">Terms of Service</Link>
           </>
         )}
       </p>
@@ -402,7 +415,7 @@ export default function LoginPage() {
             >
               Train like the pros.
               <br />
-              <span className="text-primary">Master every call.</span>
+              <span className="text-white/80">Master every call.</span>
             </motion.h1>
 
             <motion.p
