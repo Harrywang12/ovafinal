@@ -21,6 +21,11 @@ OPENAI_API_KEY=
 ADMIN_EMAILS=
 ```
 
+In Supabase Auth → URL Configuration, set the production site URL and allow
+`http://localhost:3000/auth/callback` plus your production
+`https://<domain>/auth/callback` URL. Password-reset emails return through this
+callback before opening `/reset-password`.
+
 ## Database / Storage Setup
 1. For a fresh project, run `supabase.sql`, then apply every file in `supabase/migrations` in timestamp order. Existing projects should apply only unapplied migrations.
 2. Create Storage buckets:

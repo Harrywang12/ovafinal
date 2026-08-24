@@ -1,13 +1,17 @@
 "use client";
 
 import Link from "next/link";
-import { FormEvent, useMemo, useState } from "react";
+import { FormEvent, Suspense, useMemo, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { CheckCircle2, Loader2, Lock } from "lucide-react";
 import { Logo } from "../../components/logo";
 import { getBrowserSupabase } from "../../lib/supabase-browser";
+import { useSupabaseAuth } from "../../lib/useSupabaseAuth";
 
-export default function ResetPasswordPage() {
+function ResetPasswordForm() {
   const supabase = useMemo(() => getBrowserSupabase(), []);
+  const searchParams = useSearchParams();
+  const { session, loading: sessionLoading } = useSupabaseAuth();
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -16,6 +20,10 @@ export default function ResetPasswordPage() {
 
   async function submit(event: FormEvent) {
     event.preventDefault();
+    if (!session) {
+      setError("This reset link is invalid or expired. Request a new one.");
+      return;
+    }
     if (password.length < 8 || password !== confirm) {
       setError(password.length < 8 ? "Use at least 8 characters." : "Passwords do not match.");
       return;
@@ -34,7 +42,16 @@ export default function ResetPasswordPage() {
         <Logo size="md" showText />
         <div className="card mt-8">
           <h1 className="text-3xl font-display font-bold text-primary">Choose a new password</h1>
-          {complete ? (
+          {sessionLoading ? (
+            <div className="mt-6 flex items-center gap-2 text-sm text-muted" role="status">
+              <Loader2 size={17} className="animate-spin" /> Verifying reset link…
+            </div>
+          ) : !session || searchParams.get("error") === "invalid_link" ? (
+            <div className="mt-6" role="alert">
+              <p className="text-sm text-red-700">This reset link is invalid or expired.</p>
+              <Link href="/forgot-password" className="pill mt-5 w-full justify-center text-white">Request a new link</Link>
+            </div>
+          ) : complete ? (
             <div className="mt-6" role="status">
               <div className="flex items-center gap-2 text-green-700"><CheckCircle2 size={20} /><span className="font-semibold">Password updated</span></div>
               <Link href="/dashboard" className="pill mt-5 w-full justify-center text-white">Continue to dashboard</Link>
@@ -44,7 +61,7 @@ export default function ResetPasswordPage() {
               {[{ id: "new-password", label: "New password", value: password, set: setPassword }, { id: "confirm-password", label: "Confirm password", value: confirm, set: setConfirm }].map((field) => (
                 <div key={field.id}>
                   <label htmlFor={field.id} className="block text-sm font-semibold text-primary mb-2">{field.label}</label>
-                  <div className="relative"><Lock size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-muted" /><input id={field.id} type="password" autoComplete="new-password" minLength={8} required value={field.value} onChange={(event) => field.set(event.target.value)} className="w-full rounded-xl border border-border bg-white py-3 pl-12 pr-4 outline-none focus:ring-2 focus:ring-accent/30" /></div>
+                  <div className="relative"><Lock size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-muted" /><input id={field.id} type="password" autoComplete="new-password" minLength={8} maxLength={72} required value={field.value} onChange={(event) => field.set(event.target.value)} className="w-full rounded-xl border border-border bg-white py-3 pl-12 pr-4 outline-none focus:ring-2 focus:ring-accent/30" /></div>
                 </div>
               ))}
               {error ? <p className="text-sm text-red-700" role="alert">{error}</p> : null}
@@ -54,5 +71,13 @@ export default function ResetPasswordPage() {
         </div>
       </div>
     </main>
+  );
+}
+
+export default function ResetPasswordPage() {
+  return (
+    <Suspense fallback={null}>
+      <ResetPasswordForm />
+    </Suspense>
   );
 }

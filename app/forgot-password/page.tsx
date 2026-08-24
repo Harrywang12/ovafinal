@@ -11,13 +11,21 @@ export default function ForgotPasswordPage() {
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
   const [sent, setSent] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   async function submit(event: FormEvent) {
     event.preventDefault();
     setLoading(true);
-    const redirectTo = `${window.location.origin}/auth/callback?next=/reset-password`;
-    await supabase.auth.resetPasswordForEmail(email, { redirectTo });
+    setError(null);
+    const redirectTo = `${window.location.origin}/auth/callback?next=${encodeURIComponent("/reset-password")}`;
+    const { error: requestError } = await supabase.auth.resetPasswordForEmail(email.trim(), { redirectTo });
     setLoading(false);
+
+    if (requestError) {
+      setError("We couldn’t send a reset link right now. Please try again.");
+      return;
+    }
+
     setSent(true);
   }
 
@@ -40,6 +48,7 @@ export default function ForgotPasswordPage() {
                 <Mail size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-muted" />
                 <input id="recovery-email" type="email" autoComplete="email" required value={email} onChange={(event) => setEmail(event.target.value)} className="w-full rounded-xl border border-border bg-white py-3 pl-12 pr-4 outline-none focus:ring-2 focus:ring-accent/30" />
               </div>
+              {error ? <p className="text-sm text-red-700" role="alert">{error}</p> : null}
               <button disabled={loading} className="pill w-full justify-center text-white disabled:opacity-60">
                 {loading ? <><Loader2 size={17} className="animate-spin" /> Sending…</> : "Send reset link"}
               </button>
