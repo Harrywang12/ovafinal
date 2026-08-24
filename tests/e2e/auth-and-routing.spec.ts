@@ -28,6 +28,12 @@ test("provides password recovery without exposing account existence", async ({ p
   await page.getByLabel("Email address").fill("someone@example.com");
   await page.getByRole("button", { name: "Send reset link" }).click();
   await expect(page.getByRole("status")).toContainText("Check your inbox");
+  await expect(page.getByRole("button", { name: /Send another link in (?:1:00|0:5\d)/ })).toBeDisabled();
+
+  await page.goto("/login");
+  await page.goto("/forgot-password");
+  await waitForHydration(page);
+  await expect(page.getByRole("button", { name: /Send another link in (?:1:00|0:5\d)/ })).toBeDisabled();
 });
 
 test("redirects anonymous users away from protected pages", async ({ page }) => {
