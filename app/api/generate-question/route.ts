@@ -33,7 +33,7 @@ function adaptiveDifficulty(value: "easy" | "medium" | "hard") {
 
 export async function POST(request: Request) {
   try {
-    assertEnv(["OPENAI_API_KEY", "SUPABASE_SERVICE_KEY", "SUPABASE_URL"]);
+    assertEnv(["GEMINI_API_KEY", "SUPABASE_SERVICE_KEY", "SUPABASE_URL"]);
     const user = await requireUserFromRequest(request);
     if (!user.ok) return NextResponse.json({ error: user.error }, { status: user.status });
 

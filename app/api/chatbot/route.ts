@@ -20,7 +20,7 @@ function getStaticModuleContext(category: string): string {
 }
 
 export async function POST(request: Request) {
-  assertEnv(["OPENAI_API_KEY", "SUPABASE_URL", "SUPABASE_SERVICE_KEY"]);
+  assertEnv(["GEMINI_API_KEY", "SUPABASE_URL", "SUPABASE_SERVICE_KEY"]);
   const { message } = await request.json();
   if (!message) {
     return NextResponse.json({ error: "message required" }, { status: 400 });
@@ -66,4 +66,3 @@ export async function POST(request: Request) {
 
   return NextResponse.json({ answer, references: hits });
 }
-

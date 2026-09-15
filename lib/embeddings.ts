@@ -1,24 +1,35 @@
-import OpenAI from "openai";
+import { createGoogle, type GoogleEmbeddingModelOptions } from "@ai-sdk/google";
+import { embed, embedMany } from "ai";
 
-const client = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY
-});
+const google = createGoogle({ apiKey: process.env.GEMINI_API_KEY });
 
-export const EMBEDDING_MODEL = "text-embedding-3-small";
+export const EMBEDDING_MODEL = "gemini-embedding-001";
+const EMBEDDING_DIMENSIONS = 1536;
 
 export async function embedText(text: string): Promise<number[]> {
-  const sanitized = text.replace(/\n/g, " ");
-  const res = await client.embeddings.create({
-    model: EMBEDDING_MODEL,
-    input: sanitized
+  const { embedding } = await embed({
+    model: google.embedding(EMBEDDING_MODEL),
+    value: text.replace(/\n/g, " "),
+    providerOptions: {
+      google: {
+        outputDimensionality: EMBEDDING_DIMENSIONS,
+        taskType: "RETRIEVAL_QUERY",
+      } satisfies GoogleEmbeddingModelOptions,
+    },
   });
-  return res.data[0].embedding;
+  return embedding;
 }
 
 export async function embedChunks(chunks: string[]) {
-  const res = await client.embeddings.create({
-    model: EMBEDDING_MODEL,
-    input: chunks.map((c) => c.replace(/\n/g, " "))
+  const { embeddings } = await embedMany({
+    model: google.embedding(EMBEDDING_MODEL),
+    values: chunks.map((chunk) => chunk.replace(/\n/g, " ")),
+    providerOptions: {
+      google: {
+        outputDimensionality: EMBEDDING_DIMENSIONS,
+        taskType: "RETRIEVAL_DOCUMENT",
+      } satisfies GoogleEmbeddingModelOptions,
+    },
   });
-  return res.data.map((d) => d.embedding);
+  return embeddings;
 }

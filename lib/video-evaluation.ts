@@ -79,7 +79,7 @@ Respond with ONLY the JSON object, no additional text.`;
           { role: "system", content: systemPrompt },
           { role: "user", content: userPrompt }
         ],
-        "gpt-4o-mini",
+        "fast",
         { temperature: 0.3, maxTokens: 500 } // Lower temperature for more consistent evaluation
       );
 
@@ -129,4 +129,3 @@ Respond with ONLY the JSON object, no additional text.`;
   // This should never be reached, but TypeScript needs it
   throw lastError || new Error("Failed to evaluate ruling after retries");
 }
-

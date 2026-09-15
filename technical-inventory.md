@@ -2,15 +2,15 @@
 
 * Product purpose: Volleyball referee training app with adaptive AI multiple-choice questions, module learning, video practice, weekly video challenges, dashboards, and admin content management.
 * Main user types and roles: authenticated learner/referee and administrator. Admins are email-based via `admin_users` plus `ADMIN_EMAILS`.
-* Current development status: functional Next.js app builds successfully, but several features are partial or schema-dependent. `npm run build` passes. `npm run lint` fails because `next lint` is no longer a valid command in this installed Next version.
-* Tech stack: Next.js App Router, React 18, TypeScript, Tailwind, React Query, Supabase, OpenAI, pgvector, `pdf-parse`.
+* Current development status: functional Next.js app with several schema-dependent features. ESLint, TypeScript, and the test suite pass; a production build requires Supabase environment variables during prerendering.
+* Tech stack: Next.js App Router, React 18, TypeScript, Tailwind, React Query, Supabase, Google Gemini, pgvector, `pdf-parse`.
 * Frontend framework: Next.js app directory pages and client components.
 * Backend framework: Next.js route handlers under `app/api`.
 * Database: Supabase Postgres with `pgvector`.
 * Authentication system: Supabase Auth email/password. User profile level is stored in `profiles`.
 * Hosting/deployment: Vercel, configured by `vercel.json`, region `iad1`, per-route max durations.
-* External services/APIs: Supabase Auth/Postgres/Storage, OpenAI chat completions and embeddings.
-* Environment variables found: `SUPABASE_URL`, `SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_KEY`, `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `OPENAI_API_KEY`, optional `ADMIN_EMAILS` / `ADMIN_EMAIL`.
+* External services/APIs: Supabase Auth/Postgres/Storage, Google Gemini generation and embeddings.
+* Environment variables found: `SUPABASE_URL`, `SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_KEY`, `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `GEMINI_API_KEY`, optional `ADMIN_EMAILS` / `ADMIN_EMAIL`.
 
 Key refs: `package.json`, `README.md`, `vercel.json`, `lib/supabase.ts`, `lib/llm.ts`, `lib/admin.ts`.
 
@@ -41,7 +41,7 @@ Adaptive quiz sequence:
 9. Topics: three random `REFEREE_TOPICS`.
 10. RAG: searches each topic with `searchRules(topic, 4)`, dedupes chunks, sends up to 5 chunks. Static module context is added only if selected topics imply 4v4, 6v6, or beach; otherwise if no RAG chunks exist, all static module content is used.
 11. Generates one question per API call, not a full quiz.
-12. AI provider/model: OpenAI chat completions through `openai` SDK. Adaptive route uses `gpt-4o`, temperature `0.85`, no `max_tokens`. Module route uses `gpt-4o-mini` for beginner, `gpt-4o` otherwise, temperature `0.8` or `0.9`.
+12. AI provider/model: Google Gemini through the Vercel AI SDK Google provider. Fast tasks use Gemini Flash and quality tasks use Gemini Pro.
 13. Expected output: JSON object with `question`, exactly 4 `options`, `answer`, `explanation`, `rule_reference`.
 14. Validation: JSON parse, required fields, option count, answer coerced to a matching option or first option. No Zod schema here.
 15. Retry/failure: up to 2 generation attempts. Duplicate candidates may still be returned as least-similar fallback. Parse failure returns `500` with raw model response.
@@ -133,7 +133,7 @@ Refs: `lib/quiz-question-history.ts:30`, `lib/quiz-question-history.ts:145`, `ap
 * Storage: Supabase Storage bucket `rules`; chunks in `rules_embeddings`.
 * Text extraction: `pdf-parse`.
 * Chunking: 800 words, 80 overlap.
-* Embeddings: OpenAI `text-embedding-3-small`, vector dimension 1536.
+* Embeddings: Google `gemini-embedding-001`, reduced to vector dimension 1536 for the existing pgvector schema.
 * Vector search: Supabase RPC `match_rules`, cosine similarity, limit default 5.
 * Metadata: only `chunk` and `embedding`; no document id, filename, page, section, format, level, rule number, or case metadata in schema.
 * Indoor/beach source separation: not in embeddings schema. Static module content has categories.

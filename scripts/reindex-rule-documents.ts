@@ -5,8 +5,8 @@ import { buildRuleIndexChunks, extractPdfPages } from "../lib/rule-indexing";
 async function main() {
 const supabaseUrl = process.env.SUPABASE_URL;
 const serviceKey = process.env.SUPABASE_SERVICE_KEY;
-if (!supabaseUrl || !serviceKey || !process.env.OPENAI_API_KEY) {
-  throw new Error("SUPABASE_URL, SUPABASE_SERVICE_KEY, and OPENAI_API_KEY are required");
+if (!supabaseUrl || !serviceKey || !process.env.GEMINI_API_KEY) {
+  throw new Error("SUPABASE_URL, SUPABASE_SERVICE_KEY, and GEMINI_API_KEY are required");
 }
 
 const requestedId = process.argv.find((value) => value.startsWith("--document-id="))?.split("=")[1];

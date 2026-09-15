@@ -5,7 +5,7 @@ import { toStructuredHistory } from "../lib/quiz-sessions";
 async function main() {
   const supabaseUrl = process.env.SUPABASE_URL;
   const serviceKey = process.env.SUPABASE_SERVICE_KEY;
-  if (!supabaseUrl || !serviceKey || !process.env.OPENAI_API_KEY) throw new Error("Quiz smoke-test environment is incomplete");
+  if (!supabaseUrl || !serviceKey || !process.env.GEMINI_API_KEY) throw new Error("Quiz smoke-test environment is incomplete");
   const count = Number(process.argv.find((value) => value.startsWith("--count="))?.split("=")[1] || 1);
   if (!Number.isInteger(count) || count < 1 || count > 25) throw new Error("--count must be between 1 and 25 per discipline");
   const supabase = createClient(supabaseUrl, serviceKey);

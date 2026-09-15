@@ -25,7 +25,7 @@ const inputSchema = z.object({
 export async function POST(request: Request) {
   let documentId: string | null = null;
   try {
-    assertEnv(["SUPABASE_URL", "SUPABASE_SERVICE_KEY", "OPENAI_API_KEY"]);
+    assertEnv(["SUPABASE_URL", "SUPABASE_SERVICE_KEY", "GEMINI_API_KEY"]);
     const admin = await requireAdminFromRequest(request);
     if (!admin.ok) return NextResponse.json({ error: admin.error }, { status: admin.status });
     const parsed = inputSchema.safeParse(await request.json().catch(() => ({})));

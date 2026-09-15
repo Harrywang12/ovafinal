@@ -27,7 +27,7 @@ function moduleDifficulty(level: "beginner" | "intermediate" | "hard"): QuizDiff
 
 export async function POST(request: Request) {
   try {
-    assertEnv(["OPENAI_API_KEY", "SUPABASE_URL", "SUPABASE_SERVICE_KEY"]);
+    assertEnv(["GEMINI_API_KEY", "SUPABASE_URL", "SUPABASE_SERVICE_KEY"]);
     const user = await requireUserFromRequest(request);
     if (!user.ok) return NextResponse.json({ error: user.error }, { status: user.status });
     const parsed = inputSchema.safeParse(await request.json().catch(() => ({})));

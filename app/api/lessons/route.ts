@@ -7,7 +7,7 @@ import { getModuleBySlug } from "../../../lib/module-content";
 export const runtime = "nodejs";
 
 export async function POST(request: Request) {
-  assertEnv(["OPENAI_API_KEY"]);
+  assertEnv(["GEMINI_API_KEY"]);
   const { module } = await request.json();
   if (!module) {
     return NextResponse.json({ error: "module required" }, { status: 400 });
@@ -55,7 +55,7 @@ Do not include any text before or after the JSON.
 IMPORTANT: Generate a UNIQUE question every time. Do NOT repeat previous questions.`
     },
     { role: "user", content: `Create a quiz question for the "${module}" module. Focus especially on the topic "${focusLesson?.title || 'general rules'}". Randomization seed: ${randomSeed}\n\nContext:\n${finalContext}` }
-  ], "gpt-4o-mini", { temperature: 0.9 });
+  ], "fast", { temperature: 0.9 });
 
   // Return lessons from static content (for backwards compatibility)
   const lessons = moduleData?.lessons.map(l => ({

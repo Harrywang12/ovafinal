@@ -1,12 +1,12 @@
 # Volleyball Referee Training (Serverless, Vercel)
 
-RAG-powered volleyball officiating trainer built with Next.js 16 (App Router), TailwindCSS, Supabase (Postgres, Auth, Storage, pgvector), and OpenAI. All backend logic lives in Vercel serverless API routes.
+RAG-powered volleyball officiating trainer built with Next.js 16 (App Router), TailwindCSS, Supabase (Postgres, Auth, Storage, pgvector), and Google Gemini. All backend logic lives in Vercel serverless API routes.
 
 ## Stack
 - Next.js 16 App Router, React Query for client data fetching/state
 - TailwindCSS styling
 - Supabase Postgres + Auth + Storage + pgvector
-- OpenAI `text-embedding-3-small` and GPT-4.1/4o/4.1-mini models
+- Google Gemini generation and `gemini-embedding-001` embeddings
 - Serverless API routes in `app/api/*` (no separate backend)
 
 ## Environment
@@ -17,7 +17,7 @@ SUPABASE_ANON_KEY=
 SUPABASE_SERVICE_KEY=
 NEXT_PUBLIC_SUPABASE_URL=
 NEXT_PUBLIC_SUPABASE_ANON_KEY=
-OPENAI_API_KEY=
+GEMINI_API_KEY=
 ADMIN_EMAILS=
 ```
 
@@ -113,15 +113,16 @@ Open `http://localhost:3000`.
 - Use Supabase migration tooling and apply `supabase/migrations/20260712000000_structured_quiz_programs.sql` before using the new quiz flow.
 - The migration adds normalized sources, secure generated questions, quiz programs, assignments, frozen sessions, server-graded answers, structured history, flags, quotas, indexes, and RLS policies.
 - Existing `rules_embeddings` rows are preserved for compatibility, but cannot be safely classified as Indoor or Beach. Re-upload and embed official PDFs with metadata. Scored generation returns `INSUFFICIENT_SOURCE_CONTEXT` instead of falling back to unrelated text.
+- After switching embedding providers, run `npm run rules:reindex` so stored rule vectors are regenerated with Gemini. Vectors from the previous provider are not comparable with Gemini vectors, even though both are stored at 1536 dimensions.
 - The filtered `match_rule_chunks` RPC powers scored quiz generation. Legacy `match_rules` remains for existing tutor and module features.
 - Apply `supabase/migrations/20260713000000_rule_chunk_rulesets.sql` after the structured quiz migration. It separates standard Indoor chunks from Rallyball, Tripleball, and other variations contained in combined rulebooks.
 
 ## Notes
-- All API routes use Node runtime for OpenAI + PDF parsing.
+- All API routes use the Node runtime for Gemini + PDF parsing.
 - Floating AI Tutor (`components/floating-chat.tsx`) is available across pages.
 - Adaptive hints on the quiz page recommend modules based on missed questions.
 
 ## Quick Verification
 - `npm run lint` checks code quality with ESLint (Next.js 16 no longer provides `next lint`).
-- `npm test` runs mocked unit and integration tests without live OpenAI calls.
+- `npm test` runs mocked unit and integration tests without live Gemini calls.
 - `npm run build` performs the production Next.js build.
