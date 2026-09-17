@@ -1,4 +1,4 @@
-import { generatedQuizQuestionSchema, type GeneratedQuizQuestion } from "./generated-quiz-question";
+import { generatedQuizQuestionSchema } from "./generated-quiz-question";
 
 export type StoredSessionQuestion = {
   id: string;
@@ -8,7 +8,15 @@ export type StoredSessionQuestion = {
 
 export function publicQuizQuestion(row: StoredSessionQuestion) {
   const question = generatedQuizQuestionSchema.parse(row.question_data);
-  const { answer: _answer, explanation: _explanation, sourceExcerpt: _sourceExcerpt, ...visible } = question;
+  const {
+    answer: _answer,
+    explanation: _explanation,
+    sourceExcerpt: _sourceExcerpt,
+    sourceDocumentId: _sourceDocumentId,
+    sourceChunkIds: _sourceChunkIds,
+    blueprintFingerprint: _blueprintFingerprint,
+    ...visible
+  } = question;
   return { id: row.id, sequenceNumber: row.sequence_number, ...visible };
 }
 
@@ -31,8 +39,4 @@ export function gradeStoredAnswers(
   });
   const correctCount = graded.filter((item) => item.correct).length;
   return { graded, correctCount, scorePercent: Math.round((correctCount / questions.length) * 100) };
-}
-
-export function toStructuredHistory(question: GeneratedQuizQuestion) {
-  return { ...question, questionText: question.question };
 }

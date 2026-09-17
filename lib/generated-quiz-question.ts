@@ -49,6 +49,7 @@ export const generatedQuizQuestionSchema = z.object({
   sourceDocumentId: z.string().uuid(),
   sourceChunkIds: z.array(z.string().uuid()).min(1),
   sourceExcerpt: z.string().trim().min(20),
+  blueprintFingerprint: z.string().length(64).optional(),
 }).superRefine((value, ctx) => {
   const normalized = value.options.map((option) => option.trim().toLowerCase());
   if (new Set(normalized).size !== 4) {
@@ -66,15 +67,6 @@ export const generatedQuizQuestionSchema = z.object({
 
 export type GeneratedQuizQuestion = z.infer<typeof generatedQuizQuestionSchema>;
 
-export function parseGeneratedQuestionJson(content: string): unknown {
-  const trimmed = content.trim().replace(/^```(?:json)?\s*/i, "").replace(/\s*```$/, "");
-  return JSON.parse(trimmed);
-}
-
-function normalizeEvidenceText(text: string) {
-  return text.toLowerCase().replace(/[^a-z0-9]+/g, " ").replace(/\s+/g, " ").trim();
-}
-
 function sourceRuleNumbers(chunk: { rule_number?: string | null; chunk_text: string }) {
   const values = new Set<string>();
   if (chunk.rule_number) values.add(chunk.rule_number);
@@ -84,7 +76,7 @@ function sourceRuleNumbers(chunk: { rule_number?: string | null; chunk_text: str
 
 export function validateGeneratedQuestion(
   input: unknown,
-  expected: { discipline: "indoor" | "beach"; refereeLevel: "level_1" | "level_2" | "level_3" | "level_4"; difficulty: "basic" | "applied" | "advanced"; topic?: string; questionStyle?: QuestionStyle; requireSourceTopic?: boolean },
+  expected: { discipline: "indoor" | "beach"; refereeLevel: "level_1" | "level_2" | "level_3" | "level_4"; difficulty: "basic" | "applied" | "advanced"; topic?: string; questionStyle?: QuestionStyle; requireSourceTopic?: boolean; rulesets?: RuleSet[] },
   validChunks: Array<{ id: string; document_id: string; chunk_text: string; ruleset: RuleSet; rule_number?: string | null; topic?: string | null; topic_tags?: string[] }>
 ): GeneratedQuizQuestion {
   const question = generatedQuizQuestionSchema.parse(input);
@@ -93,11 +85,11 @@ export function validateGeneratedQuestion(
   if (question.difficulty !== expected.difficulty) throw new Error("Generated difficulty does not match the request");
   if (expected.topic && question.topic !== expected.topic) throw new Error("Generated topic does not match the request");
   if (expected.questionStyle && question.questionStyle !== expected.questionStyle) throw new Error("Generated question style does not match the assigned blueprint");
-  const requiredRuleset = expected.discipline === "indoor" ? "standard_indoor" : "beach";
-  if (validChunks.some((chunk) => chunk.ruleset !== requiredRuleset)) {
+  const requiredRulesets = expected.rulesets || [expected.discipline === "indoor" ? "standard_indoor" : "beach"];
+  if (validChunks.some((chunk) => !requiredRulesets.includes(chunk.ruleset))) {
     throw new Error(`Retrieved source ruleset does not match ${expected.discipline} generation`);
   }
-  if (expected.discipline === "indoor") {
+  if (expected.discipline === "indoor" && requiredRulesets.includes("standard_indoor")) {
     const generatedText = [question.question, ...question.options, question.explanation, question.sourceExcerpt].join(" ");
     if (containsRallyballContent(generatedText)) {
       throw new Error("Generated Indoor question contains Rallyball or Tripleball content");
@@ -114,8 +106,7 @@ export function validateGeneratedQuestion(
   if (expectedTopic && expected.requireSourceTopic !== false && citedChunks.some((chunk) => chunk.topic !== expectedTopic && !chunk.topic_tags?.includes(expectedTopic))) {
     throw new Error("Cited source does not match the requested topic");
   }
-  const normalizedExcerpt = normalizeEvidenceText(question.sourceExcerpt);
-  const contextSupportsExcerpt = citedChunks.some((chunk) => normalizeEvidenceText(chunk.chunk_text).includes(normalizedExcerpt));
+  const contextSupportsExcerpt = citedChunks.some((chunk) => chunk.chunk_text.includes(question.sourceExcerpt));
   if (!contextSupportsExcerpt) {
     throw new Error("Source excerpt is not a contiguous passage in the cited context");
   }

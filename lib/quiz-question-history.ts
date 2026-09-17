@@ -1,6 +1,7 @@
 import { createHash } from "crypto";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { QuestionLevel } from "./learning";
+import { AI_CONFIG } from "./ai-config";
 
 export type QuizQuestionScope = "adaptive" | "module" | "program";
 
@@ -45,6 +46,7 @@ export type QuizQuestionMetadata = {
   questionStyle?: string | null;
   sourceChunkIds?: string[] | null;
   sourceExcerpt?: string | null;
+  blueprintFingerprint?: string | null;
 };
 
 export type StructuredQuizHistory = QuizQuestionMetadata & {
@@ -56,7 +58,7 @@ export type StructuredQuizHistory = QuizQuestionMetadata & {
 const RECENT_PROMPT_HISTORY_LIMIT = 75;
 const STRUCTURED_COMPARE_LIMIT = 300;
 const TEXT_COMPARE_LIMIT = 300;
-const SIMILARITY_THRESHOLD = 0.88;
+export const QUIZ_NEAR_DUPLICATE_THRESHOLD = AI_CONFIG.novelty.nearDuplicateThreshold;
 const STOP_WORDS = new Set([
   "a", "an", "and", "are", "as", "at", "be", "by", "for", "from", "has", "have", "in", "is", "it",
   "of", "on", "or", "team", "the", "to", "what", "when", "which", "who", "with",
@@ -150,7 +152,7 @@ export async function getRecentQuizQuestionHistory(params: HistoryScopeParams): 
 export async function getRecentStructuredQuizHistory(params: HistoryScopeParams): Promise<StructuredQuizHistory[]> {
   try {
     let query = params.supabase.from("quiz_question_history")
-      .select("question_text, discipline, referee_level, topic, subtopic, rule_id, rule_reference, scenario_type, referee_role, decision_type, question_style, source_chunk_ids, source_fact_fingerprint, concept_fingerprint")
+      .select("question_text, discipline, referee_level, topic, subtopic, rule_id, rule_reference, scenario_type, referee_role, decision_type, question_style, source_chunk_ids, source_fact_fingerprint, concept_fingerprint, blueprint_fingerprint")
       .eq("user_id", params.userId).eq("scope", params.scope)
       .order("created_at", { ascending: false }).limit(STRUCTURED_COMPARE_LIMIT);
     query = applyModuleFilter(query, params.moduleId);
@@ -172,6 +174,7 @@ export async function getRecentStructuredQuizHistory(params: HistoryScopeParams)
       sourceChunkIds: row.source_chunk_ids,
       sourceFactFingerprint: row.source_fact_fingerprint,
       conceptFingerprint: row.concept_fingerprint,
+      blueprintFingerprint: row.blueprint_fingerprint,
     }));
   } catch (error) {
     console.warn("Structured quiz history lookup failed:", error);
@@ -251,7 +254,7 @@ export async function assessQuizQuestionNovelty(params: AssessNoveltyParams): Pr
         similarQuestion = previousText;
       }
     }
-    const duplicate = maxSimilarity >= SIMILARITY_THRESHOLD;
+    const duplicate = maxSimilarity >= QUIZ_NEAR_DUPLICATE_THRESHOLD;
     return {
       duplicate,
       reason: duplicate ? "similar" : null,
@@ -290,6 +293,7 @@ export async function recordQuizQuestionHistory(params: RecordHistoryParams): Pr
       source_chunk_ids: metadata.sourceChunkIds ?? null,
       source_fact_fingerprint: sourceFactFingerprint(metadata),
       concept_fingerprint: conceptFingerprint(metadata),
+      blueprint_fingerprint: metadata.blueprintFingerprint ?? null,
       quiz_session_id: params.quizSessionId || null,
     });
     if (error && error.code !== "23505") throw error;

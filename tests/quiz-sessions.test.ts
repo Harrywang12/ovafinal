@@ -16,6 +16,9 @@ describe("quiz session grading", () => {
     const visible = publicQuizQuestion(rows[0]);
     expect(visible).not.toHaveProperty("answer");
     expect(visible).not.toHaveProperty("explanation");
+    expect(visible).not.toHaveProperty("sourceExcerpt");
+    expect(visible).not.toHaveProperty("sourceChunkIds");
+    expect(visible).not.toHaveProperty("sourceDocumentId");
     expect(question.answer).toBe("A");
   });
 

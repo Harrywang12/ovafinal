@@ -1,7 +1,6 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { requireAdminFromRequest } from "../../../lib/admin";
-import { embedChunks } from "../../../lib/embeddings";
 import { quizDisciplineSchema, refereeLevelSchema } from "../../../lib/quiz-programs";
 import { buildRuleIndexChunks, extractPdfPages } from "../../../lib/rule-indexing";
 import { getServerSupabase } from "../../../lib/supabase";
@@ -25,7 +24,7 @@ const inputSchema = z.object({
 export async function POST(request: Request) {
   let documentId: string | null = null;
   try {
-    assertEnv(["SUPABASE_URL", "SUPABASE_SERVICE_KEY", "GEMINI_API_KEY"]);
+    assertEnv(["SUPABASE_URL", "SUPABASE_SERVICE_KEY"]);
     const admin = await requireAdminFromRequest(request);
     if (!admin.ok) return NextResponse.json({ error: admin.error }, { status: admin.status });
     const parsed = inputSchema.safeParse(await request.json().catch(() => ({})));
@@ -39,8 +38,6 @@ export async function POST(request: Request) {
     const pages = await extractPdfPages(buffer);
     const chunks = buildRuleIndexChunks(pages, input.discipline);
     if (!chunks.length) return NextResponse.json({ error: "No usable text was extracted from the PDF" }, { status: 422 });
-    const embeddings = await embedChunks(chunks.map((chunk) => chunk.chunkText));
-
     const { data: document, error: documentError } = await supabase.from("rule_documents").insert({
       title: input.title, discipline: input.discipline, document_type: input.documentType,
       effective_year: input.effectiveYear || null, source_url: input.sourceUrl || null,
@@ -51,7 +48,6 @@ export async function POST(request: Request) {
     const { error: chunkError } = await supabase.from("rule_chunks").insert(chunks.map((chunk, index) => ({
       document_id: document.id,
       chunk_text: chunk.chunkText,
-      embedding: embeddings[index],
       page_number: chunk.pageNumber,
       rule_number: chunk.ruleNumber,
       section_title: chunk.sectionTitle,
@@ -69,6 +65,6 @@ export async function POST(request: Request) {
     return NextResponse.json({ documentId: document.id, inserted: chunks.length, pageMetadataAvailable: true });
   } catch (error) {
     if (documentId) await getServerSupabase().from("rule_documents").delete().eq("id", documentId);
-    return NextResponse.json({ error: error instanceof Error ? error.message : "Rulebook embedding failed" }, { status: 500 });
+    return NextResponse.json({ error: error instanceof Error ? error.message : "Rulebook indexing failed" }, { status: 500 });
   }
 }

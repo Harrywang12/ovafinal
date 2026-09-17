@@ -5,6 +5,7 @@ import {
   conceptFingerprint,
   normalizeQuizQuestionText,
   quizQuestionSignature,
+  quizQuestionTextSimilarity,
   sourceFactFingerprint,
 } from "../lib/quiz-question-history";
 
@@ -22,6 +23,12 @@ describe("question history", () => {
   it("normalizes punctuation and produces stable signatures", () => {
     expect(normalizeQuizQuestionText("  Net-contact: Fault? ")).toBe("net contact fault");
     expect(quizQuestionSignature("Net contact fault")).toBe(quizQuestionSignature("NET-contact fault!"));
+  });
+
+  it("detects strong token-based near duplicates at the configured gate", () => {
+    const previous = "After service authorization, the server does not contact the ball in time. What is the ruling?";
+    const repeated = "After service authorization the server does not contact the ball in time—what is the ruling?";
+    expect(quizQuestionTextSimilarity(previous, repeated)).toBeGreaterThanOrEqual(0.88);
   });
 
   it("allows a rule to be reused when its source fact and concept are different", () => {

@@ -1,11 +1,12 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { requireUserFromRequest } from "../../../lib/auth";
-import { QuizGenerationError, generateGroundedQuizQuestion } from "../../../lib/quiz-generation";
+import { QuizGenerationError, generateGroundedQuizQuestion, planGroundedQuizBlueprints } from "../../../lib/quiz-generation";
 import { recordQuizQuestionHistory } from "../../../lib/quiz-question-history";
 import { allocateDifficulties, difficultyProgressionSchema, expandTopicBlueprint, topicBlueprintItemSchema } from "../../../lib/quiz-programs";
-import { publicQuizQuestion, toStructuredHistory } from "../../../lib/quiz-sessions";
-import { enforceGenerationQuota } from "../../../lib/rate-limit";
+import { publicQuizQuestion } from "../../../lib/quiz-sessions";
+import { AI_CONFIG } from "../../../lib/ai-config";
+import { enforceGenerationQuota, RateLimitError } from "../../../lib/rate-limit";
 import { getServerSupabase } from "../../../lib/supabase";
 import { assertEnv } from "../../../lib/utils";
 
@@ -14,10 +15,22 @@ export const maxDuration = 300;
 
 const inputSchema = z.object({ assignmentId: z.string().uuid() });
 
+async function mapWithConcurrency<T, R>(values: T[], concurrency: number, worker: (value: T, index: number) => Promise<R>) {
+  const output = new Array<R>(values.length);
+  let next = 0;
+  await Promise.all(Array.from({ length: Math.min(concurrency, values.length) }, async () => {
+    while (next < values.length) {
+      const index = next++;
+      output[index] = await worker(values[index], index);
+    }
+  }));
+  return output;
+}
+
 export async function POST(request: Request) {
   let sessionId: string | null = null;
   try {
-    assertEnv(["GEMINI_API_KEY", "SUPABASE_SERVICE_KEY", "SUPABASE_URL"]);
+    assertEnv(["DEEPSEEK_API_KEY", "SUPABASE_SERVICE_KEY", "SUPABASE_URL"]);
     const user = await requireUserFromRequest(request);
     if (!user.ok) return NextResponse.json({ error: user.error }, { status: user.status });
     const parsed = inputSchema.safeParse(await request.json().catch(() => ({})));
@@ -52,7 +65,9 @@ export async function POST(request: Request) {
     const mix = progression.find((step) => step.throughQuiz === null || quizNumber <= step.throughQuiz)?.mix;
     if (!mix) throw new Error("Difficulty progression does not cover this quiz number");
     const difficulties = allocateDifficulties(topics.length, mix);
-    await enforceGenerationQuota(supabase, user.userId, topics.length, { hourly: 40, daily: 120 });
+    await enforceGenerationQuota(supabase, user.userId, topics.length, {
+      feature: "assigned_quiz", hourly: AI_CONFIG.quotas.assignedHourly, daily: AI_CONFIG.quotas.assignedDaily,
+    });
 
     const { data: session, error: createError } = await supabase.from("quiz_sessions").insert({
       quiz_program_id: program.id,
@@ -66,21 +81,25 @@ export async function POST(request: Request) {
     if (createError) throw createError;
     sessionId = session.id;
 
-    const generated = [];
-    for (let index = 0; index < topics.length; index += 1) {
-      const question = await generateGroundedQuizQuestion({
-        supabase,
-        userId: user.userId,
-        discipline: program.discipline,
-        refereeLevel: program.referee_level,
+    const baseGeneration = {
+      supabase,
+      userId: user.userId,
+      discipline: program.discipline,
+      refereeLevel: program.referee_level,
+      flow: "program" as const,
+      quizSessionId: session.id,
+    };
+    const blueprints = await planGroundedQuizBlueprints(baseGeneration, topics.map((topic, index) => ({
+      topic, difficulty: difficulties[index],
+    })));
+    const generated = await mapWithConcurrency(blueprints, AI_CONFIG.novelty.assignedConcurrency, async (blueprint, index) =>
+      generateGroundedQuizQuestion({
+        ...baseGeneration,
         difficulty: difficulties[index],
         topic: topics[index],
-        flow: "program",
-        quizSessionId: session.id,
-        sessionHistory: generated.map(toStructuredHistory),
-      });
-      generated.push(question);
-    }
+        blueprint,
+      })
+    );
 
     const { data: storedQuestions, error: storeError } = await supabase.from("quiz_session_questions").insert(
       generated.map((question, index) => ({
@@ -105,8 +124,10 @@ export async function POST(request: Request) {
     }, { status: 201 });
   } catch (error) {
     if (sessionId) await getServerSupabase().from("quiz_sessions").update({ status: "generation_failed" }).eq("id", sessionId);
-    const status = error instanceof QuizGenerationError ? error.status : 500;
-    const code = error instanceof QuizGenerationError ? error.code : "QUIZ_SESSION_GENERATION_FAILED";
-    return NextResponse.json({ code, message: error instanceof Error ? error.message : "Quiz session generation failed" }, { status });
+    const status = error instanceof QuizGenerationError ? error.status : Number((error as { status?: number }).status) || 500;
+    const code = error instanceof QuizGenerationError ? error.code : (error as { code?: string }).code || "QUIZ_SESSION_GENERATION_FAILED";
+    const response = NextResponse.json({ code, message: error instanceof Error ? error.message : "Quiz session generation failed" }, { status });
+    if (error instanceof RateLimitError) response.headers.set("Retry-After", String(error.retryAfter));
+    return response;
   }
 }

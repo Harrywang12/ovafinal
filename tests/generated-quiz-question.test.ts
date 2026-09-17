@@ -66,7 +66,7 @@ describe("generated quiz question validation", () => {
     )).toThrow(/Rule ID/i);
   });
 
-  it("accepts harmless punctuation differences in a verbatim source excerpt", () => {
+  it("requires the source excerpt to be a literal contiguous substring", () => {
     const punctuatedChunk = {
       ...chunk,
       chunk_text: "Rule 12.4 — the server must contact the ball within the permitted service-time.",
@@ -75,7 +75,7 @@ describe("generated quiz question validation", () => {
       { ...valid, sourceExcerpt: "the server must contact the ball within the permitted service time" },
       { discipline: "beach", refereeLevel: "level_1", difficulty: "basic" },
       [punctuatedChunk]
-    )).not.toThrow();
+    )).toThrow(/contiguous/i);
   });
 
   it("rejects Rallyball wording from a standard Indoor question", () => {

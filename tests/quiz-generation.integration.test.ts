@@ -1,11 +1,19 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 vi.mock("../lib/llm", () => ({ llmObject: vi.fn() }));
+vi.mock("../lib/ai-telemetry", () => ({ recordQuizGenerationOutcome: vi.fn().mockResolvedValue(undefined) }));
 vi.mock("../lib/rag", () => ({ searchRuleChunks: vi.fn() }));
-vi.mock("../lib/quiz-question-styles", () => ({
-  selectQuestionStyles: vi.fn((_topic, _difficulty, count) => Array.from({ length: count }, () => "referee_ruling")),
-  styleInstruction: vi.fn(() => "Ask for the referee ruling."),
-}));
+vi.mock("../lib/quiz-blueprint-planner", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("../lib/quiz-blueprint-planner")>();
+  return {
+    ...actual,
+    getActiveBlueprintFingerprints: vi.fn().mockResolvedValue(new Set()),
+    rankBlueprintCandidates: vi.fn().mockReturnValue([]),
+    reserveBlueprint: vi.fn(),
+    releaseBlueprint: vi.fn().mockResolvedValue(undefined),
+    acceptBlueprint: vi.fn().mockResolvedValue(undefined),
+  };
+});
 vi.mock("../lib/quiz-question-history", async (importOriginal) => {
   const actual = await importOriginal<typeof import("../lib/quiz-question-history")>();
   return {
@@ -16,9 +24,11 @@ vi.mock("../lib/quiz-question-history", async (importOriginal) => {
 });
 
 import { llmObject } from "../lib/llm";
+import { reserveBlueprint } from "../lib/quiz-blueprint-planner";
 import { assessQuizQuestionNovelty } from "../lib/quiz-question-history";
 import { QuizGenerationError, generateGroundedQuizQuestion } from "../lib/quiz-generation";
 import { searchRuleChunks } from "../lib/rag";
+import { RateLimitError } from "../lib/rate-limit";
 
 const chunk = {
   id: "11111111-1111-4111-8111-111111111111",
@@ -38,30 +48,32 @@ const chunk = {
   index_version: 2,
   chunk_index: 1,
   content_hash: "hash",
-  similarity: 0.9,
+  similarity: 1,
   chunk_text: "Rule 12.4 requires the server to contact the ball within the permitted service time.",
 };
 
-const question = {
+const language = {
   question: "After authorization, what ruling should the first referee make if the server does not contact the ball in time?",
   options: ["Call a service fault", "Authorize a substitution", "Order a court switch", "Allow another attempt"],
-  answer: "Call a service fault",
+  correctOptionIndex: 0,
   explanation: "Failure to contact the ball within the permitted service time is a service fault.",
-  ruleReference: "Rule 12.4 - Execution of service",
-  discipline: "beach",
-  refereeLevel: "level_1",
-  difficulty: "basic",
-  topic: "service_and_service_order",
-  subtopic: "service_time_limit",
-  ruleId: "12.4",
-  scenarioType: "late_service_after_authorization",
-  refereeRole: "first_referee",
-  decisionType: "service_time_fault_ruling",
-  questionStyle: "referee_ruling",
-  sourceDocumentId: chunk.document_id,
-  sourceChunkIds: [chunk.id],
-  sourceExcerpt: "the server to contact the ball within the permitted service time",
+  supportingQuote: "the server to contact the ball within the permitted service time",
 };
+
+function blueprint(sequence = 1) {
+  return {
+    sourceChunkId: chunk.id,
+    ruleId: "12.4",
+    questionStyle: "referee_ruling" as const,
+    scenarioType: `late_service_after_authorization_${sequence}`,
+    refereeRole: "first_referee" as const,
+    decisionType: `service_time_fault_ruling_${sequence}`,
+    fingerprint: String(sequence).padStart(64, "a"),
+    reservationId: `reservation-${sequence}`,
+    noveltyScore: sequence,
+    chunk,
+  };
+}
 
 const input = {
   supabase: {} as never,
@@ -72,34 +84,35 @@ const input = {
   topic: "service_and_service_order",
 };
 
-function generatedBatch(value = question, batch = 1) {
-  return { candidates: [{ slotId: `batch_${batch}_slot_1`, question: value }] };
-}
+const verified = { supported: true, answerSupported: true, explanationSupported: true };
 
-function verification(supported = true, batch = 1) {
-  return { results: [{ slotId: `batch_${batch}_slot_1`, supported, issues: supported ? [] : ["unsupported"] }] };
-}
-
-describe("grounded generation integration", () => {
+describe("single-candidate grounded generation", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     vi.mocked(searchRuleChunks).mockResolvedValue([chunk]);
-    vi.mocked(llmObject).mockResolvedValueOnce(generatedBatch()).mockResolvedValueOnce(verification());
+    vi.mocked(reserveBlueprint).mockResolvedValue(blueprint());
+    vi.mocked(llmObject).mockResolvedValueOnce(language).mockResolvedValueOnce(verified);
     vi.mocked(assessQuizQuestionNovelty).mockResolvedValue({ duplicate: false, reason: null, maxSimilarity: 0, similarQuestion: null, noveltyPenalty: 0 });
   });
 
-  it("generates and verifies a Beach Level 1 question from active Beach context", async () => {
-    await expect(generateGroundedQuizQuestion(input)).resolves.toMatchObject({ discipline: "beach", refereeLevel: "level_1", questionStyle: "referee_ruling" });
-    expect(searchRuleChunks).toHaveBeenCalledWith(expect.any(String), expect.objectContaining({ discipline: "beach", refereeLevel: "level_1", rulesets: ["beach"] }), 20);
+  it("generates one Beach Level 1 candidate and verifies it", async () => {
+    await expect(generateGroundedQuizQuestion(input)).resolves.toMatchObject({
+      discipline: "beach", refereeLevel: "level_1", questionStyle: "referee_ruling", answer: language.options[0],
+    });
+    expect(searchRuleChunks).toHaveBeenCalledWith("", expect.objectContaining({ discipline: "beach", refereeLevel: "level_1", rulesets: ["beach"] }), 16);
     expect(llmObject).toHaveBeenCalledTimes(2);
+    expect(vi.mocked(llmObject).mock.calls[0][3]).toMatchObject({ maxTokens: 1000, requestType: "quiz_generation:adaptive" });
+    expect(vi.mocked(llmObject).mock.calls[1][3]).toMatchObject({ maxTokens: 100, requestType: "quiz_verification:adaptive" });
   });
 
-  it("rejects a metadata mismatch and succeeds from the second source/style batch", async () => {
+  it("retries a malformed candidate with a different reserved blueprint", async () => {
+    vi.mocked(reserveBlueprint).mockResolvedValueOnce(blueprint(1)).mockResolvedValueOnce(blueprint(2));
     vi.mocked(llmObject).mockReset()
-      .mockResolvedValueOnce(generatedBatch({ ...question, discipline: "indoor" }))
-      .mockResolvedValueOnce(generatedBatch(question, 2))
-      .mockResolvedValueOnce(verification(true, 2));
+      .mockResolvedValueOnce({ ...language, options: ["same", "same", "three", "four"] })
+      .mockResolvedValueOnce(language)
+      .mockResolvedValueOnce(verified);
     await expect(generateGroundedQuizQuestion(input)).resolves.toMatchObject({ discipline: "beach" });
+    expect(reserveBlueprint).toHaveBeenCalledTimes(2);
     expect(llmObject).toHaveBeenCalledTimes(3);
   });
 
@@ -109,41 +122,37 @@ describe("grounded generation integration", () => {
   });
 
   it("never returns a deterministic duplicate fallback", async () => {
-    vi.mocked(llmObject).mockReset()
-      .mockResolvedValueOnce(generatedBatch(question, 1))
-      .mockResolvedValueOnce(generatedBatch(question, 2));
+    vi.mocked(reserveBlueprint).mockResolvedValueOnce(blueprint(1)).mockResolvedValueOnce(blueprint(2));
+    vi.mocked(llmObject).mockReset().mockResolvedValue(language);
     vi.mocked(assessQuizQuestionNovelty).mockResolvedValue({ duplicate: true, reason: "similar", maxSimilarity: 0.9, similarQuestion: "old", noveltyPenalty: 1 });
     await expect(generateGroundedQuizQuestion(input)).rejects.toEqual(expect.objectContaining<Partial<QuizGenerationError>>({ code: "UNIQUE_QUESTION_GENERATION_FAILED" }));
     expect(llmObject).toHaveBeenCalledTimes(2);
   });
 
-  it("uses the second batch when the top adaptive candidate fails grounding verification", async () => {
+  it("uses a different blueprint after grounding rejection", async () => {
+    vi.mocked(reserveBlueprint).mockResolvedValueOnce(blueprint(1)).mockResolvedValueOnce(blueprint(2));
     vi.mocked(llmObject).mockReset()
-      .mockResolvedValueOnce(generatedBatch(question, 1))
-      .mockResolvedValueOnce(verification(false, 1))
-      .mockResolvedValueOnce(generatedBatch({ ...question, scenarioType: "service_clock_expiry", decisionType: "service_clock_fault" }, 2))
-      .mockResolvedValueOnce(verification(true, 2));
-    await expect(generateGroundedQuizQuestion(input)).resolves.toMatchObject({ scenarioType: "service_clock_expiry" });
+      .mockResolvedValueOnce(language)
+      .mockResolvedValueOnce({ supported: false, answerSupported: false, explanationSupported: true, failureCode: "ANSWER_NOT_ENTAILED" })
+      .mockResolvedValueOnce(language)
+      .mockResolvedValueOnce(verified);
+    await expect(generateGroundedQuizQuestion(input)).resolves.toMatchObject({ scenarioType: "late_service_after_authorization_2" });
     expect(llmObject).toHaveBeenCalledTimes(4);
   });
 
-  it("generates four assigned candidates and verifies only the top two survivors", async () => {
-    const candidates = Array.from({ length: 4 }, (_, index) => ({
-      slotId: `batch_1_slot_${index + 1}`,
-      question: {
-        ...question,
-        question: `${question.question} Case ${index + 1}.`,
-        scenarioType: `assigned_service_case_${index + 1}`,
-        decisionType: `assigned_service_ruling_${index + 1}`,
-      },
-    }));
-    vi.mocked(llmObject).mockReset()
-      .mockResolvedValueOnce({ candidates })
-      .mockResolvedValueOnce({ results: candidates.slice(0, 2).map((candidate) => ({ slotId: candidate.slotId, supported: true, issues: [] })) });
-    await expect(generateGroundedQuizQuestion({ ...input, flow: "program", quizSessionId: "session" })).resolves.toMatchObject({ discipline: "beach" });
+  it("does not send question history or multiple candidate slots to DeepSeek", async () => {
+    await generateGroundedQuizQuestion({ ...input, flow: "program", quizSessionId: "session" });
     const generationPrompt = vi.mocked(llmObject).mock.calls[0][0][1].content;
-    const verificationPrompt = vi.mocked(llmObject).mock.calls[1][0][1].content;
-    expect(generationPrompt.match(/batch_1_slot_/g)).toHaveLength(4);
-    expect(JSON.parse(verificationPrompt)).toHaveLength(2);
+    expect(generationPrompt).not.toMatch(/recent|candidate.*2|slot/i);
+    expect(generationPrompt).toContain("Official source");
+  });
+
+  it("never retries a provider call after the central credit budget rejects it", async () => {
+    vi.mocked(llmObject).mockReset().mockRejectedValueOnce(new RateLimitError("LLM_BUDGET_EXCEEDED", "budget exhausted", 60));
+    await expect(generateGroundedQuizQuestion(input)).rejects.toMatchObject({
+      code: "LLM_BUDGET_EXCEEDED",
+      status: 429,
+    });
+    expect(llmObject).toHaveBeenCalledTimes(1);
   });
 });

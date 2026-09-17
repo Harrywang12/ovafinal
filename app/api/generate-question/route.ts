@@ -7,7 +7,7 @@ import { QuizGenerationError, generateGroundedQuizQuestion } from "../../../lib/
 import { getRecentStructuredQuizHistory, recordQuizQuestionHistory } from "../../../lib/quiz-question-history";
 import { quizDifficultySchema, quizDisciplineSchema } from "../../../lib/quiz-programs";
 import { listAvailableRuleTopics } from "../../../lib/rag";
-import { enforceGenerationQuota } from "../../../lib/rate-limit";
+import { enforceGenerationQuota, RateLimitError } from "../../../lib/rate-limit";
 import { getServerSupabase } from "../../../lib/supabase";
 import { assertEnv } from "../../../lib/utils";
 
@@ -33,7 +33,7 @@ function adaptiveDifficulty(value: "easy" | "medium" | "hard") {
 
 export async function POST(request: Request) {
   try {
-    assertEnv(["GEMINI_API_KEY", "SUPABASE_SERVICE_KEY", "SUPABASE_URL"]);
+    assertEnv(["DEEPSEEK_API_KEY", "SUPABASE_SERVICE_KEY", "SUPABASE_URL"]);
     const user = await requireUserFromRequest(request);
     if (!user.ok) return NextResponse.json({ error: user.error }, { status: user.status });
 
@@ -69,7 +69,7 @@ export async function POST(request: Request) {
     const preferredTopics = topics.filter((topic) => topicCounts.get(topic) === leastUsed);
     const topic = requestedTopic && topics.includes(requestedTopic as never)
       ? requestedTopic
-      : preferredTopics[Math.floor(Math.random() * preferredTopics.length)];
+      : [...preferredTopics].sort()[0];
 
     const question = await generateGroundedQuizQuestion({
       supabase,
@@ -90,7 +90,15 @@ export async function POST(request: Request) {
       questionLevel: questionLevelForDifficulty(state.current_difficulty),
     });
 
-    const { answer: _answer, explanation: _explanation, sourceExcerpt: _sourceExcerpt, ...publicQuestion } = question;
+    const {
+      answer: _answer,
+      explanation: _explanation,
+      sourceExcerpt: _sourceExcerpt,
+      sourceDocumentId: _sourceDocumentId,
+      sourceChunkIds: _sourceChunkIds,
+      blueprintFingerprint: _blueprintFingerprint,
+      ...publicQuestion
+    } = question;
     return NextResponse.json({
       ...publicQuestion,
       id: stored.id,
@@ -101,6 +109,8 @@ export async function POST(request: Request) {
   } catch (error) {
     const status = error instanceof QuizGenerationError ? error.status : Number((error as { status?: number }).status) || 500;
     const code = error instanceof QuizGenerationError ? error.code : (error as { code?: string }).code || "QUESTION_GENERATION_FAILED";
-    return NextResponse.json({ code, message: error instanceof Error ? error.message : "Question generation failed" }, { status });
+    const response = NextResponse.json({ code, message: error instanceof Error ? error.message : "Question generation failed" }, { status });
+    if (error instanceof RateLimitError) response.headers.set("Retry-After", String(error.retryAfter));
+    return response;
   }
 }

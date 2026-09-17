@@ -5,6 +5,7 @@ import {
   questionLevelForRefereeLevel,
   type RefereeLevel,
 } from "./learning";
+import { clientIpFromRequest, enforceAuthenticatedApiRateLimit, enforceIpApiRateLimit, RateLimitError } from "./rate-limit";
 
 export type RequestUser =
   | {
@@ -16,9 +17,18 @@ export type RequestUser =
   | { ok: false; status: number; error: string };
 
 export async function requireUserFromRequest(request: Request): Promise<RequestUser> {
+  const supabase = getServerSupabase();
+  try {
+    await enforceIpApiRateLimit(supabase, clientIpFromRequest(request));
+  } catch (rateLimitError) {
+    if (rateLimitError instanceof RateLimitError) {
+      return { ok: false, status: rateLimitError.status, error: rateLimitError.message };
+    }
+    return { ok: false, status: 503, error: "Request protection is temporarily unavailable" };
+  }
   const authHeader = request.headers.get("authorization") || request.headers.get("Authorization") || "";
   const token = authHeader.startsWith("Bearer ") ? authHeader.slice(7) : "";
-  const authClient = token ? getServerSupabase() : await getRequestSupabase();
+  const authClient = token ? supabase : await getRequestSupabase();
   const { data, error } = token
     ? await authClient.auth.getUser(token)
     : await authClient.auth.getUser();
@@ -26,7 +36,14 @@ export async function requireUserFromRequest(request: Request): Promise<RequestU
     return { ok: false, status: 401, error: "Unauthorized" };
   }
 
-  const supabase = getServerSupabase();
+  try {
+    await enforceAuthenticatedApiRateLimit(supabase, data.user.id);
+  } catch (rateLimitError) {
+    if (rateLimitError instanceof RateLimitError) {
+      return { ok: false, status: rateLimitError.status, error: rateLimitError.message };
+    }
+    return { ok: false, status: 503, error: "Request protection is temporarily unavailable" };
+  }
 
   const email = data.user.email ?? null;
   const metadataLevel = normalizeRefereeLevel(data.user.user_metadata?.referee_level);

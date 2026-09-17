@@ -1,12 +1,13 @@
 # Volleyball Referee Training (Serverless, Vercel)
 
-RAG-powered volleyball officiating trainer built with Next.js 16 (App Router), TailwindCSS, Supabase (Postgres, Auth, Storage, pgvector), and Google Gemini. All backend logic lives in Vercel serverless API routes.
+Rulebook-grounded volleyball officiating trainer built with Next.js 16 (App Router), TailwindCSS, Supabase, and DeepSeek. All backend logic lives in Next.js route handlers.
 
 ## Stack
 - Next.js 16 App Router, React Query for client data fetching/state
 - TailwindCSS styling
-- Supabase Postgres + Auth + Storage + pgvector
-- Google Gemini generation and `gemini-embedding-001` embeddings
+- Supabase Postgres + Auth + Storage, PostgreSQL FTS, and `pg_trgm`
+- DeepSeek's official API (`deepseek-flash`) for language generation and grounding verification
+- Deterministic metadata retrieval and novelty planning; no external embedding API
 - Serverless API routes in `app/api/*` (no separate backend)
 
 ## Environment
@@ -17,7 +18,7 @@ SUPABASE_ANON_KEY=
 SUPABASE_SERVICE_KEY=
 NEXT_PUBLIC_SUPABASE_URL=
 NEXT_PUBLIC_SUPABASE_ANON_KEY=
-GEMINI_API_KEY=
+DEEPSEEK_API_KEY=
 ADMIN_EMAILS=
 ```
 
@@ -59,7 +60,7 @@ Open `http://localhost:3000`.
 
 ## Feature Endpoints
 - `POST /api/upload-rules` — admin-authenticated PDF upload, limited to 25 MB.
-- `POST /api/embed-rules` — admin-authenticated `{ path, title, discipline, documentType, ... }`; writes normalized source metadata and embeddings.
+- `POST /api/embed-rules` — compatibility-named, admin-authenticated indexing endpoint; parses PDFs and writes rule-aware chunks and metadata without embeddings.
 - `POST /api/generate-question` — authenticated `{ discipline, difficulty?, topic? }`; server resolves referee level and returns a stored MCQ without its answer.
 - `POST /api/quiz-attempt` — `{ question_id, selected_option }`; grades the stored adaptive question server-side.
 - `GET /api/quiz-programs` — returns a learner's assigned programs, deadlines, status, and sessions.
@@ -70,10 +71,8 @@ Open `http://localhost:3000`.
 - `/api/admin/question-flags*` — protected question-report review APIs.
 - `GET/POST /api/practice` — `GET ?difficulty=` returns random clip metadata; `POST` logs attempt.
 - `GET/POST /api/challenge` — fetch weekly extreme clip + leaderboard or submit weekly score.
-- `POST /api/chatbot` — `{ message }` grounded tutor responses with citations.
-- `POST /api/rag-search` — `{ query, limit }` direct vector search.
-- `POST /api/lessons` — `{ module }` returns lessons + micro-quiz for the module.
-- `GET/POST /api/videos` — `GET` lists videos (optionally filtered by difficulty); `POST` creates a new video entry.
+- `/api/admin/video-questions*` — admin-protected video-question CRUD.
+- `POST /api/admin/upload-video` — admin-protected video upload, limited to 100 MB.
 
 ## Uploading Rule PDFs and Videos
 1. Upload rulebook PDF with an admin bearer token:
@@ -81,7 +80,7 @@ Open `http://localhost:3000`.
    curl -X POST -H "Authorization: Bearer <admin-token>" -F "file=@/path/to/rulebook.pdf" https://your-vercel-app.vercel.app/api/upload-rules
    ```
    Note the `path` in the response.
-2. Embed the rules with required source metadata:
+2. Index the rules with required source metadata (the route name is retained for compatibility):
    ```
    curl -X POST -H "Content-Type: application/json" \
      -H "Authorization: Bearer <admin-token>" \
@@ -91,38 +90,41 @@ Open `http://localhost:3000`.
 3. Upload practice clips:
    - **Option A: Via API (Recommended)**
      ```bash
-     curl -X POST https://your-vercel-app.vercel.app/api/videos \
+     curl -X POST https://your-vercel-app.vercel.app/api/admin/video-questions \
+       -H "Authorization: Bearer <admin-token>" \
        -H "Content-Type: application/json" \
        -d '{
+         "kind": "practice",
          "difficulty": "easy",
          "video_url": "https://your-storage.com/clip.mp4",
-         "correct_call": "Out",
+         "pause_at_seconds": 12,
+         "options": ["Out", "In", "Touch", "Replay"],
+         "correct_option_index": 0,
          "explanation": "Ball clearly lands outside sideline",
          "rule_reference": "Rule 8.4"
        }'
      ```
    - **Option B: Via Supabase SQL**
      ```sql
-     insert into videos (difficulty, video_url, correct_call, explanation, rule_reference)
-     values ('easy', 'https://.../clip.mp4', 'Out', 'Ball clearly lands outside sideline', 'Rule 8.4');
+     insert into video_questions (kind, difficulty, video_url, pause_at_seconds, options, correct_option_index, explanation, rule_reference)
+     values ('practice', 'easy', 'https://.../clip.mp4', 12, '["Out","In","Touch","Replay"]'::jsonb, 0, 'Ball clearly lands outside sideline', 'Rule 8.4');
      ```
    
    **Note:** Upload MP4 files to your storage bucket (e.g., `practice-clips` in Supabase Storage) first, then use the public URL in the `video_url` field.
 
 ## Managing Migrations
-- Use Supabase migration tooling and apply `supabase/migrations/20260712000000_structured_quiz_programs.sql` before using the new quiz flow.
-- The migration adds normalized sources, secure generated questions, quiz programs, assignments, frozen sessions, server-graded answers, structured history, flags, quotas, indexes, and RLS policies.
-- Existing `rules_embeddings` rows are preserved for compatibility, but cannot be safely classified as Indoor or Beach. Re-upload and embed official PDFs with metadata. Scored generation returns `INSUFFICIENT_SOURCE_CONTEXT` instead of falling back to unrelated text.
-- After switching embedding providers, run `npm run rules:reindex` so stored rule vectors are regenerated with Gemini. Vectors from the previous provider are not comparable with Gemini vectors, even though both are stored at 1536 dimensions.
-- The filtered `match_rule_chunks` RPC powers scored quiz generation. Legacy `match_rules` remains for existing tutor and module features.
-- Apply `supabase/migrations/20260713000000_rule_chunk_rulesets.sql` after the structured quiz migration. It separates standard Indoor chunks from Rallyball, Tripleball, and other variations contained in combined rulebooks.
+- Apply every migration through `supabase/migrations/20260917000000_production_rate_limits.sql`.
+- The migrations add weighted FTS/trigram indexes, transactional blueprint reservations, atomic API/AI budgets, and AI usage telemetry. They also remove the retired tutor's conversation persistence. Legacy vector columns remain nullable for rollback.
+- Run `npm run rules:reindex` to rebuild deterministic rule-aware chunks. Reindexing makes no AI or embedding calls.
+- Runtime retrieval uses `search_rule_chunks_fts`; legacy vector functions remain only in historical migrations and are not called by production code.
 
 ## Notes
-- All API routes use the Node runtime for Gemini + PDF parsing.
-- Floating AI Tutor (`components/floating-chat.tsx`) is available across pages.
+- All API routes use the Node.js runtime. DeepSeek calls go directly to `https://api.deepseek.com`.
+- Every API request is limited by client IP and authenticated user. DeepSeek additionally has per-user and project-wide call/token ceilings enforced immediately before the provider request. Limits fail closed if the database limiter is unavailable.
+- Configure the launch limits in `.env.example` for expected traffic and budget. The defaults allow ordinary quiz use while putting a hard ceiling on automated credit consumption.
 - Adaptive hints on the quiz page recommend modules based on missed questions.
 
 ## Quick Verification
 - `npm run lint` checks code quality with ESLint (Next.js 16 no longer provides `next lint`).
-- `npm test` runs mocked unit and integration tests without live Gemini calls.
+- `npm test` runs mocked unit and integration tests without paid AI calls.
 - `npm run build` performs the production Next.js build.

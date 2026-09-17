@@ -6,6 +6,7 @@ import { getModuleBySlug } from "../../../../lib/module-content";
 import { recordQuizQuestionHistory } from "../../../../lib/quiz-question-history";
 import type { QuizDifficulty, QuizDiscipline } from "../../../../lib/quiz-programs";
 import type { RuleSet } from "../../../../lib/rule-source-classification";
+import { enforceGenerationQuota, RateLimitError } from "../../../../lib/rate-limit";
 import { getServerSupabase } from "../../../../lib/supabase";
 import { assertEnv } from "../../../../lib/utils";
 
@@ -27,7 +28,7 @@ function moduleDifficulty(level: "beginner" | "intermediate" | "hard"): QuizDiff
 
 export async function POST(request: Request) {
   try {
-    assertEnv(["GEMINI_API_KEY", "SUPABASE_URL", "SUPABASE_SERVICE_KEY"]);
+    assertEnv(["DEEPSEEK_API_KEY", "SUPABASE_URL", "SUPABASE_SERVICE_KEY"]);
     const user = await requireUserFromRequest(request);
     if (!user.ok) return NextResponse.json({ error: user.error }, { status: user.status });
     const parsed = inputSchema.safeParse(await request.json().catch(() => ({})));
@@ -36,6 +37,7 @@ export async function POST(request: Request) {
     if (!moduleData) return NextResponse.json({ error: "Valid module_id required" }, { status: 400 });
 
     const supabase = getServerSupabase();
+    await enforceGenerationQuota(supabase, user.userId, 1, { feature: "module_question" });
     const questionLevel = requestUserQuestionLevel(user);
     const source = moduleSource(moduleData.category);
     const focusLesson = moduleData.lessons[Math.floor(Math.random() * moduleData.lessons.length)];
@@ -77,8 +79,10 @@ export async function POST(request: Request) {
       question_style: question.questionStyle,
     });
   } catch (error) {
-    const status = error instanceof QuizGenerationError ? error.status : 500;
-    const code = error instanceof QuizGenerationError ? error.code : "MODULE_QUESTION_GENERATION_FAILED";
-    return NextResponse.json({ code, message: error instanceof Error ? error.message : "Module question generation failed" }, { status });
+    const status = error instanceof QuizGenerationError ? error.status : Number((error as { status?: number }).status) || 500;
+    const code = error instanceof QuizGenerationError ? error.code : (error as { code?: string }).code || "MODULE_QUESTION_GENERATION_FAILED";
+    const response = NextResponse.json({ code, message: error instanceof Error ? error.message : "Module question generation failed" }, { status });
+    if (error instanceof RateLimitError) response.headers.set("Retry-After", String(error.retryAfter));
+    return response;
   }
 }

@@ -1,11 +1,10 @@
 import { createClient } from "@supabase/supabase-js";
 import { generateGroundedQuizQuestion } from "../lib/quiz-generation";
-import { toStructuredHistory } from "../lib/quiz-sessions";
 
 async function main() {
   const supabaseUrl = process.env.SUPABASE_URL;
   const serviceKey = process.env.SUPABASE_SERVICE_KEY;
-  if (!supabaseUrl || !serviceKey || !process.env.GEMINI_API_KEY) throw new Error("Quiz smoke-test environment is incomplete");
+  if (!supabaseUrl || !serviceKey || !process.env.DEEPSEEK_API_KEY) throw new Error("Quiz smoke-test environment is incomplete");
   const count = Number(process.argv.find((value) => value.startsWith("--count="))?.split("=")[1] || 1);
   if (!Number.isInteger(count) || count < 1 || count > 25) throw new Error("--count must be between 1 and 25 per discipline");
   const supabase = createClient(supabaseUrl, serviceKey);
@@ -14,7 +13,6 @@ async function main() {
   const userId = process.env.SMOKE_USER_ID || profiles[0].user_id;
 
   for (const discipline of ["indoor", "beach"] as const) {
-    const history = [];
     for (let index = 0; index < count; index += 1) {
       const startedAt = Date.now();
       const question = await generateGroundedQuizQuestion({
@@ -25,9 +23,7 @@ async function main() {
         difficulty: "basic",
         topic: index % 2 === 0 ? "service_and_service_order" : "playing_actions",
         flow: "adaptive",
-        sessionHistory: history,
       });
-      history.unshift(toStructuredHistory(question));
       console.info(JSON.stringify({
         discipline,
         number: index + 1,

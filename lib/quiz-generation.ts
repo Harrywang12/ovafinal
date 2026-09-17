@@ -1,23 +1,27 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { z } from "zod";
+import { AI_CONFIG } from "./ai-config";
+import { recordQuizGenerationOutcome } from "./ai-telemetry";
+import {
+  acceptBlueprint,
+  blueprintConceptKey,
+  getActiveBlueprintFingerprints,
+  rankBlueprintCandidates,
+  releaseBlueprint,
+  reserveBlueprint,
+  type QuizBlueprint,
+} from "./quiz-blueprint-planner";
 import {
   generatedQuizQuestionSchema,
-  questionStyleSchema,
   shuffleQuestionOptions,
   validateGeneratedQuestion,
   type GeneratedQuizQuestion,
-  type QuestionStyle,
 } from "./generated-quiz-question";
 import { llmObject } from "./llm";
-import {
-  assessQuizQuestionNovelty,
-  assessStructuredRepetition,
-  getRecentStructuredQuizHistory,
-  quizQuestionTextSimilarity,
-  type StructuredQuizHistory,
-} from "./quiz-question-history";
-import { selectQuestionStyles, styleInstruction } from "./quiz-question-styles";
-import { searchRuleChunks, type RetrievedRuleChunk } from "./rag";
+import { RateLimitError, RateLimitUnavailableError } from "./rate-limit";
+import { assessQuizQuestionNovelty, getRecentStructuredQuizHistory, type StructuredQuizHistory } from "./quiz-question-history";
+import { styleInstruction } from "./quiz-question-styles";
+import { searchRuleChunks } from "./rag";
 import type { QuizDifficulty, QuizDiscipline, RefereeLevel } from "./quiz-programs";
 import type { RuleSet } from "./rule-source-classification";
 
@@ -29,7 +33,7 @@ export class QuizGenerationError extends Error {
 
 export type QuizGenerationFlow = "adaptive" | "program" | "module";
 
-type GenerateQuestionInput = {
+export type GenerateQuestionInput = {
   supabase: SupabaseClient;
   userId: string;
   discipline: QuizDiscipline;
@@ -39,296 +43,246 @@ type GenerateQuestionInput = {
   flow?: QuizGenerationFlow;
   moduleId?: string | null;
   quizSessionId?: string | null;
-  sessionHistory?: StructuredQuizHistory[];
   rulesets?: RuleSet[];
   sourceQuery?: string;
   requireSourceTopic?: boolean;
-  maxBatches?: number;
+  maxAttempts?: number;
+  blueprint?: QuizBlueprint;
 };
 
-const rawQuestionSchema = z.object({
-  question: z.string(),
-  options: z.array(z.string()).length(4),
-  answer: z.string(),
-  explanation: z.string(),
-  ruleReference: z.string(),
-  discipline: z.enum(["indoor", "beach"]),
-  refereeLevel: z.enum(["level_1", "level_2", "level_3", "level_4"]),
-  difficulty: z.enum(["basic", "applied", "advanced"]),
-  topic: z.string(),
-  subtopic: z.string(),
-  ruleId: z.string(),
-  scenarioType: z.string(),
-  refereeRole: z.enum(["first_referee", "second_referee", "scorer", "line_judge", "joint_crew", "not_applicable"]),
-  decisionType: z.string(),
-  questionStyle: questionStyleSchema,
-  sourceDocumentId: z.string(),
-  sourceChunkIds: z.array(z.string()),
-  sourceExcerpt: z.string(),
-});
-
-const candidateBatchSchema = z.object({
-  candidates: z.array(z.object({ slotId: z.string(), question: rawQuestionSchema })).min(1).max(4),
+const generatedLanguageSchema = z.object({
+  question: z.string().trim().min(1),
+  options: z.tuple([
+    z.string().trim().min(1), z.string().trim().min(1),
+    z.string().trim().min(1), z.string().trim().min(1),
+  ]),
+  correctOptionIndex: z.number().int().min(0).max(3),
+  explanation: z.string().trim().min(1),
+  supportingQuote: z.string().trim().min(20),
+}).superRefine((value, ctx) => {
+  if (new Set(value.options.map((option) => option.toLowerCase())).size !== 4) {
+    ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["options"], message: "Options must be unique" });
+  }
 });
 
 const verificationSchema = z.object({
-  results: z.array(z.object({
-    slotId: z.string(),
-    supported: z.boolean(),
-    issues: z.array(z.string()),
-  })),
+  supported: z.boolean(),
+  answerSupported: z.boolean(),
+  explanationSupported: z.boolean(),
+  failureCode: z.enum(["ANSWER_NOT_ENTAILED", "EXPLANATION_NOT_ENTAILED", "SOURCE_MISMATCH", "AMBIGUOUS_ANSWER"]).optional(),
 });
 
-type CandidateBlueprint = { slotId: string; style: QuestionStyle; chunk: RetrievedRuleChunk };
-
-function sourceRuleNumbers(chunk: RetrievedRuleChunk) {
-  const values = new Set<string>();
-  if (chunk.rule_number) values.add(chunk.rule_number);
-  for (const match of chunk.chunk_text.matchAll(/\b(\d{1,2}(?:\.\d+){1,4})\s+(?=[A-Z])/g)) values.add(match[1]);
-  return Array.from(values);
+function scopeFor(input: GenerateQuestionInput) {
+  const flow = input.flow || (input.quizSessionId ? "program" : "adaptive");
+  return { flow, scope: flow === "program" ? "program" : flow === "module" ? "module" : "adaptive" } as const;
 }
 
-function historySummary(history: StructuredQuizHistory[]) {
-  const compact = <K extends keyof StructuredQuizHistory>(key: K) =>
-    Array.from(new Set(history.map((item) => item[key]).filter(Boolean))).slice(0, 12);
-  return {
-    recentRuleIds: compact("ruleId"),
-    recentScenarioTypes: compact("scenarioType"),
-    recentDecisionTypes: compact("decisionType"),
-    recentRefereeRoles: compact("refereeRole"),
-    recentQuestionStyles: compact("questionStyle"),
-    recentSourceChunkIds: Array.from(new Set(history.flatMap((item) => item.sourceChunkIds || []))).slice(0, 20),
-    recentQuestionTexts: history.map((item) => item.questionText).filter(Boolean).slice(0, 12),
-  };
+function configuredRulesets(input: GenerateQuestionInput) {
+  return input.rulesets || [input.discipline === "indoor" ? "standard_indoor" : "beach"] as RuleSet[];
+}
+
+function snake(value: string) {
+  return value.toLowerCase().replace(/[^a-z0-9]+/g, "_").replace(/^_+|_+$/g, "").slice(0, 64) || "rule_concept";
 }
 
 function levelGuidance(level: RefereeLevel) {
-  if (level === "level_1") return "Use fundamental rules, basic procedures, and one clear application. Do not test higher-level crew authority, positioning, cooperation, or match-management competencies.";
-  if (level === "level_2") return "Use realistic role-based application involving referee responsibilities, authority, positioning, cooperation, communication, procedure, or match management, while staying within Level 2.";
-  return "Use realistic applied officiating judgment while staying within the assigned referee level.";
+  if (level === "level_1") return "Use a fundamental rule and one clear application. Do not test authority beyond this level.";
+  if (level === "level_2") return "Use realistic role-based application within Level 2 responsibilities.";
+  return "Use realistic applied officiating judgment within the assigned referee level.";
 }
 
 function disciplineGuidance(discipline: QuizDiscipline, rulesets: RuleSet[]) {
-  if (rulesets.some((ruleset) => ruleset.startsWith("rallyball"))) return "This is an explicitly assigned Rallyball module. Use only the supplied Rallyball source and its stated format.";
+  if (rulesets.some((value) => value.startsWith("rallyball"))) return "Use only the supplied Rallyball format and never import standard six-player or beach procedures.";
   return discipline === "indoor"
-    ? "This is standard six-player Indoor volleyball. Never use Rallyball, Tripleball, tossed-ball sequences, or youth game variations."
-    : "This is two-player Beach volleyball. Do not use Indoor or Rallyball procedures.";
+    ? "Use standard six-player Indoor rules only; never introduce Rallyball, Tripleball, or beach procedures."
+    : "Use two-player Beach rules only; never introduce Indoor or Rallyball procedures.";
 }
 
-function makeBlueprints(chunks: RetrievedRuleChunk[], styles: QuestionStyle[], count: number, batchIndex: number): CandidateBlueprint[] {
-  return Array.from({ length: count }, (_, index) => ({
-    slotId: `batch_${batchIndex + 1}_slot_${index + 1}`,
-    style: styles[index],
-    chunk: chunks[(index + batchIndex * count) % chunks.length],
-  }));
-}
-
-function generationMessages(input: GenerateQuestionInput, blueprints: CandidateBlueprint[], history: StructuredQuizHistory[]) {
-  const rulesets = input.rulesets || [input.discipline === "indoor" ? "standard_indoor" : "beach"];
-  const blueprintJson = blueprints.map((blueprint) => ({
-    slotId: blueprint.slotId,
-    questionStyle: blueprint.style,
-    styleInstruction: styleInstruction(blueprint.style),
-    source: {
-      sourceChunkId: blueprint.chunk.id,
-      sourceDocumentId: blueprint.chunk.document_id,
-      sourceTitle: blueprint.chunk.document_title,
-      ruleset: blueprint.chunk.ruleset,
-      ruleNumbers: sourceRuleNumbers(blueprint.chunk),
-      sectionTitle: blueprint.chunk.section_title,
-      pageNumber: blueprint.chunk.page_number,
-      text: blueprint.chunk.chunk_text.slice(0, 3200),
-    },
-  }));
+function generationMessages(input: GenerateQuestionInput, blueprint: QuizBlueprint) {
   return [
     {
       role: "system" as const,
-      content: `You create official-source-grounded volleyball referee multiple-choice questions. ${disciplineGuidance(input.discipline, rulesets)} Use only the source assigned to each candidate. Scenario framing may vary, but every rule claim, correct answer, and explanation must be directly supported by that source. ${levelGuidance(input.refereeLevel)}`,
+      content: "Create one official-source-grounded volleyball referee multiple-choice question. Return JSON only with: question, exactly four unique options, correctOptionIndex (0-3), concise explanation, and supportingQuote. The quote must be copied exactly as one contiguous substring of the source. Use only the supplied source. Do not output metadata or citations. Exactly one option must be correct.",
     },
     {
       role: "user" as const,
-      content: `Create one question for every candidate blueprint below.
-
-Global requirements:
-- Exactly four unique, plausible options and exactly one correct answer.
-- answer must exactly equal one option.
-- Copy a concise sourceExcerpt as one contiguous passage from the assigned source text.
-- Cite only the assigned sourceChunkId and sourceDocumentId.
-- discipline must be "${input.discipline}", refereeLevel "${input.refereeLevel}", difficulty "${input.difficulty}", and topic "${input.topic}".
-- questionStyle must exactly match the assigned blueprint.
-- ruleId must exactly equal one of the assigned ruleNumbers when any are supplied. If no ruleNumbers are supplied, use a specific snake_case source-section identifier.
-- subtopic, scenarioType, and decisionType must be precise snake_case descriptions of this candidate's actual tested concept. Do not copy labels from history and do not use generic labels.
-- Make the scenario perspective, tested decision, and answer pattern materially different across candidates.
-- Contextual details may make the situation realistic, but they must not add an unstated rule, exception, sanction, measurement, or procedure.
-
-Recent user history to avoid:
-${JSON.stringify(historySummary(history), null, 2)}
-
-Candidate blueprints:
-${JSON.stringify(blueprintJson, null, 2)}`,
+      content: `Blueprint:\nquestionStyle=${blueprint.questionStyle}\nstyleInstruction=${styleInstruction(blueprint.questionStyle)}\nscenarioType=${blueprint.scenarioType}\nrefereeRole=${blueprint.refereeRole}\ndecisionType=${blueprint.decisionType}\ndifficulty=${input.difficulty}\n${levelGuidance(input.refereeLevel)}\n${disciplineGuidance(input.discipline, configuredRulesets(input))}\n\nOfficial source (the only authority):\n${blueprint.chunk.chunk_text.slice(0, 3_200)}`,
     },
   ];
 }
 
-function verificationMessages(candidates: Array<{ slotId: string; question: GeneratedQuizQuestion; chunk: RetrievedRuleChunk }>) {
+function verificationMessages(question: GeneratedQuizQuestion, blueprint: QuizBlueprint) {
   return [
     {
       role: "system" as const,
-      content: "You verify volleyball referee questions strictly against supplied official source text. Return supported=true only when the correct answer and explanation are fully entailed by the source and no rule claim depends on outside knowledge. Neutral team labels and score context are allowed.",
+      content: "Classify whether a multiple-choice question is fully entailed by the supplied official source. Return compact JSON only: supported, answerSupported, explanationSupported, and optional failureCode. supported is true only if the selected answer and explanation are both supported and exactly one option is correct.",
     },
     {
       role: "user" as const,
-      content: JSON.stringify(candidates.map((candidate) => ({
-        slotId: candidate.slotId,
-        question: candidate.question.question,
-        options: candidate.question.options,
-        answer: candidate.question.answer,
-        explanation: candidate.question.explanation,
-        ruleReference: candidate.question.ruleReference,
-        sourceExcerpt: candidate.question.sourceExcerpt,
-        officialSourceText: candidate.chunk.chunk_text,
-      })), null, 2),
+      content: `Official source:\n${blueprint.chunk.chunk_text}\n\nQuestion:\n${question.question}\nOptions:\n${question.options.map((option, index) => `${index}: ${option}`).join("\n")}\nSelected answer:\n${question.answer}\nExplanation:\n${question.explanation}\nSupporting quote:\n${question.sourceExcerpt}`,
     },
   ];
 }
 
-function diverseSourcePool(chunks: RetrievedRuleChunk[], history: StructuredQuizHistory[]) {
-  const recentIds = new Set(history.slice(0, 20).flatMap((item) => item.sourceChunkIds || []));
-  const seenGroups = new Set<string>();
-  return [...chunks].sort((a, b) => Number(recentIds.has(a.id)) - Number(recentIds.has(b.id)) || b.similarity - a.similarity).filter((chunk) => {
-    const group = `${chunk.document_id}:${chunk.rule_number || chunk.section_title || chunk.id}`;
-    if (seenGroups.has(group)) return false;
-    seenGroups.add(group);
-    return true;
+async function historyFor(input: GenerateQuestionInput) {
+  const { scope } = scopeFor(input);
+  return getRecentStructuredQuizHistory({
+    supabase: input.supabase, userId: input.userId, scope,
+    moduleId: input.moduleId || null, discipline: input.discipline, refereeLevel: input.refereeLevel,
+  });
+}
+
+export async function planGroundedQuizBlueprint(
+  input: GenerateQuestionInput,
+  history?: StructuredQuizHistory[],
+  locallyExcluded: Set<string> = new Set(),
+  excludedConcepts: Set<string> = new Set()
+): Promise<QuizBlueprint> {
+  const { scope } = scopeFor(input);
+  const retrievalTopic = input.requireSourceTopic === false ? undefined : input.topic;
+  const filters = {
+    discipline: input.discipline,
+    refereeLevel: input.refereeLevel,
+    topic: retrievalTopic,
+    rulesets: configuredRulesets(input),
+  };
+  let chunks = await searchRuleChunks(input.sourceQuery || "", filters, AI_CONFIG.novelty.candidateChunkCount);
+  if (!chunks.length && input.requireSourceTopic === false && input.sourceQuery) {
+    chunks = await searchRuleChunks("", filters, AI_CONFIG.novelty.candidateChunkCount);
+  }
+  if (!chunks.length) throw new QuizGenerationError("INSUFFICIENT_SOURCE_CONTEXT", "No suitable official source material was found for this question.", 422);
+  const [recentHistory, reserved] = await Promise.all([
+    history ? Promise.resolve(history) : historyFor(input),
+    getActiveBlueprintFingerprints(input.supabase, input.userId, scope),
+  ]);
+  for (const fingerprint of locallyExcluded) reserved.add(fingerprint);
+  const candidates = rankBlueprintCandidates(chunks, input.topic, input.difficulty, recentHistory, reserved)
+    .filter((candidate) => !excludedConcepts.has(blueprintConceptKey(candidate)));
+  const result = await reserveBlueprint({
+    supabase: input.supabase, userId: input.userId, scope,
+    moduleId: input.moduleId, quizSessionId: input.quizSessionId,
+    candidates, excludedFingerprints: locallyExcluded,
+  });
+  if (!result) throw new QuizGenerationError("BLUEPRINT_RESERVATION_CONFLICT", "No distinct question blueprint could be reserved.", 409);
+  return result;
+}
+
+export async function planGroundedQuizBlueprints(
+  base: Omit<GenerateQuestionInput, "topic" | "difficulty" | "blueprint">,
+  requests: Array<{ topic: string; difficulty: QuizDifficulty; sourceQuery?: string }>
+) {
+  if (!requests.length) return [];
+  const history = await historyFor({ ...base, ...requests[0] });
+  const excluded = new Set<string>();
+  const excludedConcepts = new Set<string>();
+  const planned: QuizBlueprint[] = [];
+  try {
+    for (const request of requests) {
+      const blueprint = await planGroundedQuizBlueprint({ ...base, ...request }, history, excluded, excludedConcepts);
+      excluded.add(blueprint.fingerprint);
+      excludedConcepts.add(blueprintConceptKey(blueprint));
+      planned.push(blueprint);
+    }
+    return planned;
+  } catch (error) {
+    await Promise.all(planned.map((blueprint) => releaseBlueprint(base.supabase, blueprint.reservationId)));
+    throw error;
+  }
+}
+
+function assembleQuestion(input: GenerateQuestionInput, blueprint: QuizBlueprint, language: z.infer<typeof generatedLanguageSchema>) {
+  const ruleReference = blueprint.chunk.rule_number
+    ? `Rule ${blueprint.chunk.rule_number}${blueprint.chunk.section_title ? ` - ${blueprint.chunk.section_title}` : ""}`
+    : blueprint.chunk.section_title || "Official rule source";
+  return generatedQuizQuestionSchema.parse({
+    question: language.question,
+    options: language.options,
+    answer: language.options[language.correctOptionIndex],
+    explanation: language.explanation,
+    ruleReference,
+    discipline: input.discipline,
+    refereeLevel: input.refereeLevel,
+    difficulty: input.difficulty,
+    topic: input.topic,
+    subtopic: snake(`${input.topic}_${blueprint.ruleId}`),
+    ruleId: blueprint.ruleId,
+    scenarioType: blueprint.scenarioType,
+    refereeRole: blueprint.refereeRole,
+    decisionType: blueprint.decisionType,
+    questionStyle: blueprint.questionStyle,
+    sourceDocumentId: blueprint.chunk.document_id,
+    sourceChunkIds: [blueprint.chunk.id],
+    sourceExcerpt: language.supportingQuote,
+    blueprintFingerprint: blueprint.fingerprint,
   });
 }
 
 export async function generateGroundedQuizQuestion(input: GenerateQuestionInput): Promise<GeneratedQuizQuestion> {
-  const flow = input.flow || (input.quizSessionId ? "program" : "adaptive");
-  const scope = flow === "program" ? "program" : flow === "module" ? "module" : "adaptive";
-  const rulesets = input.rulesets || [input.discipline === "indoor" ? "standard_indoor" : "beach"];
-  const requireSourceTopic = input.requireSourceTopic ?? flow !== "module";
-  const candidateCount = flow === "adaptive" ? 3 : 4;
-  const verifyCount = flow === "adaptive" ? 1 : 2;
-  const databaseHistory = await getRecentStructuredQuizHistory({
-    supabase: input.supabase,
-    userId: input.userId,
-    scope,
-    moduleId: input.moduleId || null,
-    discipline: input.discipline,
-    refereeLevel: input.refereeLevel,
-  });
-  const history = [...(input.sessionHistory || []), ...databaseHistory];
-  const excluded = Array.from(new Set(history.slice(0, 20).flatMap((item) => item.sourceChunkIds || [])));
-  const chunks = await searchRuleChunks(
-    input.sourceQuery || `${input.discipline} volleyball ${input.topic} referee ${input.refereeLevel}`,
-    {
-      discipline: input.discipline,
-      refereeLevel: input.refereeLevel,
-      topic: requireSourceTopic ? input.topic : undefined,
-      rulesets,
-      excludeChunkIds: excluded,
-    },
-    20
-  );
-  const fallbackChunks = chunks.length ? chunks : excluded.length ? await searchRuleChunks(
-    input.sourceQuery || `${input.discipline} volleyball ${input.topic} referee ${input.refereeLevel}`,
-    { discipline: input.discipline, refereeLevel: input.refereeLevel, topic: requireSourceTopic ? input.topic : undefined, rulesets },
-    20
-  ) : [];
-  if (!fallbackChunks.length) throw new QuizGenerationError("INSUFFICIENT_SOURCE_CONTEXT", "No suitable official source material was found for this question.", 422);
+  const { flow, scope } = scopeFor(input);
+  const attempts = Math.min(2, input.maxAttempts ?? AI_CONFIG.novelty.maxAttempts);
+  const history = await historyFor(input);
+  const attemptedFingerprints = new Set<string>();
+  const attemptedConcepts = new Set<string>();
+  let blueprint = input.blueprint;
 
-  const pool = diverseSourcePool(fallbackChunks, history);
-  const generationStartedAt = Date.now();
-  let lastError: unknown = null;
-
-  for (let batchIndex = 0; batchIndex < (input.maxBatches ?? 2); batchIndex += 1) {
-    const styles = selectQuestionStyles(input.topic, input.difficulty, candidateCount, history, batchIndex * candidateCount);
-    const blueprints = makeBlueprints(pool, styles, candidateCount, batchIndex);
-    const blueprintById = new Map(blueprints.map((blueprint) => [blueprint.slotId, blueprint]));
-    const batchStartedAt = Date.now();
+  for (let attempt = 1; attempt <= attempts; attempt += 1) {
+    blueprint ||= await planGroundedQuizBlueprint(input, history, attemptedFingerprints, attemptedConcepts);
+    attemptedFingerprints.add(blueprint.fingerprint);
+    attemptedConcepts.add(blueprintConceptKey(blueprint));
     try {
-      const generated = await llmObject(
-        generationMessages(input, blueprints, history),
-        candidateBatchSchema,
-        input.refereeLevel === "level_3" || input.refereeLevel === "level_4" ? "quality" : "fast",
-        { maxTokens: flow === "adaptive" ? 2400 : 3200, timeoutMs: 25_000, maxRetries: 0, userId: input.userId, tags: ["feature:quiz-generation", `flow:${flow}`] }
-      );
-      const survivors: Array<{ slotId: string; question: GeneratedQuizQuestion; chunk: RetrievedRuleChunk; penalty: number }> = [];
-
-      for (const candidate of generated.candidates) {
-        const blueprint = blueprintById.get(candidate.slotId);
-        if (!blueprint) continue;
-        try {
-          const parsed = generatedQuizQuestionSchema.parse(candidate.question);
-          const question = validateGeneratedQuestion(parsed, {
-            discipline: input.discipline,
-            refereeLevel: input.refereeLevel,
-            difficulty: input.difficulty,
-            topic: input.topic,
-            questionStyle: blueprint.style,
-            requireSourceTopic,
-          }, [blueprint.chunk]);
-          const sessionRepetition = assessStructuredRepetition(input.sessionHistory || [], question);
-          if (sessionRepetition) throw new Error(`Repeated session ${sessionRepetition.reason}`);
-          if ((input.sessionHistory || []).some((item) => quizQuestionTextSimilarity(item.questionText, question.question) >= 0.88)) {
-            throw new Error("Repeated session wording");
-          }
-          const novelty = await assessQuizQuestionNovelty({
-            supabase: input.supabase,
-            userId: input.userId,
-            scope,
-            moduleId: input.moduleId || null,
-            discipline: input.discipline,
-            refereeLevel: input.refereeLevel,
-            questionText: question.question,
-            metadata: question,
-          });
-          if (novelty.duplicate) throw new Error(`Repeated ${novelty.reason}`);
-          survivors.push({ slotId: candidate.slotId, question, chunk: blueprint.chunk, penalty: novelty.noveltyPenalty });
-        } catch (error) {
-          console.warn("Quiz candidate rejected", {
-            flow, batch: batchIndex + 1, slotId: candidate.slotId,
-            reason: error instanceof Error ? error.message : "unknown",
-          });
-        }
+      const language = await llmObject(generationMessages(input, blueprint), generatedLanguageSchema, "fast", {
+        maxTokens: AI_CONFIG.outputTokens.quiz, timeoutMs: AI_CONFIG.timeoutMs,
+        userId: input.userId, requestType: `quiz_generation:${flow}`, attempt,
+      });
+      const question = validateGeneratedQuestion(assembleQuestion(input, blueprint, language), {
+        discipline: input.discipline, refereeLevel: input.refereeLevel, difficulty: input.difficulty,
+        topic: input.topic, questionStyle: blueprint.questionStyle,
+        requireSourceTopic: input.requireSourceTopic, rulesets: configuredRulesets(input),
+      }, [blueprint.chunk]);
+      const novelty = await assessQuizQuestionNovelty({
+        supabase: input.supabase, userId: input.userId, scope,
+        moduleId: input.moduleId || null, discipline: input.discipline, refereeLevel: input.refereeLevel,
+        questionText: question.question, metadata: question,
+      });
+      if (novelty.duplicate) throw new Error(`DUPLICATE_${novelty.reason || "UNKNOWN"}`);
+      const verification = await llmObject(verificationMessages(question, blueprint), verificationSchema, "fast", {
+        maxTokens: AI_CONFIG.outputTokens.verifier, timeoutMs: 12_000,
+        userId: input.userId, requestType: `quiz_verification:${flow}`, attempt,
+      });
+      if (!verification.supported || !verification.answerSupported || !verification.explanationSupported) {
+        throw new Error(`GROUNDING_${verification.failureCode || "REJECTED"}`);
       }
-
-      survivors.sort((a, b) => a.penalty - b.penalty);
-      const verificationTargets = survivors.slice(0, verifyCount);
-      if (!verificationTargets.length) throw new Error("No candidates passed deterministic validation");
-      const verification = await llmObject(
-        verificationMessages(verificationTargets),
-        verificationSchema,
-        "fast",
-        { maxTokens: 500, timeoutMs: 12_000, maxRetries: 0, userId: input.userId, tags: ["feature:quiz-verification", `flow:${flow}`] }
-      );
-      const verificationById = new Map(verification.results.map((result) => [result.slotId, result]));
-      const accepted = verificationTargets.find((candidate) => verificationById.get(candidate.slotId)?.supported === true);
-      if (accepted) {
-        console.info("Quiz generation accepted", {
-          flow, discipline: input.discipline, refereeLevel: input.refereeLevel, topic: input.topic,
-          style: accepted.question.questionStyle, ruleId: accepted.question.ruleId,
-          batch: batchIndex + 1, candidates: generated.candidates.length, survivors: survivors.length,
-          batchMs: Date.now() - batchStartedAt, totalMs: Date.now() - generationStartedAt,
-        });
-        return shuffleQuestionOptions(accepted.question);
-      }
-      lastError = new Error(`Grounding verifier rejected ${verificationTargets.length} candidate(s)`);
+      await acceptBlueprint(input.supabase, blueprint.reservationId);
+      console.info("quiz_generation_outcome", {
+        flow, attempt, outcome: "accepted", validation: "passed", duplicate: false,
+        verifier: "supported", blueprintFingerprint: blueprint.fingerprint,
+      });
+      await recordQuizGenerationOutcome({
+        userId: input.userId, flow, attempt, blueprintFingerprint: blueprint.fingerprint, outcome: "accepted",
+      });
+      return shuffleQuestionOptions(question);
     } catch (error) {
-      lastError = error;
+      const reason = error instanceof Error ? error.message : "unknown";
+      const rejectionStage = reason.startsWith("DUPLICATE_")
+        ? "duplicate" as const
+        : reason.startsWith("GROUNDING_")
+          ? "verification" as const
+          : reason.includes("DeepSeek")
+            ? "generation" as const
+            : "validation" as const;
+      console.info("quiz_generation_outcome", {
+        flow, attempt, outcome: "rejected",
+        reason,
+        blueprintFingerprint: blueprint.fingerprint,
+      });
+      await recordQuizGenerationOutcome({
+        userId: input.userId, flow, attempt, blueprintFingerprint: blueprint.fingerprint,
+        outcome: "rejected", rejectionStage, rejectionReason: reason,
+      });
+      await releaseBlueprint(input.supabase, blueprint.reservationId);
+      blueprint = undefined;
+      if (error instanceof RateLimitError || error instanceof RateLimitUnavailableError) throw error;
     }
-    console.warn("Quiz generation batch rejected", {
-      flow, discipline: input.discipline, refereeLevel: input.refereeLevel, topic: input.topic,
-      batch: batchIndex + 1, batchMs: Date.now() - batchStartedAt,
-      reason: lastError instanceof Error ? lastError.message : "unknown",
-    });
   }
-
-  console.warn("Quiz generation failed", {
-    code: "UNIQUE_QUESTION_GENERATION_FAILED", flow, discipline: input.discipline,
-    refereeLevel: input.refereeLevel, topic: input.topic, totalMs: Date.now() - generationStartedAt,
-    reason: lastError instanceof Error ? lastError.message : "unknown",
-  });
   throw new QuizGenerationError("UNIQUE_QUESTION_GENERATION_FAILED", "A sufficiently distinct, source-supported question could not be generated.", 422);
 }

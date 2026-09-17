@@ -61,7 +61,7 @@ echo "✅ Uploaded to: $PDF_STORAGE_PATH"
 echo ""
 
 # Step 2: Embed the PDF
-echo "🧠 Step 2: Processing and embedding rulebook (this may take 30-60 seconds)..."
+echo "🧠 Step 2: Parsing and indexing rulebook..."
 EMBED_RESPONSE=$(curl -s -X POST \
   -H "Content-Type: application/json" \
   -d "{\"path\":\"$PDF_STORAGE_PATH\"}" \
@@ -69,7 +69,7 @@ EMBED_RESPONSE=$(curl -s -X POST \
 
 # Check for error
 if echo "$EMBED_RESPONSE" | grep -q '"error"'; then
-  echo "❌ Embedding failed: $EMBED_RESPONSE"
+  echo "❌ Indexing failed: $EMBED_RESPONSE"
   exit 1
 fi
 
@@ -84,9 +84,6 @@ echo "🎉 Rulebook upload complete!"
 echo ""
 echo "You can now use:"
 echo "  • Quiz generation at /quiz"
-echo "  • AI Tutor chatbot"
 echo "  • Lesson modules at /learn"
 echo "  • Scenario builder"
 echo "======================================"
-
-

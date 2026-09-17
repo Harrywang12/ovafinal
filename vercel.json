@@ -6,9 +6,6 @@
     "app/api/embed-rules/route.ts": {
       "maxDuration": 300
     },
-    "app/api/chatbot/route.ts": {
-      "maxDuration": 60
-    },
     "app/api/generate-question/route.ts": {
       "maxDuration": 90
     },

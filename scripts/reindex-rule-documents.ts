@@ -1,12 +1,11 @@
 import { createClient } from "@supabase/supabase-js";
-import { embedChunks } from "../lib/embeddings";
 import { buildRuleIndexChunks, extractPdfPages } from "../lib/rule-indexing";
 
 async function main() {
 const supabaseUrl = process.env.SUPABASE_URL;
 const serviceKey = process.env.SUPABASE_SERVICE_KEY;
-if (!supabaseUrl || !serviceKey || !process.env.GEMINI_API_KEY) {
-  throw new Error("SUPABASE_URL, SUPABASE_SERVICE_KEY, and GEMINI_API_KEY are required");
+if (!supabaseUrl || !serviceKey) {
+  throw new Error("SUPABASE_URL and SUPABASE_SERVICE_KEY are required");
 }
 
 const requestedId = process.argv.find((value) => value.startsWith("--document-id="))?.split("=")[1];
@@ -29,15 +28,12 @@ for (const document of documents || []) {
   const pages = await extractPdfPages(Buffer.from(await file.arrayBuffer()));
   const chunks = buildRuleIndexChunks(pages, document.discipline as "indoor" | "beach");
   if (!chunks.length) throw new Error(`No indexable rule sections found in ${document.title}`);
-  const embeddings = await embedChunks(chunks.map((chunk) => chunk.chunkText));
-
   await supabase.from("rule_chunks").delete().eq("document_id", document.id).eq("index_version", nextVersion);
   try {
     for (let offset = 0; offset < chunks.length; offset += 50) {
       const rows = chunks.slice(offset, offset + 50).map((chunk, relativeIndex) => ({
         document_id: document.id,
         chunk_text: chunk.chunkText,
-        embedding: embeddings[offset + relativeIndex],
         page_number: chunk.pageNumber,
         rule_number: chunk.ruleNumber,
         section_title: chunk.sectionTitle,

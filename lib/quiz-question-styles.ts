@@ -17,7 +17,7 @@ const STYLE_INSTRUCTIONS: Record<QuestionStyle, string> = {
   statement_accuracy: "Ask which of four concrete statements is supported by the cited rule text.",
 };
 
-function compatibleStyles(topic: string, difficulty: QuizDifficulty) {
+export function compatibleQuestionStyles(topic: string, difficulty: QuizDifficulty) {
   const styles = new Set<QuestionStyle>([
     "referee_ruling",
     "next_procedure",
@@ -46,7 +46,7 @@ export function selectQuestionStyles(
   random = Math.random
 ) {
   const recent = history.slice(0, 12).map((item) => item.questionStyle).filter(Boolean);
-  const styles = compatibleStyles(topic, difficulty)
+  const styles = compatibleQuestionStyles(topic, difficulty)
     .map((style) => ({
       style,
       recentIndex: recent.indexOf(style),

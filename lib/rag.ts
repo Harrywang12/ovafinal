@@ -1,11 +1,5 @@
-import { embedText } from "./embeddings";
 import { getServerSupabase } from "./supabase";
 import type { RuleSet } from "./rule-source-classification";
-
-export interface RetrievedChunk {
-  chunk: string;
-  similarity: number;
-}
 
 export interface RetrievedRuleChunk {
   id: string;
@@ -50,28 +44,14 @@ export function chunkText(text: string, chunkSize = 800, overlap = 80): string[]
   return chunks;
 }
 
-export async function searchRules(query: string, limit = 5): Promise<RetrievedChunk[]> {
-  const supabase = getServerSupabase();
-  const queryEmbedding = await embedText(query);
-  const { data, error } = await supabase.rpc("match_rules", {
-    query_embedding: queryEmbedding,
-    match_count: limit
-  });
-  if (error) {
-    throw error;
-  }
-  return (data as RetrievedChunk[]) || [];
-}
-
 export async function searchRuleChunks(
   query: string,
   filters: RuleSearchFilters,
   limit = 6
 ): Promise<RetrievedRuleChunk[]> {
   const supabase = getServerSupabase();
-  const queryEmbedding = await embedText(query);
-  const { data, error } = await supabase.rpc("match_rule_chunks", {
-    query_embedding: queryEmbedding,
+  const { data, error } = await supabase.rpc("search_rule_chunks_fts", {
+    search_query: query || null,
     match_count: limit,
     filter_discipline: filters.discipline,
     filter_referee_level: filters.refereeLevel,
