@@ -1,5 +1,9 @@
 begin;
 
+-- pgvector's IVFFlat build can require more than Supabase's 32 MB default,
+-- even before any embeddings have been inserted. Limit this to the migration.
+set local maintenance_work_mem = '96MB';
+
 create extension if not exists vector;
 create extension if not exists pgcrypto;
 

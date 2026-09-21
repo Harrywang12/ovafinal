@@ -114,6 +114,7 @@ Open `http://localhost:3000`.
 
 ## Managing Migrations
 - Apply every migration through `supabase/migrations/20260917000000_production_rate_limits.sql`.
+- If an index build reports `memory required is 61 MB, maintenance_work_mem is 32 MB`, rerun the failed migration from this repository. The legacy IVFFlat and newer FTS migrations now use a transaction-local 96 MB allowance; no global database configuration change is needed. The migrations run inside transactions, so a failed run can be retried.
 - The migrations add weighted FTS/trigram indexes, transactional blueprint reservations, atomic API/AI budgets, and AI usage telemetry. They also remove the retired tutor's conversation persistence. Legacy vector columns remain nullable for rollback.
 - Run `npm run rules:reindex` to rebuild deterministic rule-aware chunks. Reindexing makes no AI or embedding calls.
 - Runtime retrieval uses `search_rule_chunks_fts`; legacy vector functions remain only in historical migrations and are not called by production code.

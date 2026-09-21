@@ -1,5 +1,9 @@
 begin;
 
+-- Allow the FTS/trigram index builds on projects with a 32 MB default,
+-- without changing the database-wide maintenance memory setting.
+set local maintenance_work_mem = '96MB';
+
 create extension if not exists pg_trgm;
 
 -- Keep legacy vectors for rollback, but new ingestion and runtime retrieval do not use them.
