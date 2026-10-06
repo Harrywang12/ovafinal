@@ -1,23 +1,22 @@
 import type { Metadata } from "next";
-import { Bricolage_Grotesque, DM_Sans } from "next/font/google";
+import localFont from "next/font/local";
 import "./globals.css";
 import { ReactQueryProvider } from "../components/react-query-provider";
 import { AuthProvider } from "../components/auth-provider";
 import { AppShell } from "../components/app-shell";
 
-const bricolage = Bricolage_Grotesque({
-  subsets: ["latin"],
+const bricolage = localFont({
+  src: "../node_modules/@fontsource-variable/bricolage-grotesque/files/bricolage-grotesque-latin-wght-normal.woff2",
   variable: "--font-bricolage",
   display: "swap",
-  weight: ["400", "500", "600", "700", "800"],
-  adjustFontFallback: false,
+  weight: "200 800",
 });
 
-const dmSans = DM_Sans({
-  subsets: ["latin"],
+const dmSans = localFont({
+  src: "../node_modules/@fontsource-variable/dm-sans/files/dm-sans-latin-wght-normal.woff2",
   variable: "--font-dm-sans",
   display: "swap",
-  weight: ["400", "500", "600", "700"],
+  weight: "100 1000",
 });
 
 export const metadata: Metadata = {
