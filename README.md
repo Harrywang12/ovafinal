@@ -113,7 +113,7 @@ Open `http://localhost:3000`.
    **Note:** Upload MP4 files to your storage bucket (e.g., `practice-clips` in Supabase Storage) first, then use the public URL in the `video_url` field.
 
 ## Managing Migrations
-- Apply every migration through `supabase/migrations/20260917000000_production_rate_limits.sql`.
+- Apply every migration through `supabase/migrations/20261005000000_fix_rate_limit_search_path.sql`.
 - If an index build reports `memory required is 61 MB, maintenance_work_mem is 32 MB`, rerun the failed migration from this repository. The legacy IVFFlat and newer FTS migrations now use a transaction-local 96 MB allowance; no global database configuration change is needed. The migrations run inside transactions, so a failed run can be retried.
 - The migrations add weighted FTS/trigram indexes, transactional blueprint reservations, atomic API/AI budgets, and AI usage telemetry. They also remove the retired tutor's conversation persistence. Legacy vector columns remain nullable for rollback.
 - Run `npm run rules:reindex` to rebuild deterministic rule-aware chunks. Reindexing makes no AI or embedding calls.

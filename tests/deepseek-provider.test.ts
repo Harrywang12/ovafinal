@@ -35,7 +35,12 @@ describe("DeepSeek provider", () => {
     expect(AI_CONFIG).toMatchObject({ baseUrl: "https://api.deepseek.com", model: "deepseek-flash", provider: "deepseek" });
     expect(fetchMock).toHaveBeenCalledWith("https://api.deepseek.com/chat/completions", expect.objectContaining({ method: "POST" }));
     const body = JSON.parse(fetchMock.mock.calls[0][1].body);
-    expect(body).toMatchObject({ model: "deepseek-flash", response_format: { type: "json_object" }, stream: false });
+    expect(body).toMatchObject({
+      model: "deepseek-flash",
+      thinking: { type: "disabled" },
+      response_format: { type: "json_object" },
+      stream: false,
+    });
     expect(enforceLLMBudget).toHaveBeenCalledWith(options.userId, 4, options.maxTokens);
   });
 

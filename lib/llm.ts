@@ -78,6 +78,10 @@ async function requestDeepSeek(messages: ChatMessage[], options: LLMOptions, for
       body: JSON.stringify({
         model: AI_CONFIG.model,
         messages,
+        // Structured quiz generation needs the final JSON directly. DeepSeek
+        // enables thinking by default, which can consume the verifier's small
+        // output budget before message.content is produced.
+        thinking: { type: "disabled" },
         temperature: options.temperature ?? 0.2,
         max_tokens: options.maxTokens,
         stream: false,
