@@ -5,11 +5,13 @@ import { ReactQueryProvider } from "../components/react-query-provider";
 import { AuthProvider } from "../components/auth-provider";
 import { AppShell } from "../components/app-shell";
 
-const bricolage = localFont({
-  src: "../node_modules/@fontsource-variable/bricolage-grotesque/files/bricolage-grotesque-latin-wght-normal.woff2",
-  variable: "--font-bricolage",
+const condensed = localFont({
+  src: [
+    { path: "../node_modules/@fontsource/barlow-condensed/files/barlow-condensed-latin-600-normal.woff2", weight: "600", style: "normal" },
+    { path: "../node_modules/@fontsource/barlow-condensed/files/barlow-condensed-latin-700-normal.woff2", weight: "700", style: "normal" },
+  ],
+  variable: "--font-condensed",
   display: "swap",
-  weight: "200 800",
 });
 
 const dmSans = localFont({
@@ -31,7 +33,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={`${bricolage.variable} ${dmSans.variable}`}>
+    <html lang="en" className={`${condensed.variable} ${dmSans.variable}`}>
       <body className="text-ink antialiased font-sans">
         <ReactQueryProvider>
           <AuthProvider>

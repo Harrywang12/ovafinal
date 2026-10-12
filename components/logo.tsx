@@ -26,7 +26,7 @@ export function Logo({ size = "md", showText = true, animate = true, className =
     <div className={`flex items-center gap-3 ${className}`}>
       {/* Logo Icon */}
       <motion.div
-        whileHover={animate ? { rotate: 360, scale: 1.1 } : {}}
+        whileHover={animate ? { scale: 1.04 } : {}}
         transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
         className="relative flex items-center justify-center"
         style={{ width: icon, height: iconHeight }}

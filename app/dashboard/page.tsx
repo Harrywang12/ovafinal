@@ -1,5 +1,7 @@
 "use client";
 
+import { TrainingMasthead } from "../../components/training-masthead";
+
 import Link from "next/link";
 import { useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
@@ -12,7 +14,6 @@ import {
   Trophy,
   Video,
   ArrowRight,
-  BarChart3,
   BookOpen,
   GraduationCap,
 } from "lucide-react";
@@ -209,21 +210,7 @@ export default function DashboardPage() {
     <AuthGuard>
       <div className="min-h-screen pt-24 pb-16">
         <div className="max-w-6xl mx-auto px-6">
-          {/* Header */}
-          <motion.div variants={fadeInUp} initial="hidden" animate="visible" className="text-center mb-10">
-            <motion.div
-              initial={{ scale: 0 }}
-              animate={{ scale: 1 }}
-              transition={{ delay: 0.15, type: "spring", stiffness: 200 }}
-              className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-primary/10 text-primary mb-6"
-            >
-              <BarChart3 size={32} />
-            </motion.div>
-            <h1 className="text-4xl md:text-5xl font-display font-bold text-primary mb-3">Dashboard</h1>
-            <p className="text-muted text-lg max-w-2xl mx-auto">
-              Your account, your permanent practice progress, and your weekly challenge history.
-            </p>
-          </motion.div>
+          <TrainingMasthead number="00" eyebrow="YOUR TRAINING RECORD" title="Your match preparation." description="Your learning, practice progress, and weekly challenge history. All in one place." image="/images/editorial/referee-review.jpg" />
 
           {/* Loading / Error */}
           {dashboardQuery.isLoading && (

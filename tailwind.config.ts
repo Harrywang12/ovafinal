@@ -12,16 +12,16 @@ const config: Config = {
         // Bold red & white sports palette
         primary: "#c8102e",       // Vibrant volleyball red
         "primary-dark": "#a00d24", // Darker red for hover states
-        accent: "#ff3d5a",         // Bright coral red accent
-        secondary: "#1a1a2e",      // Deep navy for contrast
-        surface: "#faf8f8",        // Warm white with slight red tint
-        ink: "#1a1a2e",            // Dark text
-        muted: "#6b7280",          // Balanced gray
-        border: "#f0e6e6",         // Subtle red-tinted border
+        accent: "#bb1430",         // Bright coral red accent
+        secondary: "#20231f",      // Deep navy for contrast
+        surface: "#f8f6f2",        // Warm white with slight red tint
+        ink: "#20231f",            // Dark text
+        muted: "#5f615a",          // Balanced gray
+        border: "#dedbd5",         // Subtle red-tinted border
         "accent-light": "#fff0f2", // Very light red tint
       },
       fontFamily: {
-        display: ["var(--font-bricolage)", "system-ui", "sans-serif"],
+        display: ["var(--font-condensed)", "sans-serif"],
         sans: ["var(--font-dm-sans)", "system-ui", "sans-serif"],
       },
       animation: {

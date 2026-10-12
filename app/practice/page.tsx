@@ -1,5 +1,7 @@
 "use client";
 
+import { TrainingMasthead } from "../../components/training-masthead";
+
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -216,22 +218,9 @@ export default function PracticePage() {
             variants={fadeInUp}
             initial="hidden"
             animate="visible"
-            className="text-center mb-12"
+            className="mb-10"
           >
-            <motion.div
-              initial={{ scale: 0 }}
-              animate={{ scale: 1 }}
-              transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
-              className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-accent/10 text-accent mb-6"
-            >
-              <Video size={32} />
-            </motion.div>
-            <h1 className="text-4xl md:text-5xl font-display font-bold text-primary mb-4">
-              Video Practice
-            </h1>
-            <p className="text-muted text-lg max-w-xl mx-auto mb-6">
-              Real game footage with timed decisions. Train your instincts at match speed.
-            </p>
+            <TrainingMasthead number="03" eyebrow="READ THE RALLY" title="Video practice." description="Real game footage. Timed decisions. Build the instincts to make your next call with confidence." image="/images/editorial/referee-match.jpg" />
 
             {/* Indoor / Beach Toggle */}
             <div className="inline-flex items-center rounded-full bg-white border border-border shadow-sm p-1 gap-1">
@@ -254,7 +243,7 @@ export default function PracticePage() {
                 onClick={() => setVideoCategory("beach")}
                 className={`flex items-center gap-2 px-5 py-2 rounded-full text-sm font-semibold transition-all duration-300 ${
                   videoCategory === "beach"
-                    ? "bg-cyan-500 text-white shadow-md"
+                    ? "bg-cyan-700 text-white shadow-md"
                     : "text-muted hover:text-ink"
                 }`}
               >

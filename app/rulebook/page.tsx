@@ -1,46 +1,12 @@
-export const metadata = {
-  title: "Official Volleyball Rulebook | Volley Ref Lab",
-};
-export default function RulebookPage() {
-  return (
-    <main className="max-w-4xl mx-auto px-6 py-16">
-      <div className="prose prose-invert max-w-none mb-8">
-        <h1>Official Volleyball Rulebook</h1>
-        <p className="text-sm text-white/60">
-          View the full official rulebook used by Volley Ref Lab. You can
-          scroll through it below or open it in a new tab.
-        </p>
-        <a
-          href="/rulebook-compressed.pdf"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="inline-flex items-center gap-2 text-primary-foreground bg-primary px-4 py-2 rounded-lg text-sm font-medium mt-4"
-        >
-          Open Rulebook in New Tab
-        </a>
-      </div>
+import { ArrowUpRight, BookOpen } from "lucide-react";
+import { TrainingMasthead } from "../../components/training-masthead";
 
-      <div className="w-full h-[70vh] rounded-xl overflow-hidden border border-white/10 bg-black/40">
-        <object
-          data="/rulebook-compressed.pdf"
-          type="application/pdf"
-          className="w-full h-full"
-        >
-          <p className="p-4 text-sm text-white/70">
-            Your browser does not support embedded PDFs. You can
-            {" "}
-            <a
-              href="/rulebook-compressed.pdf"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="underline text-primary"
-            >
-              download the rulebook here
-            </a>
-            .
-          </p>
-        </object>
-      </div>
-    </main>
-  );
+export const metadata = { title: "Official Volleyball Rulebook | Volley Ref Lab" };
+
+export default function RulebookPage() {
+  return <main className="max-w-6xl mx-auto px-6 pt-24 pb-16">
+    <TrainingMasthead number="R" eyebrow="THE SOURCE BEHIND THE CALL" title="The official rulebook." description="Read the rules that underpin your training. Browse the full document below, or open it in a new tab for a closer look." image="/images/editorial/volleyball-court.jpg" />
+    <div className="rulebook-toolbar"><span><BookOpen size={18} /> Official volleyball rules</span><a href="/rulebook-compressed.pdf" target="_blank" rel="noopener noreferrer" className="sport-button sport-button-small">Open rulebook <ArrowUpRight size={17} /></a></div>
+    <div className="w-full h-[70vh] overflow-hidden border border-border bg-white"><object data="/rulebook-compressed.pdf" type="application/pdf" className="w-full h-full" aria-label="Official volleyball rulebook PDF"><p className="p-6 text-ink">Your browser does not support embedded PDFs. <a href="/rulebook-compressed.pdf" target="_blank" rel="noopener noreferrer" className="underline text-primary">Open or download the rulebook here.</a></p></object></div>
+  </main>;
 }

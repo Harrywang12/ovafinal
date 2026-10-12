@@ -114,7 +114,7 @@ function AuthForm() {
     },
     signup: {
       title: "Create your account",
-      subtitle: "Join thousands of referees mastering their craft.",
+      subtitle: "Build the knowledge and confidence for your next match.",
       buttonText: "Create Account",
       loadingText: "Creating account...",
     },
@@ -131,7 +131,7 @@ function AuthForm() {
     >
       {/* Mobile Logo */}
       <div className="lg:hidden mb-8">
-        <Logo size="md" showText={true} />
+        <Link href="/" aria-label="Volley Ref Lab home"><Logo size="md" showText={true} animate={false} /></Link>
       </div>
 
       {/* Tab Switcher */}
@@ -379,7 +379,7 @@ function AuthFormFallback() {
 
 export default function LoginPage() {
   return (
-    <div className="min-h-screen flex">
+    <div className="min-h-screen flex auth-editorial">
       {/* Left Side - Image */}
       <motion.div
         initial={{ opacity: 0, x: -50 }}
@@ -396,7 +396,7 @@ export default function LoginPage() {
               sizes="(min-width: 1024px) 50vw, 100vw"
               className="object-cover"
             />
-          <div className="absolute inset-0 bg-gradient-to-r from-primary/90 via-primary/70 to-transparent" />
+          <div className="absolute inset-0 auth-photo-shade" />
         </div>
 
         <div className="relative z-10 flex flex-col justify-center p-12 text-white">
@@ -406,24 +406,23 @@ export default function LoginPage() {
             animate="visible"
           >
             <motion.div variants={staggerItem} className="mb-8">
-              <Logo size="lg" showText={true} />
+              <Link href="/" aria-label="Volley Ref Lab home"><Logo size="lg" showText={true} animate={false} className="logo-on-dark" /></Link>
             </motion.div>
 
             <motion.h1
               variants={staggerItem}
-              className="text-4xl md:text-5xl font-display font-bold leading-tight mb-6"
+              className="auth-headline font-display font-bold mb-6"
             >
-              Train like the pros.
+              SEE THE GAME.
               <br />
-              <span className="text-white/80">Master every call.</span>
+              <span className="text-white/80">OWN THE CALL.</span>
             </motion.h1>
 
             <motion.p
               variants={staggerItem}
               className="text-xl text-white/80 mb-8 max-w-md"
             >
-              Join thousands of referees improving their game with AI-powered
-              training and rulebook-grounded feedback.
+              Build your knowledge, sharpen your judgement, and arrive at your next match with confidence.
             </motion.p>
 
             <motion.div variants={staggerItem} className="space-y-4">
@@ -445,7 +444,7 @@ export default function LoginPage() {
       </motion.div>
 
       {/* Right Side - Form */}
-      <div className="flex-1 flex items-center justify-center p-6 lg:p-12 bg-surface">
+      <div className="flex-1 flex items-center justify-center p-6 py-12 lg:p-12 bg-surface">
         <Suspense fallback={<AuthFormFallback />}>
           <AuthForm />
         </Suspense>

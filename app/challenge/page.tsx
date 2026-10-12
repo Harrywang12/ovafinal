@@ -1,5 +1,7 @@
 "use client";
 
+import { TrainingMasthead } from "../../components/training-masthead";
+
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { useState, useEffect, useMemo, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -198,22 +200,9 @@ export default function ChallengePage() {
             variants={fadeInUp}
             initial="hidden"
             animate="visible"
-            className="text-center mb-12"
+            className="mb-10"
           >
-            <motion.div
-              initial={{ scale: 0, rotate: -180 }}
-              animate={{ scale: 1, rotate: 0 }}
-              transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
-              className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-yellow-400 to-amber-500 text-white mb-6 shadow-lg"
-            >
-              <Trophy size={32} />
-            </motion.div>
-            <h1 className="text-4xl md:text-5xl font-display font-bold text-primary mb-4">
-              Weekly Challenge
-            </h1>
-            <p className="text-muted text-lg max-w-xl mx-auto mb-6">
-              One brutal rally per week. Submit your ruling, climb the leaderboard, claim bragging rights.
-            </p>
+            <TrainingMasthead number="04" eyebrow="THE WEEKLY CHALLENGE" title="One rally. Your ruling." description="Put your judgement to the test. Watch the play, make your call, and review the result." image="/images/editorial/referee-review.jpg" />
 
             {/* Indoor / Beach Toggle */}
             <div className="inline-flex items-center rounded-full bg-white border border-border shadow-sm p-1 gap-1">
@@ -236,7 +225,7 @@ export default function ChallengePage() {
                 onClick={() => setVideoCategory("beach")}
                 className={`flex items-center gap-2 px-5 py-2 rounded-full text-sm font-semibold transition-all duration-300 ${
                   videoCategory === "beach"
-                    ? "bg-cyan-500 text-white shadow-md"
+                    ? "bg-cyan-700 text-white shadow-md"
                     : "text-muted hover:text-ink"
                 }`}
               >

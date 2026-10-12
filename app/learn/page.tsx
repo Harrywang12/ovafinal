@@ -1,11 +1,13 @@
 "use client";
 
+import { TrainingMasthead } from "../../components/training-masthead";
+
 import { useState, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { motion } from "framer-motion";
 import Link from "next/link";
 import { 
-  BookOpen, Clock, ChevronRight, GraduationCap, Target, Zap,
+  BookOpen, Clock, ChevronRight, Target,
   Layout, Users, Trophy, Activity, Timer, Shield, Scale, Radio, ClipboardList,
   Palmtree, CircleDot
 } from "lucide-react";
@@ -34,10 +36,10 @@ const moduleIcons: Record<string, React.ReactNode> = {
 type CategoryFilter = "indoor" | "rallyball-4v4" | "rallyball-6v6" | "beach";
 
 const categories: { key: CategoryFilter; label: string; color: string; description: string }[] = [
-  { key: "indoor", label: "Indoor 6v6", color: "#3b82f6", description: "Official Volleyball Canada rules for standard 6v6 indoor play" },
-  { key: "rallyball-4v4", label: "4v4 Rallyball", color: "#f97316", description: "OVA entry-level format with smaller courts and Tripleball" },
-  { key: "rallyball-6v6", label: "6v6 Rallyball", color: "#8b5cf6", description: "OVA developmental format with full-size courts and Tripleball" },
-  { key: "beach", label: "Beach", color: "#06b6d4", description: "FIVB Beach Volleyball rules for 2-player sand court play" },
+  { key: "indoor", label: "Indoor 6v6", color: "#c8102e", description: "Official Volleyball Canada rules for standard 6v6 indoor play" },
+  { key: "rallyball-4v4", label: "4v4 Rallyball", color: "#9a3412", description: "OVA entry-level format with smaller courts and Tripleball" },
+  { key: "rallyball-6v6", label: "6v6 Rallyball", color: "#655140", description: "OVA developmental format with full-size courts and Tripleball" },
+  { key: "beach", label: "Beach", color: "#0e7490", description: "FIVB Beach Volleyball rules for 2-player sand court play" },
 ];
 
 const categoryStats: Record<CategoryFilter, { chapters: string; lessons: string; rules: string; extra: string; extraLabel: string }> = {
@@ -90,105 +92,13 @@ export default function LearnPage() {
     return { label: "Not Started", cls: "bg-white text-muted border-border" };
   };
 
-  const features = [
-    {
-      icon: <BookOpen size={24} />,
-      title: "Official Rulebook Content",
-      description: activeCategory === "indoor" 
-        ? "Based on Volleyball Canada 2025-2026 Official Rules"
-        : activeCategory === "beach"
-          ? "Based on FIVB Beach Volleyball Rules 2025-2028"
-          : "Based on OVA Rallyball Regulations"
-    },
-    {
-      icon: <Target size={24} />,
-      title: "Interactive Diagrams",
-      description: "Visual court diagrams and referee signal illustrations"
-    },
-    {
-      icon: <Zap size={24} />,
-      title: "AI-Powered Quizzes",
-      description: "Test your knowledge with dynamically generated questions"
-    }
-  ];
-
   return (
     <AuthGuard>
       <div className="min-h-screen">
-        {/* Hero Section */}
-        <section className="relative overflow-hidden pt-28 pb-20 px-6">
-          {/* Background decoration */}
-          <div className="absolute inset-0 -z-10">
-            <div className="absolute top-0 left-1/4 w-96 h-96 rounded-full bg-primary/5 blur-3xl" />
-            <div className="absolute bottom-0 right-1/4 w-96 h-96 rounded-full bg-accent/5 blur-3xl" />
-            <div className="absolute inset-0 court-pattern" />
-          </div>
-          
-          <div className="max-w-5xl mx-auto text-center">
-            <motion.div
-              initial={{ opacity: 0, scale: 0.8 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.5, type: "spring" }}
-              className="inline-flex items-center justify-center w-20 h-20 rounded-3xl bg-gradient-to-br from-primary to-accent text-white mb-8 shadow-xl"
-            >
-              <GraduationCap size={40} />
-            </motion.div>
-            
-            <motion.h1
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.1 }}
-              className="text-5xl md:text-6xl lg:text-7xl font-display font-bold text-primary mb-6"
-            >
-              Master the
-              <span className="block text-transparent bg-clip-text bg-gradient-to-r from-primary via-accent to-primary">
-                Official Rulebook
-              </span>
-            </motion.h1>
-            
-            <motion.p
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.2 }}
-              className="text-xl text-muted max-w-2xl mx-auto mb-6 leading-relaxed"
-            >
-              Complete coverage of indoor, rallyball, and beach volleyball rules. 
-              Learn every rule from court setup to referee signals.
-            </motion.p>
-
-            {/* Official badge */}
-            <motion.div
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ delay: 0.25 }}
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-600 text-sm font-medium mb-10"
-            >
-              <BookOpen size={16} />
-              {activeCategory === "beach" 
-                ? "Based on FIVB Beach Volleyball Rules 2025-2028"
-                : activeCategory === "indoor"
-                  ? "Based on FIVB International Rules • Volleyball Canada Edition"
-                  : "Based on OVA Rallyball Regulations"}
-            </motion.div>
-            
-            {/* Feature pills */}
-            <motion.div
-              variants={staggerContainer}
-              initial="hidden"
-              animate="visible"
-              className="flex flex-wrap justify-center gap-4"
-            >
-              {features.map((feature, idx) => (
-                <motion.div
-                  key={idx}
-                  variants={staggerItem}
-                  className="flex items-center gap-3 px-5 py-3 rounded-full bg-white border border-border shadow-sm"
-                >
-                  <span className="text-primary">{feature.icon}</span>
-                  <span className="text-sm font-medium text-ink">{feature.title}</span>
-                </motion.div>
-              ))}
-            </motion.div>
+        <section className="pt-24 px-6 pb-6">
+          <div className="max-w-7xl mx-auto">
+            <TrainingMasthead number="01" eyebrow="KNOW THE RULES" title="Learn the game." description="From court setup to the final whistle. Explore the rules of indoor, beach, and rallyball volleyball with lessons and interactive diagrams." image="/images/editorial/volleyball-court.jpg" />
+            <p className="text-sm text-muted mb-4">{activeCategory === "beach" ? "Based on FIVB Beach Volleyball Rules 2025–2028" : activeCategory === "indoor" ? "Based on official Volleyball Canada rules" : "Based on OVA Rallyball Regulations"}</p>
           </div>
         </section>
 
@@ -220,7 +130,7 @@ export default function LearnPage() {
                     {isActive && (
                       <motion.div
                         layoutId="category-indicator"
-                        className="absolute inset-0 rounded-full -z-10"
+                        className="absolute inset-0 rounded-sm -z-10"
                         style={{ backgroundColor: cat.color }}
                         transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
                       />
@@ -280,22 +190,10 @@ export default function LearnPage() {
                     return (
                   <Link href={`/learn/${module.id}`}>
                     <motion.div
-                      whileHover={{ y: -6, scale: 1.02 }}
+                      whileHover={{ y: -2 }}
                       whileTap={{ scale: 0.98 }}
                       className="group relative h-full card overflow-hidden cursor-pointer"
                     >
-                      {/* Background image overlay */}
-                      <div 
-                        className="absolute inset-0 opacity-5 group-hover:opacity-15 transition-opacity bg-cover bg-center"
-                        style={{ backgroundImage: `url(${module.heroImage})` }}
-                      />
-                      
-                      {/* Gradient overlay */}
-                      <div 
-                        className="absolute top-0 right-0 w-24 h-24 rounded-full opacity-15 blur-2xl transition-opacity group-hover:opacity-25"
-                        style={{ backgroundColor: module.color }}
-                      />
-                      
                       {/* Content */}
                       <div className="relative z-10">
                         {/* Chapter badge and Icon */}
@@ -304,7 +202,7 @@ export default function LearnPage() {
                             whileHover={{ rotate: [0, -10, 10, 0] }}
                             transition={{ duration: 0.5 }}
                             className="w-14 h-14 rounded-xl flex items-center justify-center text-white shadow-lg transition-transform group-hover:scale-110"
-                            style={{ backgroundColor: module.color }}
+                            style={{ backgroundColor: "#20231f" }}
                           >
                             {moduleIcons[module.id] || module.icon}
                           </motion.div>
@@ -312,7 +210,7 @@ export default function LearnPage() {
                           <div className="flex flex-col items-end gap-1">
                             <span 
                               className="px-2.5 py-1 text-xs font-bold rounded-md text-white"
-                              style={{ backgroundColor: module.color }}
+                              style={{ backgroundColor: "#20231f" }}
                             >
                               {module.chapterLabel || `Ch. ${module.chapter}`}
                             </span>
@@ -431,7 +329,7 @@ export default function LearnPage() {
                         <div className="flex flex-col items-center gap-1.5">
                           <div 
                             className="w-9 h-9 rounded-lg flex items-center justify-center text-white text-sm font-bold flex-shrink-0 shadow-lg"
-                            style={{ backgroundColor: module.color }}
+                            style={{ backgroundColor: "#20231f" }}
                           >
                             {module.chapter}
                           </div>

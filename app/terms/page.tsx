@@ -4,9 +4,9 @@ export const metadata = {
 
 export default function TermsPage() {
   return (
-    <main className="max-w-3xl mx-auto px-6 py-16 prose prose-invert">
+    <main className="max-w-3xl mx-auto px-6 pt-28 pb-16 legal-page">
       <h1>Terms of Service</h1>
-      <p className="text-sm text-white/60 mb-8">
+      <p className="text-sm text-muted mb-8">
         The rules and conditions for using Volley Ref Lab.
       </p>
       <section>

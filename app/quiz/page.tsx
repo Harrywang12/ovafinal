@@ -1,7 +1,9 @@
 "use client";
 
+import { TrainingMasthead } from "../../components/training-masthead";
+
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { ArrowLeft, ArrowRight, BookOpen, CheckCircle2, Loader2, Sparkles, Target, Trophy, Waves, XCircle, Zap } from "lucide-react";
+import { ArrowLeft, ArrowRight, BookOpen, CheckCircle2, Loader2, Target, Trophy, Waves, XCircle, Zap } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { AuthGuard } from "../../components/auth-guard";
 import { QuizQuestionReport } from "../../components/quiz-question-report";
@@ -147,11 +149,7 @@ export default function QuizPage() {
     <AuthGuard>
       <main className="min-h-screen pt-24 pb-16">
         <div className="mx-auto max-w-5xl px-4 sm:px-6">
-          <header className="mb-8 border-b border-border pb-7">
-            <div className="flex items-center gap-3 text-accent"><Sparkles size={24} /><span className="text-xs font-bold uppercase tracking-[0.16em]">Official rules assessment</span></div>
-            <h1 className="mt-3 text-4xl font-display font-bold text-primary md:text-5xl">Referee quizzes</h1>
-            <p className="mt-3 max-w-2xl text-muted">Choose a discipline for adaptive practice or complete a frozen, assigned quiz program.</p>
-          </header>
+          <TrainingMasthead number="02" eyebrow="MAKE THE CALL" title="Referee quizzes." description="Choose a discipline for adaptive practice or work through your assigned quiz program." image="/images/editorial/referee-signal.jpg" />
 
           {assignedWorkQuery.data ? <div className="mb-8"><AssignedWorkPanel work={assignedWorkQuery.data} compact /></div> : null}
 

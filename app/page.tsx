@@ -2,528 +2,56 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowRight, Play, ChevronDown, Zap, Target, Trophy, BookOpen } from "lucide-react";
-import { motion, useScroll, useTransform } from "framer-motion";
-import { useRef } from "react";
+import { ArrowRight, ArrowUpRight, Play, BookOpen, Check } from "lucide-react";
 import { useSupabaseAuth } from "../lib/useSupabaseAuth";
-import { Logo, LogoIcon } from "../components/logo";
-import {
-  fadeInUp,
-  staggerContainer,
-  staggerItem,
-  wordRevealContainer,
-  wordReveal,
-  scaleIn,
-  fadeInLeft,
-  fadeInRight,
-  scrollReveal,
-} from "../lib/animations";
+import { CourtLab } from "../components/court-lab";
 
-// Cohesive editorial imagery generated specifically for Volley Ref Lab.
-const images = {
-  hero: "/images/editorial/referee-match.jpg",
-  action: "/images/editorial/referee-signal.jpg",
-  court: "/images/editorial/volleyball-court.jpg",
-  team: "/images/editorial/referee-review.jpg",
-  spike: "/images/editorial/referee-match.jpg",
-  celebrate: "/images/editorial/referee-review.jpg",
-};
-
-const steps = [
-  {
-    icon: BookOpen,
-    title: "Learn the Rules",
-    desc: "Interactive modules with micro-quizzes. Master rotations, faults, and edge cases.",
-    href: "/learn",
-    image: images.court,
-  },
-  {
-    icon: Target,
-    title: "Take Adaptive Quizzes",
-    desc: "AI-generated questions that scale with your skill. Every answer cites the rulebook.",
-    href: "/quiz",
-    image: images.action,
-  },
-  {
-    icon: Play,
-    title: "Practice with Video",
-    desc: "Real game footage with timed decisions. Train your instincts at match speed.",
-    href: "/practice",
-    image: images.spike,
-  },
-  {
-    icon: Trophy,
-    title: "Compete Weekly",
-    desc: "Weekly challenge clips with leaderboard rankings. Prove your expertise.",
-    href: "/challenge",
-    image: images.celebrate,
-  },
+const pathways = [
+  { number: "01", title: "Know the rules.", description: "Build your knowledge with focused lessons, court diagrams, and the official rulebook.", href: "/learn", label: "Explore learning", image: "/images/editorial/volleyball-court.jpg", alt: "An indoor volleyball court viewed from above" },
+  { number: "02", title: "Make the call.", description: "Put your understanding to the test with adaptive quizzes and rule-cited explanations.", href: "/quiz", label: "Take a quiz", image: "/images/editorial/referee-signal.jpg", alt: "A volleyball referee demonstrating a hand signal" },
+  { number: "03", title: "Read the rally.", description: "Watch match footage, spot the decisive moment, and practise under time pressure.", href: "/practice", label: "Practise with video", image: "/images/editorial/referee-match.jpg", alt: "A referee watching an attack at the net during a volleyball match" },
 ];
-
-const stats = [
-  { value: "100%", label: "Rulebook-cited answers" },
-  { value: "Live", label: "Weekly challenges" },
-  { value: "AI", label: "Adaptive difficulty" },
-];
-
-// Animated word component
-function AnimatedWords({ text, className }: { text: string; className?: string }) {
-  const words = text.split(" ");
-  return (
-    <motion.span
-      variants={wordRevealContainer}
-      initial="hidden"
-      animate="visible"
-      className={className}
-    >
-      {words.map((word, i) => (
-        <motion.span
-          key={i}
-          variants={wordReveal}
-          className="inline-block mr-[0.25em]"
-          style={{ perspective: "1000px" }}
-        >
-          {word}
-        </motion.span>
-      ))}
-    </motion.span>
-  );
-}
-
-// Scroll indicator component
-function ScrollIndicator() {
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: -20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: 1.5, duration: 0.6 }}
-      className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 text-primary/60"
-    >
-      <span className="text-xs font-medium uppercase tracking-widest">Scroll to explore</span>
-      <motion.div
-        animate={{ y: [0, 8, 0] }}
-        transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
-      >
-        <ChevronDown size={24} />
-      </motion.div>
-    </motion.div>
-  );
-}
 
 export default function HomePage() {
   const { session } = useSupabaseAuth();
-  const primaryCtaHref = session ? "/dashboard" : "/login?next=/dashboard";
-  const practiceHref = session ? "/practice" : "/login?next=/practice";
-  
-  const heroRef = useRef<HTMLDivElement>(null);
-  const { scrollYProgress } = useScroll({
-    target: heroRef,
-    offset: ["start start", "end start"]
-  });
-  
-  const heroY = useTransform(scrollYProgress, [0, 1], ["0%", "30%"]);
-  const heroOpacity = useTransform(scrollYProgress, [0, 0.5], [1, 0]);
-  const heroScale = useTransform(scrollYProgress, [0, 0.5], [1, 1.1]);
+  const trainingHref = session ? "/dashboard" : "/login?next=/dashboard";
+  const accessHref = (href: string) => session ? href : `/login?next=${encodeURIComponent(href)}`;
 
   return (
-    <div className="overflow-hidden">
-      {/* ============================================
-          HERO SECTION - Full Viewport
-          ============================================ */}
-      <section ref={heroRef} className="relative min-h-screen flex items-center justify-center overflow-hidden">
-        {/* Parallax Background Image */}
-        <motion.div 
-          className="absolute inset-0 z-0"
-          style={{ y: heroY, scale: heroScale }}
-        >
-          <div className="absolute inset-0 bg-gradient-to-b from-surface/30 via-surface/60 to-surface z-10" />
-          <Image
-            src={images.hero}
-            alt="Volleyball action"
-            fill
-            priority
-            sizes="100vw"
-            className="object-cover"
-          />
-        </motion.div>
-        
-        {/* Hero Content */}
-        <motion.div
-          style={{ opacity: heroOpacity }}
-          className="relative z-20 max-w-6xl mx-auto px-6 text-center"
-        >
-          {/* Logo Badge */}
-          <motion.div
-            initial={{ opacity: 0, scale: 0.8 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.6, delay: 0.2, type: "spring" }}
-            className="mb-6 flex justify-center"
-          >
-            <LogoIcon size={64} className="drop-shadow-lg" />
-          </motion.div>
-          
-          {/* Tag */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.3 }}
-            className="mb-6"
-          >
-            <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 text-primary text-sm font-semibold">
-              <Zap size={16} />
-              AI-Powered Referee Training
-            </span>
-          </motion.div>
-          
-          {/* Main Headline */}
-          <h1 className="text-5xl md:text-7xl lg:text-8xl font-display font-bold text-primary leading-[0.95] mb-6">
-            <AnimatedWords text="Master the Whistle" />
-          </h1>
-          
-          {/* Subheadline */}
-          <motion.p
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.9 }}
-            className="text-lg md:text-xl text-secondary max-w-2xl mx-auto mb-10"
-          >
-            Train like the pros. Adaptive quizzes, real game footage, and rulebook-grounded 
-            explanations—all in one powerful platform.
-          </motion.p>
-          
-          {/* CTA Buttons */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 1.1 }}
-            className="flex flex-wrap justify-center gap-4"
-          >
-            <Link href={primaryCtaHref}>
-              <motion.span
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.98 }}
-                className="pill text-white text-base"
-              >
-                {session ? "Continue Training" : "Start Training Free"}
-                <ArrowRight size={18} />
-              </motion.span>
-            </Link>
-            <Link href={practiceHref}>
-              <motion.span
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.98 }}
-                className="btn-secondary"
-              >
-                <Play size={16} />
-                Watch Demo
-              </motion.span>
-            </Link>
-          </motion.div>
-        </motion.div>
-        
-        <ScrollIndicator />
-      </section>
-
-      {/* ============================================
-          FLOATING IMAGES SECTION
-          ============================================ */}
-      <section className="relative py-20 -mt-32 z-30">
-        <div className="max-w-7xl mx-auto px-6">
-          <motion.div
-            variants={staggerContainer}
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, amount: 0.2 }}
-            className="grid grid-cols-12 gap-4 md:gap-6"
-          >
-            {/* Large left image */}
-            <motion.div
-              variants={fadeInLeft}
-              className="col-span-12 md:col-span-7 relative"
-            >
-              <div className="relative rounded-3xl overflow-hidden shadow-2xl aspect-[4/3]">
-                <Image
-                  src={images.action}
-                  alt="Volleyball spike"
-                  fill
-                  sizes="(min-width: 768px) 58vw, 100vw"
-                  className="object-cover"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-primary/60 via-transparent to-transparent" />
-                <div className="absolute bottom-6 left-6 right-6">
-                  <span className="section-tag text-white/80">Live Analysis</span>
-                  <p className="text-2xl md:text-3xl font-display font-bold text-white mt-2">
-                    Real-time decision training
-                  </p>
-                </div>
-              </div>
-            </motion.div>
-            
-            {/* Right column - two stacked images */}
-            <div className="col-span-12 md:col-span-5 flex flex-col gap-4 md:gap-6">
-              <motion.div
-                variants={fadeInRight}
-                className="relative rounded-2xl overflow-hidden shadow-xl aspect-[3/2]"
-              >
-                <Image
-                  src={images.court}
-                  alt="Volleyball court"
-                  fill
-                  sizes="(min-width: 768px) 42vw, 100vw"
-                  className="object-cover"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-primary/40 to-transparent" />
-                <div className="absolute bottom-4 left-4">
-                  <span className="text-white font-semibold">Court Visuals</span>
-                </div>
-              </motion.div>
-              
-              <motion.div
-                variants={fadeInRight}
-                className="relative rounded-2xl overflow-hidden shadow-xl aspect-[3/2]"
-              >
-                <Image
-                  src={images.team}
-                  alt="Volleyball team"
-                  fill
-                  sizes="(min-width: 768px) 42vw, 100vw"
-                  className="object-cover"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-primary/40 to-transparent" />
-                <div className="absolute bottom-4 left-4">
-                  <span className="text-white font-semibold">Game Scenarios</span>
-                </div>
-              </motion.div>
-            </div>
-          </motion.div>
+    <main className="editorial-home" id="main-content">
+      <section className="match-hero" aria-labelledby="home-heading">
+        <Image src="/images/editorial/referee-match.jpg" alt="A volleyball referee follows the action as an attacker meets a block at the net" fill loading="eager" unoptimized sizes="100vw" className="match-hero-photo" />
+        <div className="match-hero-shade" />
+        <div className="site-width match-hero-content">
+          <p className="eyebrow hero-eyebrow"><span className="live-dot" /> Volleyball referee development</p>
+          <h1 id="home-heading">SEE THE GAME.<br />OWN THE <span>CALL.</span></h1>
+          <p className="hero-description">The game moves fast. Be ready.<br />Build the knowledge, judgement, and confidence<br className="desktop-break" /> to make every whistle count.</p>
+          <div className="hero-actions"><Link href={trainingHref} className="sport-button">{session ? "Continue training" : "Start your training"}<ArrowUpRight size={19} /></Link><a href="#training" className="hero-explore"><span><Play size={13} fill="currentColor" /></span> Explore the lab</a></div>
         </div>
       </section>
+      <div className="training-ribbon" aria-label="Training approach"><div className="site-width"><span>KNOW THE RULE.</span><span aria-hidden="true">+</span><span>READ THE PLAY.</span><span aria-hidden="true">+</span><span>MAKE THE CALL.</span></div></div>
 
-      {/* ============================================
-          STATS SECTION
-          ============================================ */}
-      <section className="py-16 bg-primary text-white">
-        <div className="max-w-6xl mx-auto px-6">
-          <motion.div
-            variants={staggerContainer}
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, amount: 0.3 }}
-            className="grid grid-cols-3 gap-8 text-center"
-          >
-            {stats.map((stat, i) => (
-              <motion.div key={i} variants={staggerItem}>
-                <p className="text-4xl md:text-5xl font-display font-bold text-accent mb-2">
-                  {stat.value}
-                </p>
-                <p className="text-white/70 text-sm md:text-base">{stat.label}</p>
-              </motion.div>
-            ))}
-          </motion.div>
-        </div>
+      <section className="endorsement site-width" aria-labelledby="endorsement-heading">
+        <div className="endorsement-copy"><p className="eyebrow">Endorsed by</p><h2 id="endorsement-heading">Ontario Volleyball<br />Association</h2></div>
+        <a href="https://www.ontariovolleyball.org/" target="_blank" rel="noopener noreferrer" className="ova-mark" aria-label="Visit the Ontario Volleyball Association website"><Image src="/images/ova-logo.png" alt="Ontario Volleyball Association logo" width={72} height={101} /><ArrowUpRight size={19} /></a>
       </section>
 
-      {/* ============================================
-          STEPS SECTION - Your Path to Mastery
-          ============================================ */}
-      <section className="py-24 md:py-32">
-        <div className="max-w-6xl mx-auto px-6">
-          {/* Section Header */}
-          <motion.div
-            variants={fadeInUp}
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, amount: 0.3 }}
-            className="text-center mb-16"
-          >
-            <span className="section-tag">Your Journey</span>
-            <h2 className="text-4xl md:text-5xl font-display font-bold text-primary mt-4 mb-4">
-              The Path to Mastery
-            </h2>
-            <p className="text-muted text-lg max-w-2xl mx-auto">
-              Four focused steps to transform you from rulebook reader to confident referee.
-            </p>
-          </motion.div>
-          
-          {/* Steps Grid */}
-          <motion.div
-            variants={staggerContainer}
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, amount: 0.1 }}
-            className="space-y-8"
-          >
-            {steps.map((step, idx) => {
-              const Icon = step.icon;
-              const isEven = idx % 2 === 0;
-              const href = session
-                ? step.href
-                : `/login?next=${encodeURIComponent(step.href)}`;
-              
-              return (
-                <motion.div
-                  key={step.title}
-                  variants={isEven ? fadeInLeft : fadeInRight}
-                  className={`flex flex-col md:flex-row items-center gap-8 ${
-                    isEven ? "" : "md:flex-row-reverse"
-                  }`}
-                >
-                  {/* Image */}
-                  <div className="w-full md:w-1/2">
-                    <motion.div
-                      whileHover={{ scale: 1.02 }}
-                      className="relative rounded-2xl overflow-hidden shadow-xl aspect-video"
-                    >
-                      <Image
-                        src={step.image}
-                        alt={step.title}
-                        fill
-                        sizes="(min-width: 768px) 50vw, 100vw"
-                        className="object-cover"
-                      />
-                      <div className="absolute inset-0 bg-gradient-to-t from-primary/50 to-transparent" />
-                      <div className="absolute top-4 left-4">
-                        <span className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-accent text-white font-display font-bold text-xl">
-                          {idx + 1}
-                        </span>
-                      </div>
-                    </motion.div>
-                  </div>
-                  
-                  {/* Content */}
-                  <div className="w-full md:w-1/2 space-y-4">
-                    <div className="inline-flex items-center gap-3 text-accent">
-                      <Icon size={24} />
-                      <span className="section-tag">{`Step ${idx + 1}`}</span>
-                    </div>
-                    <h3 className="text-2xl md:text-3xl font-display font-bold text-primary">
-                      {step.title}
-                    </h3>
-                    <p className="text-muted text-lg">{step.desc}</p>
-                    <Link href={href}>
-                      <motion.span
-                        whileHover={{ x: 5 }}
-                        className="inline-flex items-center gap-2 text-accent font-semibold"
-                      >
-                        {session ? "Start now" : "Log in to access"}
-                        <ArrowRight size={18} />
-                      </motion.span>
-                    </Link>
-                  </div>
-                </motion.div>
-              );
-            })}
-          </motion.div>
-        </div>
+      <section className="training-section site-width" id="training" aria-labelledby="training-heading">
+        <div className="section-heading"><div><h2 id="training-heading">CONFIDENCE IS<br />BUILT BETWEEN MATCHES.</h2></div><p>From your first whistle to your next level.<br />Train the way you learn best.</p></div>
+        <div className="pathway-grid">{pathways.map((path) => <article className="pathway" key={path.number}>
+          <Link href={accessHref(path.href)} className="pathway-image-link" aria-label={path.label}><div className="pathway-image"><Image src={path.image} alt={path.alt} fill sizes="(min-width: 900px) 33vw, (min-width: 600px) 50vw, 100vw" /><span className="pathway-number">{path.number}</span><span className="image-arrow"><ArrowUpRight size={24} /></span></div></Link>
+          <h3>{path.title}</h3><p>{path.description}</p><Link href={accessHref(path.href)} className="text-link">{path.label}<ArrowRight size={17} /></Link>
+        </article>)}</div>
       </section>
 
-      {/* ============================================
-          FEATURES SHOWCASE
-          ============================================ */}
-      <section className="py-24 bg-gradient-to-b from-surface to-white">
-        <div className="max-w-6xl mx-auto px-6">
-          <motion.div
-            variants={fadeInUp}
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, amount: 0.3 }}
-            className="text-center mb-16"
-          >
-            <span className="section-tag">Built Different</span>
-            <h2 className="text-4xl md:text-5xl font-display font-bold text-primary mt-4 mb-4">
-              Why Volley Ref Lab?
-            </h2>
-            <p className="text-muted text-lg max-w-2xl mx-auto">
-              Not just another quiz app. A complete training system grounded in the official rulebook.
-            </p>
-          </motion.div>
-          
-          <motion.div
-            variants={staggerContainer}
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, amount: 0.2 }}
-            className="grid md:grid-cols-3 gap-6"
-          >
-            {[
-              {
-                title: "RAG-Powered Answers",
-                desc: "Every explanation cites the actual rulebook. No guessing, no hallucinations.",
-                icon: "📚",
-              },
-              {
-                title: "Adaptive Difficulty",
-                desc: "Questions scale with your performance. Always challenged, never overwhelmed.",
-                icon: "📈",
-              },
-              {
-                title: "Match-Speed Training",
-                desc: "Timed video clips simulate real game pressure. Build instincts, not just knowledge.",
-                icon: "⚡",
-              },
-            ].map((feature, i) => (
-              <motion.div
-                key={i}
-                variants={staggerItem}
-                whileHover={{ y: -8 }}
-                className="card text-center p-8"
-              >
-                <span className="text-4xl mb-4 block">{feature.icon}</span>
-                <h3 className="text-xl font-display font-bold text-primary mb-3">
-                  {feature.title}
-                </h3>
-                <p className="text-muted">{feature.desc}</p>
-              </motion.div>
-            ))}
-          </motion.div>
-        </div>
-      </section>
+      <section className="visual-training" aria-labelledby="visual-heading"><div className="site-width visual-training-grid">
+        <div className="visual-training-copy"><h2 id="visual-heading">DON’T JUST<br />MEMORISE IT.<br /><span>SEE IT.</span></h2><p>A rule makes more sense when you can picture the play. Explore court positions, follow rotations, and connect the rulebook to what happens on the floor.</p><ul><li><Check size={17} /> Court diagrams that bring the rules to life</li><li><Check size={17} /> Explanations with official rule references</li><li><Check size={17} /> Learning across indoor, beach, and rallyball</li></ul><Link href={accessHref("/learn")} className="sport-button sport-button-white">Find your starting point <ArrowUpRight size={19} /></Link></div>
+        <CourtLab />
+      </div></section>
 
-      {/* ============================================
-          FINAL CTA SECTION
-          ============================================ */}
-      <section className="relative py-32 overflow-hidden">
-        {/* Background Image */}
-        <div className="absolute inset-0 z-0">
-          <Image
-            src={images.celebrate}
-            alt="Volleyball celebration"
-            fill
-            sizes="100vw"
-            className="object-cover"
-          />
-          <div className="absolute inset-0 bg-primary/85" />
-        </div>
-        
-        <motion.div
-          variants={scaleIn}
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, amount: 0.3 }}
-          className="relative z-10 max-w-4xl mx-auto px-6 text-center text-white"
-        >
-          <span className="section-tag text-accent">Ready to Begin?</span>
-          <h2 className="text-4xl md:text-6xl font-display font-bold mt-4 mb-6">
-            Your Next Call Starts Here
-          </h2>
-          <p className="text-xl text-white/80 mb-10 max-w-2xl mx-auto">
-            Join referees who train smarter. Track your progress, compete weekly, 
-            and master every ruling with confidence.
-          </p>
-          <div className="flex flex-wrap justify-center gap-4">
-            <Link href={primaryCtaHref}>
-              <motion.span
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.98 }}
-                className="pill text-white text-lg px-8 py-4"
-              >
-                {session ? "Go to Dashboard" : "Create Free Account"}
-                <ArrowRight size={20} />
-              </motion.span>
-            </Link>
-          </div>
-        </motion.div>
-      </section>
-    </div>
+      <section className="challenge-feature site-width" aria-labelledby="challenge-heading"><div className="challenge-image"><Image src="/images/editorial/referee-review.jpg" alt="Volleyball officials reviewing a match together" fill sizes="(min-width: 800px) 50vw, 100vw" /></div><div className="challenge-copy"><p className="eyebrow"><span className="red-rule" /> THE WEEKLY CHALLENGE</p><h2 id="challenge-heading">ONE RALLY.<br />YOUR RULING.</h2><p>Some calls stay with you. Take on a weekly video challenge, put your judgement to the test, and see how your decision stacks up.</p><div className="challenge-process"><span><b>01</b> Watch the play</span><ArrowRight size={15} /><span><b>02</b> Make your call</span><ArrowRight size={15} /><span><b>03</b> Review the ruling</span></div><Link href={accessHref("/challenge")} className="sport-button">Take the challenge <ArrowUpRight size={19} /></Link></div></section>
+
+      <section className="rulebook-strip site-width"><div className="rulebook-strip-icon"><BookOpen size={29} /></div><div><h2>Grounded in the official rulebook.</h2><p>Go straight to the rules. Build your understanding on the source.</p></div><Link href="/rulebook" className="text-link">Open the rulebook <ArrowUpRight size={19} /></Link></section>
+    </main>
   );
 }
