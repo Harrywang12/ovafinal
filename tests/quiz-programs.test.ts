@@ -28,6 +28,15 @@ describe("quiz programs", () => {
     expect(allocateDifficulties(10, getDifficultyMix(12))).toHaveLength(10);
   });
 
+  it("keeps using the last configured mix after a bounded progression ends", () => {
+    const bounded = [
+      { throughQuiz: 2, mix: { basic: 1, applied: 0, advanced: 0 } },
+      { throughQuiz: 4, mix: { basic: 0, applied: 1, advanced: 0 } },
+    ];
+    expect(getDifficultyMix(1, bounded)).toEqual({ basic: 1, applied: 0, advanced: 0 });
+    expect(getDifficultyMix(9, bounded)).toEqual({ basic: 0, applied: 1, advanced: 0 });
+  });
+
   it("calculates not-started, in-progress, completed, and overdue status", () => {
     const now = new Date("2026-07-12T12:00:00Z");
     expect(calculateQuizProgramStatus({ completedQuizzes: 0, requiredQuizzes: 2, now })).toBe("not_started");

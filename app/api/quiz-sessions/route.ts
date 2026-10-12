@@ -3,10 +3,10 @@ import { z } from "zod";
 import { requireUserFromRequest } from "../../../lib/auth";
 import { QuizGenerationError, generateGroundedQuizQuestion, planGroundedQuizBlueprints } from "../../../lib/quiz-generation";
 import { recordQuizQuestionHistory } from "../../../lib/quiz-question-history";
-import { allocateDifficulties, difficultyProgressionSchema, expandTopicBlueprint, topicBlueprintItemSchema } from "../../../lib/quiz-programs";
-import { publicQuizQuestion } from "../../../lib/quiz-sessions";
+import { allocateDifficulties, difficultyProgressionSchema, expandTopicBlueprint, getDifficultyMix, topicBlueprintItemSchema } from "../../../lib/quiz-programs";
+import { ACTIVE_SESSION_STATUSES, isStaleGeneratingSession, publicQuizQuestion } from "../../../lib/quiz-sessions";
 import { AI_CONFIG } from "../../../lib/ai-config";
-import { enforceGenerationQuota, RateLimitError } from "../../../lib/rate-limit";
+import { enforceGenerationQuota, RateLimitError, releaseGenerationQuota } from "../../../lib/rate-limit";
 import { getServerSupabase } from "../../../lib/supabase";
 import { assertEnv } from "../../../lib/utils";
 
@@ -14,6 +14,14 @@ export const runtime = "nodejs";
 export const maxDuration = 300;
 
 const inputSchema = z.object({ assignmentId: z.string().uuid() });
+const QUOTA_FEATURE = "assigned_quiz";
+
+function generatingResponse() {
+  return NextResponse.json({
+    code: "QUIZ_SESSION_GENERATING",
+    message: "This quiz is still being prepared. Try again in a minute.",
+  }, { status: 409 });
+}
 
 async function mapWithConcurrency<T, R>(values: T[], concurrency: number, worker: (value: T, index: number) => Promise<R>) {
   const output = new Array<R>(values.length);
@@ -29,6 +37,7 @@ async function mapWithConcurrency<T, R>(values: T[], concurrency: number, worker
 
 export async function POST(request: Request) {
   let sessionId: string | null = null;
+  let chargedQuota: { userId: string; units: number } | null = null;
   try {
     assertEnv(["DEEPSEEK_API_KEY", "SUPABASE_SERVICE_KEY", "SUPABASE_URL"]);
     const user = await requireUserFromRequest(request);
@@ -49,12 +58,17 @@ export async function POST(request: Request) {
     if (program.due_at && Date.parse(program.due_at) < now) return NextResponse.json({ error: "This quiz program is overdue" }, { status: 409 });
 
     const { data: previous, error: previousError } = await supabase.from("quiz_sessions")
-      .select("id, status, passed").eq("quiz_program_id", program.id).eq("user_id", user.userId);
+      .select("id, status, passed, created_at").eq("quiz_program_id", program.id).eq("user_id", user.userId);
     if (previousError) throw previousError;
     const attempted = (previous || []).filter((session) => session.status === "submitted").length;
     const completed = (previous || []).filter((session) => session.status === "submitted" && session.passed === true).length;
     if (completed >= program.required_quiz_count) return NextResponse.json({ error: "All required quizzes are complete" }, { status: 409 });
-    const existingActive = (previous || []).find((session) => ["generating", "ready", "in_progress"].includes(session.status));
+    for (const stale of (previous || []).filter((session) => isStaleGeneratingSession(session))) {
+      await failSession(stale.id);
+    }
+    const existingActive = (previous || []).find((session) =>
+      (ACTIVE_SESSION_STATUSES as readonly string[]).includes(session.status) && !isStaleGeneratingSession(session));
+    if (existingActive?.status === "generating") return generatingResponse();
     if (existingActive) return NextResponse.json({ sessionId: existingActive.id, existing: true }, { status: 200 });
 
     const blueprint = z.array(topicBlueprintItemSchema).parse(program.topic_blueprint);
@@ -62,12 +76,11 @@ export async function POST(request: Request) {
     if (topics.length !== program.questions_per_quiz) throw new Error("Stored topic blueprint does not match questions_per_quiz");
     const progression = difficultyProgressionSchema.parse(program.difficulty_progression);
     const quizNumber = attempted + 1;
-    const mix = progression.find((step) => step.throughQuiz === null || quizNumber <= step.throughQuiz)?.mix;
-    if (!mix) throw new Error("Difficulty progression does not cover this quiz number");
-    const difficulties = allocateDifficulties(topics.length, mix);
+    const difficulties = allocateDifficulties(topics.length, getDifficultyMix(quizNumber, progression));
     await enforceGenerationQuota(supabase, user.userId, topics.length, {
-      feature: "assigned_quiz", hourly: AI_CONFIG.quotas.assignedHourly, daily: AI_CONFIG.quotas.assignedDaily,
+      feature: QUOTA_FEATURE, hourly: AI_CONFIG.quotas.assignedHourly, daily: AI_CONFIG.quotas.assignedDaily,
     });
+    chargedQuota = { userId: user.userId, units: topics.length };
 
     const { data: session, error: createError } = await supabase.from("quiz_sessions").insert({
       quiz_program_id: program.id,
@@ -78,6 +91,13 @@ export async function POST(request: Request) {
       quiz_number: quizNumber,
       status: "generating",
     }).select("id").single();
+    // The partial unique index allows one active session per learner and
+    // program, so a concurrent start (second tab, double submit) lands here.
+    if (createError?.code === "23505") {
+      await releaseGenerationQuota(supabase, user.userId, topics.length, QUOTA_FEATURE);
+      chargedQuota = null;
+      return generatingResponse();
+    }
     if (createError) throw createError;
     sessionId = session.id;
 
@@ -112,6 +132,7 @@ export async function POST(request: Request) {
     if (storeError) throw storeError;
     const { error: readyError } = await supabase.from("quiz_sessions").update({ status: "ready" }).eq("id", session.id).eq("status", "generating");
     if (readyError) throw readyError;
+    chargedQuota = null;
     for (const question of generated) {
       await recordQuizQuestionHistory({
         supabase, userId: user.userId, scope: "program", question, quizSessionId: session.id,
@@ -123,11 +144,23 @@ export async function POST(request: Request) {
       questions: (storedQuestions || []).map(publicQuizQuestion),
     }, { status: 201 });
   } catch (error) {
-    if (sessionId) await getServerSupabase().from("quiz_sessions").update({ status: "generation_failed" }).eq("id", sessionId);
+    if (sessionId) await failSession(sessionId);
+    if (chargedQuota) {
+      await releaseGenerationQuota(getServerSupabase(), chargedQuota.userId, chargedQuota.units, QUOTA_FEATURE);
+    }
     const status = error instanceof QuizGenerationError ? error.status : Number((error as { status?: number }).status) || 500;
     const code = error instanceof QuizGenerationError ? error.code : (error as { code?: string }).code || "QUIZ_SESSION_GENERATION_FAILED";
     const response = NextResponse.json({ code, message: error instanceof Error ? error.message : "Quiz session generation failed" }, { status });
     if (error instanceof RateLimitError) response.headers.set("Retry-After", String(error.retryAfter));
     return response;
   }
+}
+
+async function failSession(id: string) {
+  const supabase = getServerSupabase();
+  await supabase.from("quiz_sessions").update({ status: "generation_failed" }).eq("id", id).eq("status", "generating");
+  // Free blueprints reserved for questions that were never accepted so the
+  // learner's next attempt can use them.
+  await supabase.from("quiz_blueprint_reservations").update({ released_at: new Date().toISOString() })
+    .eq("quiz_session_id", id).is("accepted_at", null).is("released_at", null);
 }

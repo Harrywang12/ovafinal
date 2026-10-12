@@ -5,12 +5,13 @@ import Link from "next/link";
 import { useMemo, useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import { Mail, Lock, ArrowRight, Sparkles, Loader2, CheckCircle2, UserPlus, LogIn } from "lucide-react";
+import { Mail, Lock, ArrowRight, Sparkles, Loader2, CheckCircle2, UserPlus, LogIn, AtSign } from "lucide-react";
 import { getBrowserSupabase } from "../../lib/supabase-browser";
 import { fadeInUp, staggerContainer, staggerItem } from "../../lib/animations";
 import { Logo } from "../../components/logo";
 import type { RefereeLevel } from "../../lib/learning";
 import { safeRedirectPath } from "../../lib/safe-redirect";
+import { parseUsername, USERNAME_RULES } from "../../lib/usernames";
 
 const heroImage = "/images/editorial/referee-signal.jpg";
 
@@ -26,6 +27,7 @@ function AuthForm() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [username, setUsername] = useState("");
   const [refereeLevel, setRefereeLevel] = useState<RefereeLevel>("level_1");
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
@@ -73,6 +75,12 @@ function AuthForm() {
       return;
     }
 
+    const chosenUsername = parseUsername(username);
+    if (!chosenUsername) {
+      setError(`Usernames must be ${USERNAME_RULES}`);
+      return;
+    }
+
     setLoading(true);
 
     const { data, error } = await supabase.auth.signUp({
@@ -82,6 +90,7 @@ function AuthForm() {
         emailRedirectTo: `${window.location.origin}/auth/callback?next=${encodeURIComponent(nextUrl)}`,
         data: {
           referee_level: refereeLevel,
+          username: chosenUsername,
         },
       },
     });
@@ -187,6 +196,39 @@ function AuthForm() {
         className="space-y-5"
         onSubmit={activeTab === "signin" ? handlePasswordSignIn : handleSignUp}
       >
+        <AnimatePresence mode="wait">
+          {activeTab === "signup" && (
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: "auto" }}
+              exit={{ opacity: 0, height: 0 }}
+              transition={{ duration: 0.2 }}
+            >
+              <label htmlFor="auth-username" className="block text-sm font-medium text-primary mb-2">
+                Username
+              </label>
+              <div className="relative">
+                <AtSign className="absolute left-4 top-1/2 -translate-y-1/2 text-muted" size={18} />
+                <input
+                  type="text"
+                  id="auth-username"
+                  name="username"
+                  autoComplete="username"
+                  minLength={3}
+                  maxLength={20}
+                  pattern="[A-Za-z0-9_]{3,20}"
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
+                  required
+                  className="w-full pl-12 pr-4 py-3 rounded-xl bg-white border border-border text-ink placeholder:text-muted focus:outline-none focus:ring-2 focus:ring-accent/30"
+                  placeholder="court_vision"
+                />
+              </div>
+              <p className="mt-1 text-xs text-muted">Shown on the weekly leaderboard. {USERNAME_RULES}</p>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
         <div>
           <label htmlFor="auth-email" className="block text-sm font-medium text-primary mb-2">
             Email Address

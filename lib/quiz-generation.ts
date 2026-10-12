@@ -230,7 +230,7 @@ export async function generateGroundedQuizQuestion(input: GenerateQuestionInput)
     attemptedFingerprints.add(blueprint.fingerprint);
     attemptedConcepts.add(blueprintConceptKey(blueprint));
     try {
-      const language = await llmObject(generationMessages(input, blueprint), generatedLanguageSchema, "fast", {
+      const language = await llmObject(generationMessages(input, blueprint), generatedLanguageSchema, {
         maxTokens: AI_CONFIG.outputTokens.quiz, timeoutMs: AI_CONFIG.timeoutMs,
         userId: input.userId, requestType: `quiz_generation:${flow}`, attempt,
       });
@@ -245,7 +245,7 @@ export async function generateGroundedQuizQuestion(input: GenerateQuestionInput)
         questionText: question.question, metadata: question,
       });
       if (novelty.duplicate) throw new Error(`DUPLICATE_${novelty.reason || "UNKNOWN"}`);
-      const verification = await llmObject(verificationMessages(question, blueprint), verificationSchema, "fast", {
+      const verification = await llmObject(verificationMessages(question, blueprint), verificationSchema, {
         maxTokens: AI_CONFIG.outputTokens.verifier, timeoutMs: 12_000,
         userId: input.userId, requestType: `quiz_verification:${flow}`, attempt,
       });

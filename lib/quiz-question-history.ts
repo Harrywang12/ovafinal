@@ -55,7 +55,6 @@ export type StructuredQuizHistory = QuizQuestionMetadata & {
   conceptFingerprint?: string | null;
 };
 
-const RECENT_PROMPT_HISTORY_LIMIT = 75;
 const STRUCTURED_COMPARE_LIMIT = 300;
 const TEXT_COMPARE_LIMIT = 300;
 export const QUIZ_NEAR_DUPLICATE_THRESHOLD = AI_CONFIG.novelty.nearDuplicateThreshold;
@@ -131,22 +130,6 @@ function applyGenerationFilters<T>(query: T, discipline?: string | null, referee
   if (discipline) filtered = (filtered as typeof builder).eq("discipline", discipline);
   if (refereeLevel) filtered = (filtered as typeof builder).eq("referee_level", refereeLevel);
   return filtered;
-}
-
-export async function getRecentQuizQuestionHistory(params: HistoryScopeParams): Promise<string[]> {
-  try {
-    let query = params.supabase.from("quiz_question_history").select("question_text")
-      .eq("user_id", params.userId).eq("scope", params.scope)
-      .order("created_at", { ascending: false }).limit(RECENT_PROMPT_HISTORY_LIMIT);
-    query = applyModuleFilter(query, params.moduleId);
-    query = applyGenerationFilters(query, params.discipline, params.refereeLevel);
-    const { data, error } = await query;
-    if (error) throw error;
-    return (data || []).map((row) => row.question_text).filter((text): text is string => typeof text === "string" && !!text.trim());
-  } catch (error) {
-    console.warn("Quiz question history lookup failed:", error);
-    return [];
-  }
 }
 
 export async function getRecentStructuredQuizHistory(params: HistoryScopeParams): Promise<StructuredQuizHistory[]> {

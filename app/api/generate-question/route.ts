@@ -16,7 +16,6 @@ export const maxDuration = 90;
 
 const requestSchema = z.object({
   discipline: quizDisciplineSchema,
-  refereeLevel: z.string().optional(),
   difficulty: quizDifficultySchema.optional(),
   quizSessionId: z.string().uuid().optional(),
   topic: z.string().trim().min(1).optional(),

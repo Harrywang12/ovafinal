@@ -25,23 +25,27 @@ export const AI_CONFIG = {
     recentCombinationWindow: positiveInteger(process.env.QUIZ_RECENT_COMBINATION_WINDOW, 100),
     nearDuplicateThreshold: positiveNumber(process.env.QUIZ_NEAR_DUPLICATE_THRESHOLD, 0.88),
     reservationMinutes: positiveInteger(process.env.QUIZ_RESERVATION_MINUTES, 30),
-    assignedConcurrency: positiveInteger(process.env.QUIZ_ASSIGNED_CONCURRENCY, 3),
+    assignedConcurrency: positiveInteger(process.env.QUIZ_ASSIGNED_CONCURRENCY, 5),
   },
+  // Assigned quizzes allow up to 30 questions, so the per-user hourly cap
+  // must fit a full quiz plus some practice. Each question costs at most
+  // four LLM calls (two attempts x generate + verify) and roughly 4-8k
+  // tokens; the LLM limits below are sized to cover the daily question cap.
   quotas: {
     questionHourly: positiveInteger(process.env.QUESTION_QUOTA_HOURLY, 20),
     questionDaily: positiveInteger(process.env.QUESTION_QUOTA_DAILY, 80),
-    assignedHourly: positiveInteger(process.env.ASSIGNED_QUIZ_QUOTA_HOURLY, 40),
+    assignedHourly: positiveInteger(process.env.ASSIGNED_QUIZ_QUOTA_HOURLY, 60),
     assignedDaily: positiveInteger(process.env.ASSIGNED_QUIZ_QUOTA_DAILY, 120),
-    allQuestionsHourly: positiveInteger(process.env.AI_QUESTION_QUOTA_HOURLY, 30),
-    allQuestionsDaily: positiveInteger(process.env.AI_QUESTION_QUOTA_DAILY, 100),
+    allQuestionsHourly: positiveInteger(process.env.AI_QUESTION_QUOTA_HOURLY, 60),
+    allQuestionsDaily: positiveInteger(process.env.AI_QUESTION_QUOTA_DAILY, 150),
   },
   rateLimits: {
     ipRequestsPerMinute: positiveInteger(process.env.API_IP_REQUESTS_PER_MINUTE, 180),
     userRequestsPerMinute: positiveInteger(process.env.API_USER_REQUESTS_PER_MINUTE, 120),
     userRequestsPerDay: positiveInteger(process.env.API_USER_REQUESTS_PER_DAY, 5_000),
-    llmUserCallsPerMinute: positiveInteger(process.env.LLM_USER_CALLS_PER_MINUTE, 60),
-    llmUserCallsPerDay: positiveInteger(process.env.LLM_USER_CALLS_PER_DAY, 200),
-    llmUserTokensPerDay: positiveInteger(process.env.LLM_USER_TOKEN_BUDGET_DAILY, 250_000),
+    llmUserCallsPerMinute: positiveInteger(process.env.LLM_USER_CALLS_PER_MINUTE, 150),
+    llmUserCallsPerDay: positiveInteger(process.env.LLM_USER_CALLS_PER_DAY, 600),
+    llmUserTokensPerDay: positiveInteger(process.env.LLM_USER_TOKEN_BUDGET_DAILY, 1_000_000),
     llmGlobalCallsPerDay: positiveInteger(process.env.LLM_GLOBAL_CALLS_DAILY, 5_000),
     llmGlobalTokensPerDay: positiveInteger(process.env.LLM_GLOBAL_TOKEN_BUDGET_DAILY, 5_000_000),
   },

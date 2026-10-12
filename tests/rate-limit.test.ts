@@ -1,4 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
+import { AI_CONFIG } from "../lib/ai-config";
+import { quizProgramInputSchema } from "../lib/quiz-programs";
 import { consumeRateLimits, enforceGenerationQuota, enforceRateLimits } from "../lib/rate-limit";
 
 describe("AI feature quotas", () => {
@@ -13,9 +15,20 @@ describe("AI feature quotas", () => {
       quota_units: 1,
       quota_hourly: 5,
       quota_daily: 12,
-      quota_all_hourly: 30,
-      quota_all_daily: 100,
+      quota_all_hourly: AI_CONFIG.quotas.allQuestionsHourly,
+      quota_all_daily: AI_CONFIG.quotas.allQuestionsDaily,
     });
+  });
+
+  it("sizes default caps so the largest allowed assigned quiz can be generated", () => {
+    const maxQuestionsPerQuiz = quizProgramInputSchema.innerType().shape.questionsPerQuiz.maxValue!;
+    const { quotas, rateLimits, novelty } = AI_CONFIG;
+    expect(quotas.assignedHourly).toBeGreaterThanOrEqual(maxQuestionsPerQuiz);
+    expect(quotas.allQuestionsHourly).toBeGreaterThanOrEqual(maxQuestionsPerQuiz);
+    // Generate + verify for every question in flight within one minute.
+    expect(rateLimits.llmUserCallsPerMinute).toBeGreaterThanOrEqual(novelty.assignedConcurrency * 2 * 2);
+    // Each question costs up to 2 attempts x 2 calls.
+    expect(rateLimits.llmUserCallsPerDay).toBeGreaterThanOrEqual(quotas.allQuestionsDaily * 4);
   });
 
   it("fails closed with 429 when quota is exhausted", async () => {

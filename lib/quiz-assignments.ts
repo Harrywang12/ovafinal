@@ -36,30 +36,11 @@ export function emptyQuizAssignmentProgress(): QuizAssignmentProgress {
   };
 }
 
-export async function getQuizAssignmentProgress(
-  supabase: SupabaseClient,
-  userId: string
-): Promise<QuizAssignmentProgress> {
-  const { data: assignment, error: assignmentError } = await supabase
-    .from("quiz_assignments")
-    .select("user_id, question_quota, required_percent, assigned_at, completed_at")
-    .eq("user_id", userId)
-    .maybeSingle();
-
-  if (assignmentError) throw assignmentError;
-  if (!assignment) return emptyQuizAssignmentProgress();
-
-  const row = assignment as QuizAssignmentRow;
-  const { data: attempts, error: attemptsError } = await supabase
-    .from("quiz_attempts")
-    .select("correct")
-    .eq("user_id", userId)
-    .gte("created_at", row.assigned_at);
-
-  if (attemptsError) throw attemptsError;
-
-  const attempted = attempts?.length || 0;
-  const correct = (attempts || []).filter((attempt) => attempt.correct === true).length;
+export function summarizeQuizAssignment(
+  row: QuizAssignmentRow,
+  attempted: number,
+  correct: number
+): QuizAssignmentProgress {
   const scorePercent = attempted ? Math.round((correct / attempted) * 100) : 0;
   const passed = attempted >= row.question_quota && scorePercent >= row.required_percent;
 
@@ -75,6 +56,37 @@ export async function getQuizAssignmentProgress(
     completed_at: row.completed_at,
     assigned_at: row.assigned_at,
   };
+}
+
+export async function getQuizAssignmentProgress(
+  supabase: SupabaseClient,
+  userId: string
+): Promise<QuizAssignmentProgress> {
+  const { data: assignment, error: assignmentError } = await supabase
+    .from("quiz_assignments")
+    .select("user_id, question_quota, required_percent, assigned_at, completed_at")
+    .eq("user_id", userId)
+    .maybeSingle();
+
+  if (assignmentError) throw assignmentError;
+  if (!assignment) return emptyQuizAssignmentProgress();
+
+  const row = assignment as QuizAssignmentRow;
+  // Counts avoid the API row cap that would truncate a long attempt history.
+  const attemptsSince = () => supabase
+    .from("quiz_attempts")
+    .select("id", { count: "exact", head: true })
+    .eq("user_id", userId)
+    .gte("created_at", row.assigned_at);
+  const [{ count: attempted, error: attemptedError }, { count: correct, error: correctError }] = await Promise.all([
+    attemptsSince(),
+    attemptsSince().eq("correct", true),
+  ]);
+
+  if (attemptedError) throw attemptedError;
+  if (correctError) throw correctError;
+
+  return summarizeQuizAssignment(row, attempted || 0, correct || 0);
 }
 
 export async function markQuizAssignmentCompleteIfPassed(

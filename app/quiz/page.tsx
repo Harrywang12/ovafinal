@@ -101,7 +101,6 @@ export default function QuizPage() {
     })),
     onSuccess: (feedback: Feedback) => {
       setPracticeFeedback(feedback);
-      queryClient.invalidateQueries({ queryKey: ["quiz-adaptive-state"] });
       queryClient.invalidateQueries({ queryKey: ["assigned-work"] });
       queryClient.invalidateQueries({ queryKey: ["dashboard"] });
     },

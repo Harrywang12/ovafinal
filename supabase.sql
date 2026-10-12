@@ -1,5 +1,3 @@
--- Enable pgvector extension
-create extension if not exists vector;
 create extension if not exists pgcrypto;
 
 -- Quiz attempts (AI-generated quiz)
@@ -11,20 +9,6 @@ create table if not exists public.quiz_attempts (
   correct boolean,
   created_at timestamp with time zone default timezone('utc'::text, now())
 );
-
-create or replace function public.quiz_question_signature(input text)
-returns text
-language sql
-immutable
-as $$
-  select encode(
-    digest(
-      btrim(regexp_replace(regexp_replace(lower(coalesce(input, '')), '[^a-z0-9]+', ' ', 'g'), '\s+', ' ', 'g')),
-      'sha256'
-    ),
-    'hex'
-  );
-$$;
 
 create table if not exists public.quiz_question_history (
   id uuid primary key default gen_random_uuid(),
@@ -189,6 +173,7 @@ create table if not exists public.video_questions (
   rule_reference text,
   is_weekly boolean not null default false,
   answer_window_seconds integer check (answer_window_seconds is null or answer_window_seconds > 0),
+  category text not null default 'indoor' check (category in ('indoor', 'beach')),
   created_at timestamp with time zone default timezone('utc'::text, now())
 );
 
@@ -222,108 +207,33 @@ alter view public.weekly_leaderboard_mcq set (security_invoker = true);
 
 -- ---------------------------------------------------------------------------
 -- Row Level Security (RLS) and Policies
+--
+-- The browser never queries these tables directly: route handlers
+-- authenticate the caller and use the service role. Client roles get no
+-- table privileges and no write policies, so scores, passes, attempts and
+-- answer keys can only change through the API.
 -- ---------------------------------------------------------------------------
 
 alter table if exists public.quiz_attempts enable row level security;
-create policy "user manage quiz_attempts"
-  on public.quiz_attempts for all
-  using (auth.uid() = user_id)
-  with check (auth.uid() = user_id);
-
 alter table if exists public.quiz_question_history enable row level security;
-create policy "user manage own quiz question history"
-  on public.quiz_question_history for all
-  using (auth.uid() = user_id or public.is_admin())
-  with check (auth.uid() = user_id);
-
 alter table if exists public.profiles enable row level security;
-create policy "user read own profile"
-  on public.profiles for select
-  using (auth.uid() = user_id or public.is_admin());
-
 alter table if exists public.admin_users enable row level security;
-create policy "admin read admin_users"
-  on public.admin_users for select
-  using (public.is_admin());
+alter table if exists public.module_lesson_progress enable row level security;
+alter table if exists public.module_quiz_attempts enable row level security;
+alter table if exists public.module_passes enable row level security;
+alter table if exists public.quiz_adaptive_state enable row level security;
+alter table if exists public.module_assignments enable row level security;
+alter table if exists public.quiz_assignments enable row level security;
+alter table if exists public.video_questions enable row level security;
+alter table if exists public.video_question_attempts enable row level security;
+alter table if exists public.mcq_challenge_entries enable row level security;
+
 create policy "admin manage admin_users"
   on public.admin_users for all
   using (public.is_admin())
   with check (public.is_admin());
 
-alter table if exists public.module_lesson_progress enable row level security;
-create policy "user manage own lesson progress"
-  on public.module_lesson_progress for all
-  using (auth.uid() = user_id or public.is_admin())
-  with check (auth.uid() = user_id);
-
-alter table if exists public.module_quiz_attempts enable row level security;
-create policy "user manage own module quiz attempts"
-  on public.module_quiz_attempts for all
-  using (auth.uid() = user_id or public.is_admin())
-  with check (auth.uid() = user_id);
-
-alter table if exists public.module_passes enable row level security;
-create policy "user read own module passes"
-  on public.module_passes for select
-  using (auth.uid() = user_id or public.is_admin());
-create policy "user insert own module passes"
-  on public.module_passes for insert
-  with check (auth.uid() = user_id);
-create policy "user update own module passes"
-  on public.module_passes for update
-  using (auth.uid() = user_id)
-  with check (auth.uid() = user_id);
-
-alter table if exists public.quiz_adaptive_state enable row level security;
-create policy "user read own adaptive quiz state"
-  on public.quiz_adaptive_state for select
-  using (auth.uid() = user_id or public.is_admin());
-create policy "user insert own adaptive quiz state"
-  on public.quiz_adaptive_state for insert
-  with check (auth.uid() = user_id);
-create policy "user update own adaptive quiz state"
-  on public.quiz_adaptive_state for update
-  using (auth.uid() = user_id)
-  with check (auth.uid() = user_id);
-
-alter table if exists public.module_assignments enable row level security;
-create policy "user read own module assignments"
-  on public.module_assignments for select
-  using (auth.uid() = user_id or public.is_admin());
-create policy "admin manage module assignments"
-  on public.module_assignments for all
-  using (public.is_admin())
-  with check (public.is_admin());
-
-alter table if exists public.quiz_assignments enable row level security;
-create policy "user read own quiz assignment"
-  on public.quiz_assignments for select
-  using (auth.uid() = user_id or public.is_admin());
-create policy "admin manage quiz assignments"
-  on public.quiz_assignments for all
-  using (public.is_admin())
-  with check (public.is_admin());
-
-alter table if exists public.video_questions enable row level security;
-create policy "auth read video_questions"
-  on public.video_questions for select
-  using (auth.role() = 'authenticated');
-create policy "admin manage video_questions"
-  on public.video_questions for all
-  using (public.is_admin())
-  with check (public.is_admin());
-
-alter table if exists public.video_question_attempts enable row level security;
-create policy "user manage video_question_attempts"
-  on public.video_question_attempts for all
-  using (auth.uid() = user_id)
-  with check (auth.uid() = user_id);
-
-alter table if exists public.mcq_challenge_entries enable row level security;
-create policy "auth read mcq_challenge_entries"
-  on public.mcq_challenge_entries for select
-  using (auth.role() = 'authenticated');
-create policy "user manage mcq_challenge_entries"
-  on public.mcq_challenge_entries for all
-  using (auth.uid() = user_id)
-  with check (auth.uid() = user_id);
+revoke all on all tables in schema public from anon, authenticated;
+revoke all on all sequences in schema public from anon, authenticated;
+alter default privileges in schema public revoke all on tables from anon, authenticated;
+alter default privileges in schema public revoke all on sequences from anon, authenticated;

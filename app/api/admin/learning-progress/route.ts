@@ -7,6 +7,7 @@ import {
 } from "../../../../lib/learning";
 import { getAllModules } from "../../../../lib/module-content";
 import { getServerSupabase } from "../../../../lib/supabase";
+import { groupBy, selectAllRows } from "../../../../lib/supabase-pagination";
 import { assertEnv } from "../../../../lib/utils";
 
 export const runtime = "nodejs";
@@ -58,45 +59,41 @@ export async function GET(request: Request) {
   }
 
   const supabase = getServerSupabase();
-  const [{ data: profiles, error: profileError }, { data: lessons, error: lessonError }, { data: attempts, error: attemptError }, { data: passes, error: passError }, { data: assignments, error: assignmentError }] =
-    await Promise.all([
-      supabase
+  let profiles: ProfileRow[];
+  let lessons: LessonRow[];
+  let attempts: AttemptRow[];
+  let passes: PassRow[];
+  let assignments: AssignmentRow[];
+  try {
+    [profiles, lessons, attempts, passes, assignments] = await Promise.all([
+      selectAllRows<ProfileRow>((from, to) => supabase
         .from("profiles")
         .select("user_id, email, referee_level, created_at")
         .order("created_at", { ascending: false })
-        .limit(500),
-      supabase.from("module_lesson_progress").select("user_id, module_id, lesson_id, viewed_at").limit(20000),
-      supabase.from("module_quiz_attempts").select("user_id, module_id, correct, created_at").order("created_at", { ascending: false }).limit(20000),
-      supabase.from("module_passes").select("user_id, module_id, score_percent, passed_at").limit(20000),
-      supabase.from("module_assignments").select("user_id, module_id").limit(20000),
+        .order("user_id")
+        .range(from, to)),
+      selectAllRows<LessonRow>((from, to) => supabase
+        .from("module_lesson_progress").select("user_id, module_id, lesson_id, viewed_at").order("id").range(from, to)),
+      selectAllRows<AttemptRow>((from, to) => supabase
+        .from("module_quiz_attempts").select("user_id, module_id, correct, created_at")
+        .order("created_at", { ascending: false }).order("id").range(from, to)),
+      selectAllRows<PassRow>((from, to) => supabase
+        .from("module_passes").select("user_id, module_id, score_percent, passed_at").order("id").range(from, to)),
+      selectAllRows<AssignmentRow>((from, to) => supabase
+        .from("module_assignments").select("user_id, module_id").order("id").range(from, to)),
     ]);
-
-  const error = profileError || lessonError || attemptError || passError || assignmentError;
-  if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+  } catch (error) {
+    return NextResponse.json({ error: (error as Error).message }, { status: 500 });
   }
 
   const allModules = getAllModules();
   const moduleCount = allModules.length;
-  const lessonsByUser = new Map<string, LessonRow[]>();
-  const attemptsByUser = new Map<string, AttemptRow[]>();
-  const passesByUser = new Map<string, PassRow[]>();
-  const assignmentsByUser = new Map<string, AssignmentRow[]>();
+  const lessonsByUser = groupBy(lessons, (row) => row.user_id);
+  const attemptsByUser = groupBy(attempts, (row) => row.user_id);
+  const passesByUser = groupBy(passes, (row) => row.user_id);
+  const assignmentsByUser = groupBy(assignments, (row) => row.user_id);
 
-  for (const row of (lessons || []) as LessonRow[]) {
-    lessonsByUser.set(row.user_id, [...(lessonsByUser.get(row.user_id) || []), row]);
-  }
-  for (const row of (attempts || []) as AttemptRow[]) {
-    attemptsByUser.set(row.user_id, [...(attemptsByUser.get(row.user_id) || []), row]);
-  }
-  for (const row of (passes || []) as PassRow[]) {
-    passesByUser.set(row.user_id, [...(passesByUser.get(row.user_id) || []), row]);
-  }
-  for (const row of (assignments || []) as AssignmentRow[]) {
-    assignmentsByUser.set(row.user_id, [...(assignmentsByUser.get(row.user_id) || []), row]);
-  }
-
-  const learners = ((profiles || []) as ProfileRow[]).map((profile) => {
+  const learners = profiles.map((profile) => {
     const userLessons = lessonsByUser.get(profile.user_id) || [];
     const userAttempts = attemptsByUser.get(profile.user_id) || [];
     const userPasses = passesByUser.get(profile.user_id) || [];

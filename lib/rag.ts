@@ -32,18 +32,6 @@ export type RuleSearchFilters = {
   excludeChunkIds?: string[];
 };
 
-export function chunkText(text: string, chunkSize = 800, overlap = 80): string[] {
-  const words = text.split(/\s+/);
-  const chunks: string[] = [];
-  let i = 0;
-  while (i < words.length) {
-    const slice = words.slice(i, i + chunkSize).join(" ");
-    chunks.push(slice);
-    i += chunkSize - overlap;
-  }
-  return chunks;
-}
-
 export async function searchRuleChunks(
   query: string,
   filters: RuleSearchFilters,

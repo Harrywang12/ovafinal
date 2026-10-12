@@ -50,3 +50,6 @@ test-results/
 .vercel/
 .netlify/
 .vercel
+
+# TypeScript incremental build cache
+*.tsbuildinfo

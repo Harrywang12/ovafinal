@@ -45,7 +45,9 @@ export async function proxy(request: NextRequest) {
 }
 
 export const config = {
+  // API routes authenticate (and refresh cookie sessions) themselves, so the
+  // proxy skips them instead of adding a second auth round trip per call.
   matcher: [
-    "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp|pdf|txt)$).*)",
+    "/((?!api/|_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp|pdf|txt)$).*)",
   ],
 };

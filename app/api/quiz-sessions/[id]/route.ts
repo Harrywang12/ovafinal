@@ -14,6 +14,12 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
     const { data: session, error } = await supabase.from("quiz_sessions").select("*").eq("id", id).eq("user_id", user.userId).maybeSingle();
     if (error) throw error;
     if (!session) return NextResponse.json({ error: "Quiz session not found" }, { status: 404 });
+    if (session.status === "generating") {
+      return NextResponse.json({ code: "QUIZ_SESSION_GENERATING", error: "This quiz is still being prepared. Try again in a minute." }, { status: 409 });
+    }
+    if (session.status === "generation_failed") {
+      return NextResponse.json({ code: "QUIZ_SESSION_FAILED", error: "This quiz could not be generated. Start a new quiz." }, { status: 409 });
+    }
     const { data: questions, error: questionError } = await supabase.from("quiz_session_questions")
       .select("id, sequence_number, question_data").eq("quiz_session_id", id).order("sequence_number");
     if (questionError) throw questionError;

@@ -113,8 +113,9 @@ export function getDifficultyMix(
   quizNumber: number,
   progression: z.infer<typeof difficultyProgressionSchema> = DEFAULT_DIFFICULTY_PROGRESSION
 ) {
+  // Quizzes beyond the last configured step keep using that step's mix.
   return progression.find((step) => step.throughQuiz === null || quizNumber <= step.throughQuiz)?.mix
-    ?? DEFAULT_DIFFICULTY_PROGRESSION[DEFAULT_DIFFICULTY_PROGRESSION.length - 1].mix;
+    ?? progression[progression.length - 1].mix;
 }
 
 export function expandTopicBlueprint(blueprint: TopicBlueprintItem[]): string[] {

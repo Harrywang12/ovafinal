@@ -2,9 +2,10 @@ import { NextResponse } from "next/server";
 import { getServerSupabase } from "../../../lib/supabase";
 import { assertEnv } from "../../../lib/utils";
 import { getAllModules } from "../../../lib/module-content";
-import { calculateLatestScore, normalizeRefereeLevel, questionLevelForRefereeLevel } from "../../../lib/learning";
+import { calculateLatestScore, questionLevelForRefereeLevel } from "../../../lib/learning";
 import { getAssignedWork } from "../../../lib/assigned-work";
 import { requireUserFromRequest } from "../../../lib/auth";
+import { selectAllRows } from "../../../lib/supabase-pagination";
 
 export const runtime = "nodejs";
 
@@ -77,17 +78,28 @@ export async function GET(request: Request) {
   }
 
   const supabase = getServerSupabase();
-  const { data, error } = await supabase
-    .from("video_question_attempts")
-    .select("id, question_id, correct, timed_out, time_taken_ms, created_at, question:video_questions(kind, difficulty, is_weekly)")
-    .eq("user_id", user.userId)
-    .order("created_at", { ascending: false });
-
-  if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+  let attempts: AttemptRow[];
+  let learningAttempts: LearningAttemptRow[];
+  try {
+    [attempts, learningAttempts] = await Promise.all([
+      selectAllRows<AttemptRow>((from, to) => supabase
+        .from("video_question_attempts")
+        .select("id, question_id, correct, timed_out, time_taken_ms, created_at, question:video_questions(kind, difficulty, is_weekly)")
+        .eq("user_id", user.userId)
+        .order("created_at", { ascending: false })
+        .order("id")
+        .range(from, to)),
+      selectAllRows<LearningAttemptRow>((from, to) => supabase
+        .from("module_quiz_attempts")
+        .select("module_id, correct, created_at")
+        .eq("user_id", user.userId)
+        .order("created_at", { ascending: false })
+        .order("id")
+        .range(from, to)),
+    ]);
+  } catch (error) {
+    return NextResponse.json({ error: (error as Error).message }, { status: 500 });
   }
-
-  const attempts = (data || []) as AttemptRow[];
 
   const practiceByDifficulty: Record<Difficulty, { attempted: number; solved: number }> = {
     easy: { attempted: 0, solved: 0 },
@@ -227,18 +239,12 @@ export async function GET(request: Request) {
 
   const userEmail = user.email;
 
-  const [{ data: profile }, { data: learningLessons, error: learningLessonError }, { data: learningAttempts, error: learningAttemptError }, { data: learningPasses, error: learningPassError }, { data: learningAssignments, error: learningAssignmentError }] =
+  const [{ data: learningLessons, error: learningLessonError }, { data: learningPasses, error: learningPassError }, { data: learningAssignments, error: learningAssignmentError }] =
     await Promise.all([
-      supabase.from("profiles").select("referee_level").eq("user_id", user.userId).maybeSingle(),
       supabase
         .from("module_lesson_progress")
         .select("module_id, lesson_id, viewed_at")
         .eq("user_id", user.userId),
-      supabase
-        .from("module_quiz_attempts")
-        .select("module_id, correct, created_at")
-        .eq("user_id", user.userId)
-        .order("created_at", { ascending: false }),
       supabase
         .from("module_passes")
         .select("module_id, correct_count, score_percent, passed_at")
@@ -249,7 +255,7 @@ export async function GET(request: Request) {
         .eq("user_id", user.userId),
     ]);
 
-  const learningError = learningLessonError || learningAttemptError || learningPassError || learningAssignmentError;
+  const learningError = learningLessonError || learningPassError || learningAssignmentError;
   if (learningError) {
     return NextResponse.json({ error: learningError.message }, { status: 500 });
   }
@@ -260,7 +266,7 @@ export async function GET(request: Request) {
     learningLessonsByModule.set(row.module_id, [...(learningLessonsByModule.get(row.module_id) || []), row]);
   }
   const learningAttemptsByModule = new Map<string, LearningAttemptRow[]>();
-  for (const row of (learningAttempts || []) as LearningAttemptRow[]) {
+  for (const row of learningAttempts) {
     learningAttemptsByModule.set(row.module_id, [...(learningAttemptsByModule.get(row.module_id) || []), row]);
   }
   const learningPassByModule = new Map((learningPasses || []).map((row) => [(row as LearningPassRow).module_id, row as LearningPassRow]));
@@ -294,7 +300,7 @@ export async function GET(request: Request) {
   const assignedModules = learningModules.filter((m) => m.assigned);
   const assignedPassed = assignedModules.filter((m) => m.passed).length;
   const lastLearningActivity = learningModules.reduce<string | null>((acc, row) => later(acc, row.last_activity_at), null);
-  const refereeLevel = normalizeRefereeLevel((profile as { referee_level?: string } | null)?.referee_level);
+  const refereeLevel = user.refereeLevel;
   const assignedWork = await getAssignedWork(supabase, user.userId);
   const quizAssignment = {
     assigned: assignedWork.adaptive.assigned,
@@ -313,6 +319,7 @@ export async function GET(request: Request) {
     user: {
       id: user.userId,
       email: userEmail,
+      username: user.username,
       referee_level: refereeLevel,
       question_level: questionLevelForRefereeLevel(refereeLevel),
     },

@@ -3,8 +3,8 @@
 import { TrainingMasthead } from "../../components/training-masthead";
 
 import Link from "next/link";
-import { useMemo } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useMemo, useState, type FormEvent } from "react";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { motion } from "framer-motion";
 import {
   User,
@@ -22,6 +22,7 @@ import { fadeInUp, staggerContainer, staggerItem } from "../../lib/animations";
 import { useSupabaseAuth } from "../../lib/useSupabaseAuth";
 import type { AssignedWork } from "../../lib/assigned-work";
 import { AssignedWorkPanel } from "../../components/assigned-work-panel";
+import { parseUsername, USERNAME_RULES } from "../../lib/usernames";
 
 type Difficulty = "easy" | "medium" | "hard";
 
@@ -29,6 +30,7 @@ type DashboardResponse = {
   user: {
     id: string;
     email: string | null;
+    username: string | null;
     referee_level: "level_1" | "level_2" | "level_3" | "level_4";
     question_level: "beginner" | "intermediate" | "hard";
   };
@@ -181,6 +183,79 @@ function DifficultyPill({ difficulty }: { difficulty: Difficulty | null }) {
   );
 }
 
+function UsernameField({ current, accessToken }: { current: string | null; accessToken?: string }) {
+  const queryClient = useQueryClient();
+  const [editing, setEditing] = useState(!current);
+  const [value, setValue] = useState(current ?? "");
+  const [validationError, setValidationError] = useState<string | null>(null);
+
+  const save = useMutation({
+    mutationFn: async (username: string) => {
+      const res = await fetch("/api/profile", {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : {}),
+        },
+        body: JSON.stringify({ username }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data.error || "Failed to save username");
+      return data;
+    },
+    onSuccess: () => {
+      setEditing(false);
+      queryClient.invalidateQueries({ queryKey: ["dashboard"] });
+      queryClient.invalidateQueries({ queryKey: ["challenge"] });
+    },
+  });
+
+  const submit = (e: FormEvent) => {
+    e.preventDefault();
+    const username = parseUsername(value);
+    if (!username) {
+      setValidationError(`Usernames must be ${USERNAME_RULES}`);
+      return;
+    }
+    setValidationError(null);
+    save.mutate(username);
+  };
+
+  if (!editing && current) {
+    return (
+      <div className="flex items-center justify-between gap-3">
+        <p className="text-ink font-medium break-all">{current}</p>
+        <button type="button" onClick={() => setEditing(true)} className="text-xs font-semibold text-accent hover:underline">
+          Change
+        </button>
+      </div>
+    );
+  }
+
+  const error = validationError || (save.isError ? (save.error as Error).message : null);
+  return (
+    <form onSubmit={submit} className="space-y-2">
+      {!current && <p className="text-xs text-muted">Choose a username to appear on the weekly leaderboard.</p>}
+      <div className="flex gap-2">
+        <input
+          type="text"
+          aria-label="Username"
+          autoComplete="username"
+          maxLength={20}
+          value={value}
+          onChange={(e) => setValue(e.target.value)}
+          className="min-w-0 flex-1 px-3 py-2 rounded-xl bg-surface border border-border text-ink text-sm focus:outline-none focus:ring-2 focus:ring-accent/30"
+          placeholder="court_vision"
+        />
+        <button type="submit" disabled={save.isPending} className="px-3 py-2 rounded-xl bg-primary text-white text-sm font-semibold disabled:opacity-50">
+          {save.isPending ? "Saving…" : "Save"}
+        </button>
+      </div>
+      {error && <p className="text-xs font-semibold text-red-600">{error}</p>}
+    </form>
+  );
+}
+
 export default function DashboardPage() {
   const { session } = useSupabaseAuth();
 
@@ -248,6 +323,10 @@ export default function DashboardPage() {
                     </div>
                   </div>
                   <div className="space-y-3">
+                    <div>
+                      <p className="text-xs font-semibold uppercase tracking-wider text-muted mb-1">Username</p>
+                      <UsernameField current={dashboardQuery.data.user.username} accessToken={session?.access_token} />
+                    </div>
                     <div>
                       <p className="text-xs font-semibold uppercase tracking-wider text-muted mb-1">Email</p>
                       <p className="text-ink font-medium break-all">{dashboardQuery.data.user.email ?? session?.user?.email ?? "—"}</p>

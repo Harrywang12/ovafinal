@@ -6,7 +6,8 @@ import { requireAdminFromRequest } from "../../../../lib/admin";
 
 export const runtime = "nodejs";
 export const maxDuration = 60; // 60 seconds for upload processing
-const MAX_VIDEO_BYTES = 100 * 1024 * 1024;
+// Must match the practice-clips bucket file_size_limit (50 MB).
+const MAX_VIDEO_BYTES = 50 * 1024 * 1024;
 const ALLOWED_VIDEO_TYPES = new Set(["video/mp4", "video/webm", "video/quicktime"]);
 
 /**
@@ -49,7 +50,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Only MP4, WebM, and QuickTime video files are accepted" }, { status: 415 });
   }
   if (file.size <= 0 || file.size > MAX_VIDEO_BYTES) {
-    return NextResponse.json({ error: "Video must be between 1 byte and 100 MB" }, { status: 413 });
+    return NextResponse.json({ error: "Video must be between 1 byte and 50 MB" }, { status: 413 });
   }
 
   const buffer = Buffer.from(await file.arrayBuffer());

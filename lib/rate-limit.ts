@@ -175,3 +175,18 @@ export async function enforceGenerationQuota(
     throw new RateLimitError("GENERATION_QUOTA_EXCEEDED", "AI usage quota exceeded. Try again later.", 3_600);
   }
 }
+
+/** Returns quota consumed by a generation that produced nothing usable. */
+export async function releaseGenerationQuota(
+  supabase: SupabaseClient,
+  userId: string,
+  units: number,
+  feature: string
+) {
+  const { error } = await supabase.rpc("release_ai_quota", {
+    quota_user_id: userId,
+    quota_feature: feature,
+    quota_units: units,
+  });
+  if (error) console.warn("AI quota release failed", { message: error.message });
+}

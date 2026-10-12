@@ -31,7 +31,7 @@ describe("DeepSeek provider", () => {
       usage: { prompt_tokens: 10, completion_tokens: 3, prompt_cache_hit_tokens: 6, prompt_cache_miss_tokens: 4 },
     }), { status: 200, headers: { "Content-Type": "application/json" } }));
     vi.stubGlobal("fetch", fetchMock);
-    await expect(llmObject([{ role: "user", content: "test" }], z.object({ ok: z.boolean() }), "fast", options)).resolves.toEqual({ ok: true });
+    await expect(llmObject([{ role: "user", content: "test" }], z.object({ ok: z.boolean() }), options)).resolves.toEqual({ ok: true });
     expect(AI_CONFIG).toMatchObject({ baseUrl: "https://api.deepseek.com", model: "deepseek-flash", provider: "deepseek" });
     expect(fetchMock).toHaveBeenCalledWith("https://api.deepseek.com/chat/completions", expect.objectContaining({ method: "POST" }));
     const body = JSON.parse(fetchMock.mock.calls[0][1].body);
@@ -46,14 +46,14 @@ describe("DeepSeek provider", () => {
 
   it("fails explicitly on empty JSON", async () => {
     vi.stubGlobal("fetch", vi.fn().mockResolvedValue(new Response(JSON.stringify({ choices: [{ message: { content: "" } }] }), { status: 200 })));
-    await expect(llmObject([{ role: "user", content: "test" }], z.object({ ok: z.boolean() }), "fast", options))
+    await expect(llmObject([{ role: "user", content: "test" }], z.object({ ok: z.boolean() }), options))
       .rejects.toEqual(expect.objectContaining<Partial<LLMResponseError>>({ code: "EMPTY_RESPONSE" }));
   });
 
   it("fails explicitly on malformed JSON without provider retries", async () => {
     const fetchMock = vi.fn().mockResolvedValue(new Response(JSON.stringify({ choices: [{ message: { content: "not-json" } }] }), { status: 200 }));
     vi.stubGlobal("fetch", fetchMock);
-    await expect(llmObject([{ role: "user", content: "test" }], z.object({ ok: z.boolean() }), "fast", options))
+    await expect(llmObject([{ role: "user", content: "test" }], z.object({ ok: z.boolean() }), options))
       .rejects.toEqual(expect.objectContaining<Partial<LLMResponseError>>({ code: "MALFORMED_JSON" }));
     expect(fetchMock).toHaveBeenCalledTimes(1);
   });
@@ -62,7 +62,7 @@ describe("DeepSeek provider", () => {
     const fetchMock = vi.fn();
     vi.stubGlobal("fetch", fetchMock);
     vi.mocked(enforceLLMBudget).mockRejectedValueOnce(Object.assign(new Error("budget exhausted"), { status: 429 }));
-    await expect(llmObject([{ role: "user", content: "test" }], z.object({ ok: z.boolean() }), "fast", options))
+    await expect(llmObject([{ role: "user", content: "test" }], z.object({ ok: z.boolean() }), options))
       .rejects.toThrow("budget exhausted");
     expect(fetchMock).not.toHaveBeenCalled();
   });

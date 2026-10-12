@@ -5,7 +5,7 @@ import { getRequestSupabase } from "./supabase-server";
 import { clientIpFromRequest, enforceAuthenticatedApiRateLimit, enforceIpApiRateLimit, RateLimitError } from "./rate-limit";
 
 export type AdminAuthResult =
-  | { ok: true; userId: string; email: string }
+  | { ok: true; userId: string; email: string; emailConfirmed: boolean }
   | { ok: false; status: number; error: string };
 
 function normalizeEmail(email: string) {
@@ -58,12 +58,14 @@ export async function getRequestIdentity(request: Request): Promise<AdminAuthRes
 
   let userId: string;
   let email: string;
+  let emailConfirmed: boolean;
   if (!token) {
     const { data, error } = await (await getRequestSupabase()).auth.getUser();
     if (error || !data.user) return { ok: false, status: 401, error: "Unauthenticated" };
     email = normalizeEmail(data.user.email || "");
     if (!email) return { ok: false, status: 403, error: "An email address is required for admin access" };
     userId = data.user.id;
+    emailConfirmed = !!data.user.email_confirmed_at;
   } else {
     const supabaseUrl = process.env.SUPABASE_URL!;
     const supabaseAnonKey = process.env.SUPABASE_ANON_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
@@ -89,6 +91,7 @@ export async function getRequestIdentity(request: Request): Promise<AdminAuthRes
       return { ok: false, status: 403, error: "An email address is required for admin access" };
     }
     userId = data.user.id;
+    emailConfirmed = !!data.user.email_confirmed_at;
   }
 
   try {
@@ -100,7 +103,7 @@ export async function getRequestIdentity(request: Request): Promise<AdminAuthRes
     return { ok: false, status: 503, error: "Request protection is temporarily unavailable" };
   }
 
-  return { ok: true, userId, email };
+  return { ok: true, userId, email, emailConfirmed };
 }
 
 /**
@@ -111,7 +114,8 @@ export async function requireAdminFromRequest(request: Request): Promise<AdminAu
   const identity = await getRequestIdentity(request);
   if (!identity.ok) return identity;
 
-  if (!(await isAdminEmail(identity.email))) {
+  // Admin rights are granted by email, so the address must be proven owned.
+  if (!identity.emailConfirmed || !(await isAdminEmail(identity.email))) {
     return { ok: false, status: 403, error: "Admin access required" };
   }
 

@@ -1301,13 +1301,6 @@ export function getAllModules(): Module[] {
   return Object.values(moduleContent).sort((a, b) => a.chapter - b.chapter);
 }
 
-// Get modules filtered by category
-export function getModulesByCategory(category: Module["category"]): Module[] {
-  return Object.values(moduleContent)
-    .filter(m => m.category === category)
-    .sort((a, b) => a.chapter - b.chapter);
-}
-
 // Get next module for navigation
 export function getNextModule(currentSlug: string): Module | undefined {
   const current = moduleContent[currentSlug.toLowerCase()];
@@ -1315,9 +1308,4 @@ export function getNextModule(currentSlug: string): Module | undefined {
     return moduleContent[current.nextModule];
   }
   return undefined;
-}
-
-// Get module by chapter number
-export function getModuleByChapter(chapter: number): Module | undefined {
-  return Object.values(moduleContent).find(m => m.chapter === chapter);
 }

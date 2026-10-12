@@ -2,11 +2,30 @@ import { NextResponse } from "next/server";
 import { requireAdminFromRequest } from "../../../../lib/admin";
 import { calculateQuizProgramStatus } from "../../../../lib/quiz-programs";
 import { getServerSupabase } from "../../../../lib/supabase";
+import { groupBy, selectAllRows } from "../../../../lib/supabase-pagination";
+
+type ProgramRow = {
+  id: string; title: string; discipline: string; referee_level: string; required_quiz_count: number;
+  start_at: string | null; due_at: string | null;
+};
+type AssignmentRow = { id: string; user_id: string; assigned_at: string; program: ProgramRow | ProgramRow[] | null };
+type SessionRow = {
+  id: string; quiz_program_id: string; user_id: string; status: string; score_percent: number | null;
+  passed: boolean | null; submitted_at: string | null; created_at: string;
+};
+type AnswerRow = {
+  id: string; correct: boolean; answered_at: string;
+  question: { quiz_session_id: string; question_data: unknown } | Array<{ quiz_session_id: string; question_data: unknown }> | null;
+};
+type ProfileRow = { user_id: string; email: string | null; referee_level: string | null };
 
 type MetricKey = "topic" | "subtopic" | "ruleId" | "scenarioType" | "refereeRole" | "difficulty";
 
 function csvCell(value: unknown) {
-  const text = String(value ?? "");
+  // Prefix spreadsheet formula triggers so learner-supplied text (emails)
+  // cannot execute as a formula when the export is opened.
+  const raw = String(value ?? "");
+  const text = /^[=+\-@\t\r]/.test(raw) ? `'${raw}` : raw;
   return /[",\n]/.test(text) ? `"${text.replaceAll('"', '""')}"` : text;
 }
 
@@ -15,20 +34,34 @@ export async function GET(request: Request) {
   if (!admin.ok) return NextResponse.json({ error: admin.error }, { status: admin.status });
   const params = new URL(request.url).searchParams;
   const supabase = getServerSupabase();
-  const [{ data: assignments, error: assignmentError }, { data: sessions, error: sessionError }, { data: answers, error: answerError }, { data: profiles, error: profileError }] = await Promise.all([
-    supabase.from("quiz_program_assignments").select("id, user_id, assigned_at, program:quiz_programs(*)"),
-    supabase.from("quiz_sessions").select("id, quiz_program_id, user_id, status, score_percent, passed, submitted_at, created_at").order("created_at", { ascending: false }),
-    supabase.from("quiz_session_answers").select("correct, answered_at, question:quiz_session_questions(quiz_session_id, question_data)"),
-    supabase.from("profiles").select("user_id, email, referee_level"),
-  ]);
-  const error = assignmentError || sessionError || answerError || profileError;
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  let assignments: AssignmentRow[];
+  let sessions: SessionRow[];
+  let answers: AnswerRow[];
+  let profiles: ProfileRow[];
+  try {
+    [assignments, sessions, answers, profiles] = await Promise.all([
+      selectAllRows<AssignmentRow>((from, to) => supabase
+        .from("quiz_program_assignments").select("id, user_id, assigned_at, program:quiz_programs(*)").order("id").range(from, to)),
+      selectAllRows<SessionRow>((from, to) => supabase
+        .from("quiz_sessions").select("id, quiz_program_id, user_id, status, score_percent, passed, submitted_at, created_at")
+        .eq("status", "submitted").order("created_at", { ascending: false }).order("id").range(from, to)),
+      selectAllRows<AnswerRow>((from, to) => supabase
+        .from("quiz_session_answers").select("id, correct, answered_at, question:quiz_session_questions(quiz_session_id, question_data)")
+        .order("id").range(from, to)),
+      selectAllRows<ProfileRow>((from, to) => supabase
+        .from("profiles").select("user_id, email, referee_level").order("user_id").range(from, to)),
+    ]);
+  } catch (error) {
+    return NextResponse.json({ error: (error as Error).message }, { status: 500 });
+  }
+  const profileByUser = new Map(profiles.map((profile) => [profile.user_id, profile]));
+  const sessionsByAssignment = groupBy(sessions, (session) => `${session.quiz_program_id}:${session.user_id}`);
 
-  const rows = (assignments || []).flatMap((assignment) => {
+  const rows = assignments.flatMap((assignment) => {
     const program = Array.isArray(assignment.program) ? assignment.program[0] : assignment.program;
-    const profile = (profiles || []).find((item) => item.user_id === assignment.user_id);
+    const profile = profileByUser.get(assignment.user_id);
     if (!program) return [];
-    const relevant = (sessions || []).filter((session) => session.quiz_program_id === program.id && session.user_id === assignment.user_id && session.status === "submitted");
+    const relevant = sessionsByAssignment.get(`${program.id}:${assignment.user_id}`) || [];
     const passed = relevant.filter((session) => session.passed === true);
     const scores = relevant.map((session) => Number(session.score_percent || 0));
     const status = calculateQuizProgramStatus({ completedQuizzes: passed.length, requiredQuizzes: program.required_quiz_count, dueAt: program.due_at });
@@ -60,8 +93,9 @@ export async function GET(request: Request) {
 
   const metricMaps = new Map<MetricKey, Map<string, { correct: number; attempted: number }>>();
   for (const key of ["topic", "subtopic", "ruleId", "scenarioType", "refereeRole", "difficulty"] as MetricKey[]) metricMaps.set(key, new Map());
-  const relevantSessionIds = new Set((sessions || []).filter((session) => rows.some((row) => row.program_id === session.quiz_program_id)).map((session) => session.id));
-  for (const answer of answers || []) {
+  const reportedPrograms = new Set(rows.map((row) => row.program_id));
+  const relevantSessionIds = new Set(sessions.filter((session) => reportedPrograms.has(session.quiz_program_id)).map((session) => session.id));
+  for (const answer of answers) {
     const relation = Array.isArray(answer.question) ? answer.question[0] : answer.question;
     if (!relation || !relevantSessionIds.has(relation.quiz_session_id)) continue;
     const data = relation.question_data as Record<string, unknown>;

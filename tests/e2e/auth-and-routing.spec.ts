@@ -19,6 +19,7 @@ test("exposes an accessible sign-in and sign-up flow", async ({ page }) => {
   await page.getByRole("button", { name: "Sign Up" }).click();
   await expect(page.getByLabel("Confirm Password")).toHaveAttribute("autocomplete", "new-password");
   await expect(page.getByLabel("Referee Level")).toBeVisible();
+  await expect(page.getByLabel("Username")).toHaveAttribute("autocomplete", "username");
 });
 
 test("provides password recovery without exposing account existence", async ({ page }) => {

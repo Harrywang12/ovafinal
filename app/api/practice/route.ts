@@ -14,8 +14,9 @@ export async function GET(request: Request) {
 
   const supabase = getServerSupabase();
   const { searchParams } = new URL(request.url);
-  const difficulty = (searchParams.get("difficulty") as "easy" | "medium" | "hard") || "medium";
-  const category = searchParams.get("category") || "indoor";
+  const requestedDifficulty = searchParams.get("difficulty");
+  const difficulty = requestedDifficulty === "easy" || requestedDifficulty === "hard" ? requestedDifficulty : "medium";
+  const category = searchParams.get("category") === "beach" ? "beach" : "indoor";
 
   const { data, error } = await supabase
     .from("video_questions")
@@ -110,7 +111,8 @@ export async function POST(request: Request) {
     .from("video_questions")
     .select("id, correct_option_index, explanation, rule_reference")
     .eq("id", question_id)
-    .single();
+    .eq("kind", "practice")
+    .maybeSingle();
 
   if (qError || !q) {
     return NextResponse.json({ error: "Question not found" }, { status: 404 });
@@ -129,6 +131,9 @@ export async function POST(request: Request) {
     time_taken_ms: typeof time_taken_ms === "number" ? Math.max(0, Math.floor(time_taken_ms)) : null,
   });
 
+  if (insertError?.code === "23505") {
+    return NextResponse.json({ error: "You have already attempted this clip." }, { status: 409 });
+  }
   if (insertError) {
     return NextResponse.json({ error: insertError.message }, { status: 500 });
   }

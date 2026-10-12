@@ -23,7 +23,7 @@
 - `rule_documents` stores source title, discipline, type, year, URL/path, and active index version.
 - `rule_chunks` stores text, ruleset, rule/section/case identifiers, page, topic/tags, referee-level bounds, index version, and content hash.
 - Runtime retrieval calls `search_rule_chunks_fts`, using weighted PostgreSQL FTS, trigram matching, and strict relational filters.
-- Legacy vector columns/functions remain in historical migrations for rollback, but no application runtime calls them.
+- The legacy pgvector column, index and `match_rule_chunks` function were removed in `20261012000000_lockdown_client_access_and_cleanup.sql`.
 
 ## Quiz architecture
 
@@ -49,14 +49,18 @@ Assigned quizzes reserve the complete blueprint collection first, reject concept
 - Public payloads omit hidden answers and evidence.
 - Submission routes load the stored private object and grade option strings deterministically.
 - Atomic `answered_at` claims and session status transitions prevent repeated submissions.
+- Client roles (`anon`, `authenticated`) have no table privileges, so answer keys cannot be read and scores cannot be written through PostgREST directly.
+- A partial unique index allows one active assigned-quiz session per learner and program; sessions stuck in `generating` past the function timeout are failed and their quota refunded.
+- The weekly challenge measures answer time from a server-recorded start (`video_challenge_starts`), not client-reported timing.
 - DeepSeek never grades learner multiple-choice answers.
 
 ## Quotas and observability
 
 - `consume_rate_limits` atomically evaluates multi-policy fixed windows with deterministic PostgreSQL advisory locks; rejected requests are never partially charged.
-- The Next.js proxy limits every API request by client IP, while authentication helpers add per-user minute/day limits to all learner and admin APIs.
+- Authentication helpers limit every API request by client IP before verifying the token, then add per-user minute/day limits to all learner and admin APIs. The Next.js proxy only guards page routes.
 - `consume_ai_quota` enforces both per-feature and shared per-user question budgets, preventing adaptive/module buckets from being stacked.
 - The central DeepSeek boundary reserves estimated input/output tokens and one actual provider call against per-user and project-wide budgets before every generation, verification, or retry.
+- A nightly `pg_cron` job (`prune-ai-telemetry`) keeps 90 days of `ai_request_telemetry` and `quiz_generation_telemetry` and 7 days of the `quiz_generation_events` quota ledger.
 - Rate-limit infrastructure fails closed and returns 429 responses with `Retry-After` where generation routes surface the rejection.
 - `ai_request_telemetry` records request type, model, tokens, prompt-cache tokens, latency, attempt, and outcome.
 - `quiz_generation_telemetry` records first-attempt success and validation, duplicate, and grounding rejection stages.

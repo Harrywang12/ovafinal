@@ -116,4 +116,43 @@ describe("AI architecture guards", () => {
     expect(adaptive).toContain('.is("answered_at", null)');
     expect(adaptive).toContain("parsed.data.selected_option === question.answer");
   });
+
+  it("keeps client roles locked out of tables that hold answers, scores, and passes", () => {
+    const migrationDir = resolve(process.cwd(), "supabase/migrations");
+    const lockdown = readdirSync(migrationDir).find((file) => file.includes("lockdown_client_access"));
+    expect(lockdown).toBeDefined();
+    const migration = readFileSync(resolve(migrationDir, lockdown!), "utf8");
+    expect(migration).toContain("revoke all on all tables in schema public from anon, authenticated");
+    for (const policy of [
+      "user read own generated questions",
+      "user read own session questions",
+      "auth read video_questions",
+      "user manage mcq_challenge_entries",
+      "user insert own module passes",
+      "user manage quiz_attempts",
+    ]) {
+      expect(migration, policy).toContain(`drop policy if exists "${policy}"`);
+    }
+
+    const bootstrap = readFileSync(resolve(process.cwd(), "supabase.sql"), "utf8");
+    expect(bootstrap).toContain("revoke all on all tables in schema public from anon, authenticated");
+    expect(bootstrap).not.toMatch(/create policy "user (manage|insert|update)/);
+  });
+
+  it("scores the weekly challenge from server time only", () => {
+    const source = readFileSync(resolve(process.cwd(), "app/api/challenge/route.ts"), "utf8");
+    expect(source).toContain("video_challenge_starts");
+    expect(source).toContain('.eq("kind", "challenge")');
+    expect(source).not.toMatch(/body\.time_taken_ms|time_taken_ms\s*[,}]\s*=\s*body/);
+  });
+
+  it("prunes AI telemetry on a schedule", () => {
+    const migrationDir = resolve(process.cwd(), "supabase/migrations");
+    const retention = readdirSync(migrationDir).find((file) => file.includes("ai_telemetry_retention"));
+    expect(retention).toBeDefined();
+    const migration = readFileSync(resolve(migrationDir, retention!), "utf8");
+    expect(migration).toContain("cron.schedule");
+    expect(migration).toContain("delete from public.ai_request_telemetry");
+    expect(migration).toContain("delete from public.quiz_generation_telemetry");
+  });
 });

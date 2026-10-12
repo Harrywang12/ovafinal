@@ -1,8 +1,5 @@
-import { questionStyleSchema, type QuestionStyle } from "./generated-quiz-question";
+import type { QuestionStyle } from "./generated-quiz-question";
 import type { QuizDifficulty } from "./quiz-programs";
-import type { StructuredQuizHistory } from "./quiz-question-history";
-
-export const QUESTION_STYLES = questionStyleSchema.options;
 
 const STYLE_INSTRUCTIONS: Record<QuestionStyle, string> = {
   referee_ruling: "Present an observable match event and ask for the referee's correct ruling.",
@@ -35,28 +32,4 @@ export function compatibleQuestionStyles(topic: string, difficulty: QuizDifficul
 
 export function styleInstruction(style: QuestionStyle) {
   return STYLE_INSTRUCTIONS[style];
-}
-
-export function selectQuestionStyles(
-  topic: string,
-  difficulty: QuizDifficulty,
-  count: number,
-  history: StructuredQuizHistory[],
-  offset = 0,
-  random = Math.random
-) {
-  const recent = history.slice(0, 12).map((item) => item.questionStyle).filter(Boolean);
-  const styles = compatibleQuestionStyles(topic, difficulty)
-    .map((style) => ({
-      style,
-      recentIndex: recent.indexOf(style),
-      random: random(),
-    }))
-    .sort((a, b) => {
-      const aPenalty = a.recentIndex < 0 ? -1 : 12 - a.recentIndex;
-      const bPenalty = b.recentIndex < 0 ? -1 : 12 - b.recentIndex;
-      return aPenalty - bPenalty || a.random - b.random;
-    })
-    .map((item) => item.style);
-  return Array.from({ length: count }, (_, index) => styles[(index + offset) % styles.length]);
 }

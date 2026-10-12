@@ -1,4 +1,3 @@
-import type { Module } from "./module-content";
 
 export const MODULE_PASS_QUESTION_REQUIREMENT = 10;
 export const MODULE_PASS_CORRECT_REQUIREMENT = 7;
@@ -86,10 +85,6 @@ export function nextAdaptiveDifficulty(
   return currentDifficulty;
 }
 
-export function refereeLevelLabel(level: RefereeLevel): string {
-  return `Level ${level.replace("level_", "")}`;
-}
-
 export function questionLevelLabel(level: QuestionLevel): string {
   if (level === "beginner") return "Beginner";
   if (level === "intermediate") return "Intermediate";
@@ -115,8 +110,4 @@ export function calculateLatestScore(
     latestScorePercent,
     meetsPassRequirement,
   };
-}
-
-export function getModuleLessonCount(module: Module): number {
-  return module.lessons.length;
 }

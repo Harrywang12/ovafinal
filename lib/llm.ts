@@ -3,8 +3,6 @@ import { AI_CONFIG } from "./ai-config";
 import { recordAIRequestTelemetry } from "./ai-telemetry";
 import { enforceLLMBudget } from "./rate-limit";
 
-export type LLMProfile = "fast";
-
 export interface ChatMessage {
   role: "system" | "user" | "assistant";
   content: string;
@@ -133,7 +131,6 @@ async function requestDeepSeek(messages: ChatMessage[], options: LLMOptions, for
 export async function llmObject<T>(
   messages: ChatMessage[],
   schema: z.ZodType<T>,
-  _model: LLMProfile = "fast",
   options: LLMOptions,
 ): Promise<T> {
   const parsed = parseJsonContent(await requestDeepSeek(messages, options, true));

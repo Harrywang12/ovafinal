@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { requireUserFromRequest, requestUserQuestionLevel } from "../../../../lib/auth";
 import { getServerSupabase } from "../../../../lib/supabase";
+import { selectAllRows } from "../../../../lib/supabase-pagination";
 import { assertEnv } from "../../../../lib/utils";
 import { getAllModules } from "../../../../lib/module-content";
 import {
@@ -50,17 +51,12 @@ export async function GET(request: Request) {
   }
 
   const supabase = getServerSupabase();
-  const [{ data: lessons, error: lessonError }, { data: attempts, error: attemptError }, { data: passes, error: passError }, { data: assignments, error: assignmentError }] =
+  const [{ data: lessons, error: lessonError }, { data: passes, error: passError }, { data: assignments, error: assignmentError }] =
     await Promise.all([
       supabase
         .from("module_lesson_progress")
         .select("module_id, lesson_id, viewed_at")
         .eq("user_id", user.userId),
-      supabase
-        .from("module_quiz_attempts")
-        .select("module_id, correct, created_at")
-        .eq("user_id", user.userId)
-        .order("created_at", { ascending: false }),
       supabase
         .from("module_passes")
         .select("module_id, correct_count, score_percent, passed_at")
@@ -71,9 +67,22 @@ export async function GET(request: Request) {
         .eq("user_id", user.userId),
     ]);
 
-  const error = lessonError || attemptError || passError || assignmentError;
+  const error = lessonError || passError || assignmentError;
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 500 });
+  }
+
+  let attempts: AttemptRow[];
+  try {
+    attempts = await selectAllRows<AttemptRow>((from, to) => supabase
+      .from("module_quiz_attempts")
+      .select("module_id, correct, created_at")
+      .eq("user_id", user.userId)
+      .order("created_at", { ascending: false })
+      .order("id")
+      .range(from, to));
+  } catch (attemptError) {
+    return NextResponse.json({ error: (attemptError as Error).message }, { status: 500 });
   }
 
   const lessonsByModule = new Map<string, LessonRow[]>();
@@ -84,7 +93,7 @@ export async function GET(request: Request) {
   }
 
   const attemptsByModule = new Map<string, AttemptRow[]>();
-  for (const row of (attempts || []) as AttemptRow[]) {
+  for (const row of attempts) {
     const list = attemptsByModule.get(row.module_id) || [];
     list.push(row);
     attemptsByModule.set(row.module_id, list);

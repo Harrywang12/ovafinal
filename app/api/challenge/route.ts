@@ -1,9 +1,15 @@
 import { NextResponse } from "next/server";
+import { z } from "zod";
 import { getServerSupabase } from "../../../lib/supabase";
 import { assertEnv, difficultyToDuration } from "../../../lib/utils";
 import { requireUserFromRequest } from "../../../lib/auth";
+import { leaderboardName } from "../../../lib/usernames";
 
 export const runtime = "nodejs";
+
+// Allowance for the round trip between the clip pausing and the answer
+// reaching the server.
+const ANSWER_GRACE_MS = 2_000;
 
 type ChallengeQuestion = {
   id: string;
@@ -15,8 +21,15 @@ type ChallengeQuestion = {
   answer_window_seconds?: number | null;
 };
 
-function resolveAnswerWindow(question: ChallengeQuestion | null): number | null {
-  if (!question) return null;
+const startSchema = z.object({ action: z.literal("start"), question_id: z.string().uuid() });
+const answerSchema = z.object({
+  action: z.literal("answer").optional(),
+  question_id: z.string().uuid(),
+  selected_option_index: z.number().int().min(0).max(3).nullable().optional(),
+  timed_out: z.boolean().optional(),
+});
+
+function answerWindowSeconds(question: { answer_window_seconds?: number | null; difficulty: string }) {
   if (typeof question.answer_window_seconds === "number" && question.answer_window_seconds > 0) {
     return question.answer_window_seconds;
   }
@@ -32,7 +45,7 @@ export async function GET(request: Request) {
 
   const supabase = getServerSupabase();
   const { searchParams } = new URL(request.url);
-  const category = searchParams.get("category") || "indoor";
+  const category = searchParams.get("category") === "beach" ? "beach" : "indoor";
 
   const { data: attempts, error: attemptsError } = await supabase
     .from("video_question_attempts")
@@ -44,59 +57,19 @@ export async function GET(request: Request) {
   }
 
   const attemptedIds = new Set((attempts || []).map((a) => a.question_id));
+  const columns = "id, kind, difficulty, video_url, pause_at_seconds, options, answer_window_seconds";
 
-  // Try to filter by category. If the column doesn't exist yet, fall back to no filter.
-  let weeklyQuery = supabase
+  const { data: weeklyQuestions, error: weeklyError } = await supabase
     .from("video_questions")
-    .select("id, kind, difficulty, video_url, pause_at_seconds, options, answer_window_seconds")
+    .select(columns)
     .eq("kind", "challenge")
     .eq("is_weekly", true)
+    .eq("category", category)
     .order("created_at", { ascending: false })
     .limit(1);
 
-  // Apply category filter (graceful — column may not exist yet)
-  weeklyQuery = weeklyQuery.eq("category", category);
-
-  const { data: weeklyQuestions, error: weeklyError } = await weeklyQuery;
-
   if (weeklyError) {
-    // If category column doesn't exist, fall back to unfiltered query
-    const { data: fallbackWeekly, error: fallbackError } = await supabase
-      .from("video_questions")
-      .select("id, kind, difficulty, video_url, pause_at_seconds, options")
-      .eq("kind", "challenge")
-      .eq("is_weekly", true)
-      .order("created_at", { ascending: false })
-      .limit(1);
-
-    if (fallbackError) {
-      return NextResponse.json({ error: fallbackError.message }, { status: 500 });
-    }
-
-    const weekly = (fallbackWeekly?.[0] as ChallengeQuestion | undefined) ?? null;
-    let question: ChallengeQuestion | null = null;
-    let alreadyAttempted = false;
-
-    if (weekly) {
-      if (attemptedIds.has(weekly.id)) {
-        alreadyAttempted = true;
-      } else {
-        question = weekly;
-      }
-    }
-
-    const { data: leaderboard } = await supabase
-      .from("weekly_leaderboard_mcq")
-      .select("*")
-      .limit(20);
-
-    const answerWindowSeconds = resolveAnswerWindow(question);
-
-    return NextResponse.json({
-      question: question ? { ...question, answer_window_seconds: answerWindowSeconds } : null,
-      leaderboard: leaderboard ?? [],
-      already_attempted: alreadyAttempted,
-    });
+    return NextResponse.json({ error: weeklyError.message }, { status: 500 });
   }
 
   const weekly = (weeklyQuestions?.[0] as ChallengeQuestion | undefined) ?? null;
@@ -109,19 +82,18 @@ export async function GET(request: Request) {
     } else {
       question = weekly;
     }
-  }
-
-  if (!question && !weekly) {
-    let fallbackQuery = supabase
+  } else {
+    const { data: anyChallenge, error: fallbackError } = await supabase
       .from("video_questions")
-      .select("id, kind, difficulty, video_url, pause_at_seconds, options, answer_window_seconds")
+      .select(columns)
       .eq("kind", "challenge")
+      .eq("category", category)
       .limit(50);
-    
-    // Try to apply category filter to fallback query too
-    fallbackQuery = fallbackQuery.eq("category", category);
 
-    const { data: anyChallenge } = await fallbackQuery;
+    if (fallbackError) {
+      return NextResponse.json({ error: fallbackError.message }, { status: 500 });
+    }
+
     const available = (anyChallenge || []).filter((q) => !attemptedIds.has(q.id));
     question = available.length
       ? (available[Math.floor(Math.random() * available.length)] as ChallengeQuestion)
@@ -131,25 +103,35 @@ export async function GET(request: Request) {
     }
   }
 
-  const { data: leaderboard, error: lbError } = await supabase
+  const { data: ranked, error: lbError } = await supabase
     .from("weekly_leaderboard_mcq")
-    .select("*")
+    .select("user_id, best_score")
     .limit(20);
 
   if (lbError) {
     return NextResponse.json({ error: lbError.message }, { status: 500 });
   }
 
-  const answerWindowSeconds = resolveAnswerWindow(question);
+  // Resolve display names server-side so user ids never reach the browser.
+  const rankedUserIds = (ranked || []).map((row) => row.user_id as string);
+  const { data: rankedProfiles, error: profileError } = rankedUserIds.length
+    ? await supabase.from("profiles").select("user_id, username").in("user_id", rankedUserIds)
+    : { data: [], error: null };
+
+  if (profileError) {
+    return NextResponse.json({ error: profileError.message }, { status: 500 });
+  }
+
+  const usernameByUser = new Map((rankedProfiles || []).map((profile) => [profile.user_id, profile.username as string | null]));
+  const leaderboard = (ranked || []).map((row) => ({
+    username: leaderboardName(usernameByUser.get(row.user_id), row.user_id),
+    best_score: row.best_score,
+    is_current_user: row.user_id === user.userId,
+  }));
 
   return NextResponse.json({
-    question: question
-      ? {
-          ...question,
-          answer_window_seconds: answerWindowSeconds,
-        }
-      : null,
-    leaderboard: leaderboard ?? [],
+    question: question ? { ...question, answer_window_seconds: answerWindowSeconds(question) } : null,
+    leaderboard,
     already_attempted: alreadyAttempted,
   });
 }
@@ -160,7 +142,7 @@ export async function GET(request: Request) {
  */
 function calculateScore(
   isCorrect: boolean,
-  timeTaken: number | undefined,
+  timeTaken: number,
   difficulty: string,
   maxTime: number
 ): number {
@@ -173,9 +155,7 @@ function calculateScore(
 
   // Time bonus: faster responses get bonus points (max 20 points)
   // Formula: (maxTime - timeTaken) * 2, capped at 20
-  const timeBonus = timeTaken !== undefined
-    ? Math.max(0, Math.min(20, (maxTime - timeTaken) * 2))
-    : 0;
+  const timeBonus = Math.max(0, Math.min(20, (maxTime - timeTaken) * 2));
 
   // Difficulty multiplier
   const difficultyPoints: Record<string, number> = {
@@ -189,6 +169,12 @@ function calculateScore(
   return baseScore + timeBonus + difficultyMultiplier;
 }
 
+/**
+ * POST { action: "start", question_id } when the clip pauses: records the
+ * server-side start of the answer window.
+ * POST { question_id, selected_option_index } to answer: elapsed time and
+ * timeout are measured from the recorded start, never from the client.
+ */
 export async function POST(request: Request) {
   assertEnv(["SUPABASE_URL", "SUPABASE_SERVICE_KEY"]);
   const user = await requireUserFromRequest(request);
@@ -196,31 +182,20 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: user.error }, { status: user.status });
   }
 
-  const supabase = getServerSupabase();
-
-  let body: {
-    question_id?: string;
-    selected_option_index?: number | null;
-    time_taken_ms?: number;
-    timed_out?: boolean;
-  };
-
-  try {
-    body = await request.json();
-  } catch {
-    return NextResponse.json({ error: "Invalid JSON body" }, { status: 400 });
-  }
-
-  const { question_id, selected_option_index, time_taken_ms, timed_out } = body;
-  if (!question_id) {
+  const body = await request.json().catch(() => null);
+  const start = startSchema.safeParse(body);
+  const answer = start.success ? null : answerSchema.safeParse(body);
+  if (!start.success && !answer?.success) {
     return NextResponse.json({ error: "question_id required" }, { status: 400 });
   }
+  const questionId = start.success ? start.data.question_id : answer!.data!.question_id;
 
+  const supabase = getServerSupabase();
   const { data: existing, error: existingError } = await supabase
     .from("video_question_attempts")
     .select("id")
     .eq("user_id", user.userId)
-    .eq("question_id", question_id)
+    .eq("question_id", questionId)
     .limit(1);
 
   if (existingError) {
@@ -234,45 +209,73 @@ export async function POST(request: Request) {
   const { data: q, error: qError } = await supabase
     .from("video_questions")
     .select("id, difficulty, correct_option_index, explanation, rule_reference, answer_window_seconds")
-    .eq("id", question_id)
-    .single();
+    .eq("id", questionId)
+    .eq("kind", "challenge")
+    .maybeSingle();
 
   if (qError || !q) {
     return NextResponse.json({ error: "Question not found" }, { status: 404 });
   }
 
-  const didTimeout = !!timed_out;
-  const selected = typeof selected_option_index === "number" ? selected_option_index : null;
-  const isCorrect = !didTimeout && selected !== null && selected === q.correct_option_index;
+  const maxTimeSeconds = answerWindowSeconds(q);
 
-  const maxTimeSeconds =
-    typeof q.answer_window_seconds === "number" && q.answer_window_seconds > 0
-      ? q.answer_window_seconds
-      : difficultyToDuration(q.difficulty as "easy" | "medium" | "hard" | "extreme");
-  const timeTakenSeconds = typeof time_taken_ms === "number" ? Math.max(0, Math.ceil(time_taken_ms / 1000)) : undefined;
-  const calculatedScore = calculateScore(isCorrect, timeTakenSeconds, q.difficulty, maxTimeSeconds);
+  if (start.success) {
+    // A repeated start keeps the original time so reloading cannot reset the clock.
+    const { error: startError } = await supabase
+      .from("video_challenge_starts")
+      .upsert({ user_id: user.userId, question_id: questionId }, { onConflict: "user_id,question_id", ignoreDuplicates: true });
+    if (startError) {
+      return NextResponse.json({ error: startError.message }, { status: 500 });
+    }
+    return NextResponse.json({ ok: true, answer_window_seconds: maxTimeSeconds });
+  }
 
-  // Store attempt (practice-style tracking)
-  const { error: attemptError } = await supabase.from("video_question_attempts").insert({
+  const { data: started, error: startedError } = await supabase
+    .from("video_challenge_starts")
+    .select("started_at")
+    .eq("user_id", user.userId)
+    .eq("question_id", questionId)
+    .maybeSingle();
+
+  if (startedError) {
+    return NextResponse.json({ error: startedError.message }, { status: 500 });
+  }
+  if (!started) {
+    return NextResponse.json({ error: "Watch the clip to the pause point before answering." }, { status: 409 });
+  }
+
+  const elapsedMs = Math.max(0, Date.now() - Date.parse(started.started_at));
+  const didTimeout = answer!.data!.timed_out === true || elapsedMs > maxTimeSeconds * 1000 + ANSWER_GRACE_MS;
+  const selected = didTimeout ? null : answer!.data!.selected_option_index ?? null;
+  const isCorrect = selected !== null && selected === q.correct_option_index;
+  const timeTakenMs = Math.min(elapsedMs, maxTimeSeconds * 1000);
+  const calculatedScore = calculateScore(isCorrect, Math.ceil(timeTakenMs / 1000), q.difficulty, maxTimeSeconds);
+
+  const { data: attempt, error: attemptError } = await supabase.from("video_question_attempts").insert({
     user_id: user.userId,
-    question_id,
+    question_id: questionId,
     selected_option_index: selected,
     correct: isCorrect,
     timed_out: didTimeout,
-    time_taken_ms: typeof time_taken_ms === "number" ? Math.max(0, Math.floor(time_taken_ms)) : null,
-  });
+    time_taken_ms: timeTakenMs,
+  }).select("id").single();
 
+  if (attemptError?.code === "23505") {
+    return NextResponse.json({ error: "You have already attempted this challenge." }, { status: 409 });
+  }
   if (attemptError) {
     return NextResponse.json({ error: attemptError.message }, { status: 500 });
   }
 
   const { error: insertError } = await supabase.from("mcq_challenge_entries").insert({
     user_id: user.userId,
-    question_id,
+    question_id: questionId,
     score: calculatedScore,
   });
 
   if (insertError) {
+    // Undo the attempt so a failed leaderboard write does not lock the learner out.
+    await supabase.from("video_question_attempts").delete().eq("id", attempt.id);
     return NextResponse.json({ error: insertError.message }, { status: 500 });
   }
 

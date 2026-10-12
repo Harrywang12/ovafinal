@@ -101,8 +101,8 @@ describe("single-candidate grounded generation", () => {
     });
     expect(searchRuleChunks).toHaveBeenCalledWith("", expect.objectContaining({ discipline: "beach", refereeLevel: "level_1", rulesets: ["beach"] }), 16);
     expect(llmObject).toHaveBeenCalledTimes(2);
-    expect(vi.mocked(llmObject).mock.calls[0][3]).toMatchObject({ maxTokens: 1000, requestType: "quiz_generation:adaptive" });
-    expect(vi.mocked(llmObject).mock.calls[1][3]).toMatchObject({ maxTokens: 100, requestType: "quiz_verification:adaptive" });
+    expect(vi.mocked(llmObject).mock.calls[0][2]).toMatchObject({ maxTokens: 1000, requestType: "quiz_generation:adaptive" });
+    expect(vi.mocked(llmObject).mock.calls[1][2]).toMatchObject({ maxTokens: 100, requestType: "quiz_verification:adaptive" });
   });
 
   it("retries a malformed candidate with a different reserved blueprint", async () => {

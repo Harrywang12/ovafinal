@@ -3,6 +3,7 @@ import { requireAdminFromRequest } from "../../../../lib/admin";
 import { normalizeRefereeLevel } from "../../../../lib/learning";
 import { getAllModules } from "../../../../lib/module-content";
 import { getServerSupabase } from "../../../../lib/supabase";
+import { groupBy, selectAllRows } from "../../../../lib/supabase-pagination";
 import { assertEnv } from "../../../../lib/utils";
 
 export const runtime = "nodejs";
@@ -27,22 +28,27 @@ export async function GET(request: Request) {
   }
 
   const supabase = getServerSupabase();
-  const [{ data: profiles, error: profileError }, { data: assignments, error: assignmentError }] =
-    await Promise.all([
-      supabase
+  let profiles: ProfileRow[];
+  let assignments: AssignmentRow[];
+  try {
+    [profiles, assignments] = await Promise.all([
+      selectAllRows<ProfileRow>((from, to) => supabase
         .from("profiles")
         .select("user_id, email, referee_level")
-        .order("email", { ascending: true }),
-      supabase
+        .order("email", { ascending: true })
+        .order("user_id")
+        .range(from, to)),
+      selectAllRows<AssignmentRow>((from, to) => supabase
         .from("module_assignments")
         .select("user_id, module_id, assigned_at")
-        .order("assigned_at", { ascending: false }),
+        .order("assigned_at", { ascending: false })
+        .order("id")
+        .range(from, to)),
     ]);
-
-  const error = profileError || assignmentError;
-  if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+  } catch (error) {
+    return NextResponse.json({ error: (error as Error).message }, { status: 500 });
   }
+  const assignmentsByUser = groupBy(assignments, (row) => row.user_id);
 
   return NextResponse.json({
     modules: getAllModules().map((module) => ({
@@ -51,13 +57,11 @@ export async function GET(request: Request) {
       category: module.category,
       chapterLabel: module.chapterLabel || `Ch. ${module.chapter}`,
     })),
-    learners: ((profiles || []) as ProfileRow[]).map((profile) => ({
+    learners: profiles.map((profile) => ({
       user_id: profile.user_id,
       email: profile.email,
       referee_level: normalizeRefereeLevel(profile.referee_level),
-      assigned_module_ids: ((assignments || []) as AssignmentRow[])
-        .filter((row) => row.user_id === profile.user_id)
-        .map((row) => row.module_id),
+      assigned_module_ids: (assignmentsByUser.get(profile.user_id) || []).map((row) => row.module_id),
     })),
   });
 }

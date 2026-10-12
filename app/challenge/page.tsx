@@ -138,6 +138,29 @@ export default function ChallengePage() {
     }
   });
 
+  // Starts the server-side answer window; the score's time bonus and the
+  // timeout are measured from this call, not from client-reported timing.
+  const startMutation = useMutation({
+    mutationFn: async (questionId: string) => {
+      const res = await fetch("/api/challenge", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          ...(session?.access_token ? { Authorization: `Bearer ${session.access_token}` } : {})
+        },
+        body: JSON.stringify({ action: "start", question_id: questionId })
+      });
+      if (!res.ok) {
+        const errorData = await res.json().catch(() => ({}));
+        throw new Error(errorData.error || "Failed to start the challenge");
+      }
+      return res.json();
+    },
+    onError: (error: Error) => {
+      setEvaluationError(error.message);
+    }
+  });
+
   const leaderboard = challengeQuery.data?.leaderboard || [];
   const alreadyAttempted = challengeQuery.data?.already_attempted === true;
 
@@ -154,6 +177,7 @@ export default function ChallengePage() {
         // ignore
       }
       setPhase("question");
+      startMutation.mutate(question.id);
     }
   };
 
@@ -169,9 +193,8 @@ export default function ChallengePage() {
       question_id: question.id,
       selected_option_index: null,
       timed_out: true,
-      time_taken_ms: question.answer_window_seconds * 1000,
     });
-  }, [question, phase, timeLeftMs, submitMutation, session?.user?.id]);
+  }, [question, phase, timeLeftMs, submitMutation]);
 
   const submitSelection = (idx: number) => {
     if (!question) return;
@@ -180,14 +203,9 @@ export default function ChallengePage() {
     setSelectedIndex(idx);
     setEvaluationError(null);
 
-    const totalMs = question.answer_window_seconds * 1000;
-    const timeTakenMs = timeLeftMs === null ? undefined : Math.max(0, Math.floor(totalMs - timeLeftMs));
-
     submitMutation.mutate({
       question_id: question.id,
       selected_option_index: idx,
-      timed_out: false,
-      time_taken_ms: timeTakenMs,
     });
   };
 
@@ -400,7 +418,7 @@ export default function ChallengePage() {
                                 whileHover={!locked ? { scale: 1.01 } : {}}
                                 whileTap={!locked ? { scale: 0.99 } : {}}
                                 onClick={() => submitSelection(idx)}
-                                disabled={locked || submitMutation.isPending}
+                                disabled={locked || submitMutation.isPending || startMutation.isPending}
                                 className={`w-full text-left px-4 py-3 rounded-xl border transition-colors ${
                                   isPicked
                                     ? "border-accent bg-accent/10 text-ink"
@@ -550,7 +568,7 @@ export default function ChallengePage() {
                     animate="visible"
                     className="space-y-3"
                   >
-                    {leaderboard.map((entry: { user_id?: string; best_score: number }, idx: number) => {
+                    {leaderboard.map((entry: { username: string; best_score: number; is_current_user: boolean }, idx: number) => {
                       const isTopThree = idx < 3;
                       const RankIcon = rankIcons[idx] || null;
                       
@@ -576,7 +594,8 @@ export default function ChallengePage() {
                             )}
                             <div>
                               <p className={`font-semibold ${isTopThree ? "text-primary" : "text-ink"}`}>
-                                {entry.user_id ?? "Anonymous"}
+                                {entry.username}
+                                {entry.is_current_user && <span className="ml-1.5 text-xs font-medium text-muted">(you)</span>}
                               </p>
                               {isTopThree && (
                                 <p className="text-xs text-muted">

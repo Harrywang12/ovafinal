@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { gradeStoredAnswers, publicQuizQuestion } from "../lib/quiz-sessions";
+import { gradeStoredAnswers, isStaleGeneratingSession, publicQuizQuestion, STALE_GENERATION_MS } from "../lib/quiz-sessions";
 
 const question = {
   question: "What is the ruling?", options: ["A", "B", "C", "D"], answer: "A", explanation: "Because the rule says so.",
@@ -30,5 +30,13 @@ describe("quiz session grading", () => {
   it("requires every stored question and rejects invalid options", () => {
     expect(() => gradeStoredAnswers(rows, [])).toThrow(/every/i);
     expect(() => gradeStoredAnswers(rows, [{ questionId: rows[0].id, selectedAnswer: "Forged" }])).toThrow(/invalid/i);
+  });
+
+  it("treats only long-running generating sessions as stale", () => {
+    const now = Date.parse("2026-10-12T12:00:00Z");
+    const createdAt = (ageMs: number) => new Date(now - ageMs).toISOString();
+    expect(isStaleGeneratingSession({ status: "generating", created_at: createdAt(STALE_GENERATION_MS + 1) }, now)).toBe(true);
+    expect(isStaleGeneratingSession({ status: "generating", created_at: createdAt(60_000) }, now)).toBe(false);
+    expect(isStaleGeneratingSession({ status: "ready", created_at: createdAt(STALE_GENERATION_MS * 10) }, now)).toBe(false);
   });
 });

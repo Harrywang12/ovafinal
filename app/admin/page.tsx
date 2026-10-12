@@ -265,6 +265,28 @@ export default function AdminPage() {
     },
   });
 
+  const refereeLevelMutation = useMutation({
+    mutationFn: async ({ userId, refereeLevel }: { userId: string; refereeLevel: LearningProgressRow["referee_level"] }) => {
+      const res = await fetch("/api/admin/learners", {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${session!.access_token}`,
+        },
+        body: JSON.stringify({ user_id: userId, referee_level: refereeLevel }),
+      });
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data.error || "Failed to update referee level");
+      }
+      return res.json();
+    },
+    onSuccess: () => {
+      learningQuery.refetch();
+      assignmentQuery.refetch();
+    },
+  });
+
   const adminsQuery = useQuery({
     queryKey: ["admin", "admins"],
     enabled: !!session?.access_token && isAdmin && activePanel === "access",
@@ -524,6 +546,9 @@ export default function AdminPage() {
                     </motion.div>
                   ) : (
                     <motion.div key="table" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="overflow-x-auto">
+                      {refereeLevelMutation.isError && (
+                        <p className="mb-3 text-sm font-semibold text-red-600">{(refereeLevelMutation.error as Error).message}</p>
+                      )}
                       <table className="w-full text-sm">
                         <thead>
                           <tr className="text-left text-muted border-b border-border">
@@ -749,9 +774,20 @@ export default function AdminPage() {
                                 <p className="text-xs font-mono text-muted break-all">{learner.user_id}</p>
                               </td>
                               <td className="py-3 pr-4">
-                                <span className="inline-flex px-2 py-1 rounded-full bg-primary/10 text-primary text-xs font-bold">
-                                  {refLevelLabel(learner.referee_level)}
-                                </span>
+                                <select
+                                  aria-label={`Referee level for ${learner.email || learner.user_id}`}
+                                  value={learner.referee_level}
+                                  disabled={refereeLevelMutation.isPending}
+                                  onChange={(e) => refereeLevelMutation.mutate({
+                                    userId: learner.user_id,
+                                    refereeLevel: e.target.value as LearningProgressRow["referee_level"],
+                                  })}
+                                  className="px-2 py-1 rounded-full bg-primary/10 text-primary text-xs font-bold border-0 focus:outline-none focus:ring-2 focus:ring-accent/30"
+                                >
+                                  {(["level_1", "level_2", "level_3", "level_4"] as const).map((level) => (
+                                    <option key={level} value={level}>{refLevelLabel(level)}</option>
+                                  ))}
+                                </select>
                                 <p className="mt-1 text-xs text-muted capitalize">{learner.question_level}</p>
                               </td>
                               <td className="py-3 pr-4">

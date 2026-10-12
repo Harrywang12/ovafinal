@@ -1,8 +1,13 @@
 import { NextResponse } from "next/server";
 import { requireAdminFromRequest } from "../../../../lib/admin";
 import { normalizeRefereeLevel } from "../../../../lib/learning";
-import { getQuizAssignmentProgress } from "../../../../lib/quiz-assignments";
+import {
+  emptyQuizAssignmentProgress,
+  summarizeQuizAssignment,
+  type QuizAssignmentRow,
+} from "../../../../lib/quiz-assignments";
 import { getServerSupabase } from "../../../../lib/supabase";
+import { groupBy, selectAllRows } from "../../../../lib/supabase-pagination";
 import { assertEnv } from "../../../../lib/utils";
 
 export const runtime = "nodejs";
@@ -21,24 +26,48 @@ export async function GET(request: Request) {
   }
 
   const supabase = getServerSupabase();
-  const { data: profiles, error } = await supabase
-    .from("profiles")
-    .select("user_id, email, referee_level")
-    .order("email", { ascending: true });
-
-  if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
-  }
-
   try {
-    const learners = await Promise.all(
-      ((profiles || []) as ProfileRow[]).map(async (profile) => ({
+    const [profiles, assignments] = await Promise.all([
+      selectAllRows<ProfileRow>((from, to) => supabase
+        .from("profiles")
+        .select("user_id, email, referee_level")
+        .order("email", { ascending: true })
+        .order("user_id")
+        .range(from, to)),
+      selectAllRows<QuizAssignmentRow>((from, to) => supabase
+        .from("quiz_assignments")
+        .select("user_id, question_quota, required_percent, assigned_at, completed_at")
+        .order("user_id")
+        .range(from, to)),
+    ]);
+
+    // One bulk read of attempts for assigned learners instead of two
+    // queries per learner.
+    const assignmentByUser = new Map(assignments.map((row) => [row.user_id, row]));
+    const earliestAssignedAt = assignments.map((row) => row.assigned_at).sort()[0];
+    const attempts = assignments.length
+      ? await selectAllRows<{ id: string; user_id: string; correct: boolean | null; created_at: string }>((from, to) => supabase
+        .from("quiz_attempts")
+        .select("id, user_id, correct, created_at")
+        .gte("created_at", earliestAssignedAt)
+        .order("id")
+        .range(from, to))
+      : [];
+    const attemptsByUser = groupBy(attempts, (attempt) => attempt.user_id);
+
+    const learners = profiles.map((profile) => {
+      const assignment = assignmentByUser.get(profile.user_id);
+      const counted = (attemptsByUser.get(profile.user_id) || [])
+        .filter((attempt) => assignment && Date.parse(attempt.created_at) >= Date.parse(assignment.assigned_at));
+      return {
         user_id: profile.user_id,
         email: profile.email,
         referee_level: normalizeRefereeLevel(profile.referee_level),
-        quiz_assignment: await getQuizAssignmentProgress(supabase, profile.user_id),
-      }))
-    );
+        quiz_assignment: assignment
+          ? summarizeQuizAssignment(assignment, counted.length, counted.filter((attempt) => attempt.correct === true).length)
+          : emptyQuizAssignmentProgress(),
+      };
+    });
 
     return NextResponse.json({ learners });
   } catch (progressError) {

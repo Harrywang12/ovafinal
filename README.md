@@ -29,10 +29,10 @@ callback before opening `/reset-password`.
 
 ## Database / Storage Setup
 1. For a fresh project, run `supabase.sql`, then apply every file in `supabase/migrations` in timestamp order. Existing projects should apply only unapplied migrations.
-2. Create Storage buckets:
-   - `rules` (for rulebook PDFs)
-   - `practice-clips` (for MP4 practice clips)
-3. Optional policies: allow authenticated inserts/selects on tables used from client (e.g., `quiz_attempts`, `video_attempts`). Server routes use the service key for admin writes.
+2. The migrations create both Storage buckets: `rules` (private, rulebook PDFs up to 25 MB) and `practice-clips` (public, MP4/WebM/QuickTime clips up to 50 MB).
+3. Do not add client-side table policies. The browser never queries tables directly: every read and write goes through the API routes, which authenticate the caller and use the service key. The `anon` and `authenticated` roles have no table privileges, so scores, passes and answer keys can only change through the API.
+
+Source rulebook PDFs for ingestion live in `rulebooks/` (not publicly served). Upload one with `scripts/upload-rulebook.sh`.
 
 ### Administrator access
 

@@ -8,7 +8,7 @@ export async function GET(request: Request) {
   }
 
   return NextResponse.json({
-    isAdmin: await isAdminEmail(identity.email),
+    isAdmin: identity.emailConfirmed && await isAdminEmail(identity.email),
     email: identity.email,
   });
 }
