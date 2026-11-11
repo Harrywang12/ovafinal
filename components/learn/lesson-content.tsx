@@ -1,135 +1,17 @@
 "use client";
 
 import { motion, AnimatePresence } from "framer-motion";
-import { BookOpen, AlertCircle, ChevronRight, Book, Leaf } from "lucide-react";
+import { BookOpen, ChevronRight, Book, Leaf } from "lucide-react";
 import type { Lesson } from "../../lib/module-content";
 import { KeyPointCard } from "./key-point-card";
 import { RuleBadge } from "./rule-reference";
-import { 
-  CourtZones, 
-  CourtLayout,
-  NetDesign,
-  PlayerPositions,
-  ServiceZone, 
-  RotationPositions, 
-  BlockingPositions, 
-  LiberoZones,
-  RefereeSignals,
-  BallCrossing,
-  CompletedBlock,
-  BackRowAttack,
-  CollectiveScreen,
-  SanctionCards,
-  HandSignals,
-  FlagSignals,
-  ScenarioDiagram
-} from "../diagrams";
+import { LessonInfographic } from "./lesson-infographic";
 
 interface LessonContentProps {
   lesson: Lesson;
   moduleColor: string;
   onNext?: () => void;
   hasNext: boolean;
-}
-
-// Map diagram types to components
-function getDiagramComponent(diagramType: string) {
-  const diagramMap: Record<string, React.ReactNode> = {
-    // Facilities & Equipment
-    "court-layout": <CourtLayout showMeasurements size="lg" />,
-    "net-design": <NetDesign showMeasurements size="lg" />,
-    "balls": <ScenarioDiagram scenario="balls" />,
-    "teams": <ScenarioDiagram scenario="teams" />,
-    "captain-coach": <ScenarioDiagram scenario="captain-coach" />,
-    "scoring-flow": <ScenarioDiagram scenario="scoring-flow" />,
-    "ball-play-sequence": <ScenarioDiagram scenario="ball-play-sequence" />,
-    
-    // Positions & Rotation
-    "player-positions": <PlayerPositions showOverlapExample="correct" size="lg" />,
-    "court-positions": <CourtZones showLabels size="lg" />,
-    "overlap-rule": <PlayerPositions showOverlapExample="fault-front-back" size="lg" />,
-    "rotational-fault": <RotationPositions showArrows currentRotation={1} />,
-    "positional-strategy": <RotationPositions showArrows />,
-    
-    // Service
-    "service-zone": <ServiceZone showServer showTimeline />,
-    "service-execution": <ServiceZone showServer={false} showTimeline={false} />,
-    "service-faults": <ServiceZone showServer showTimeline />,
-    "service-rules": <ScenarioDiagram scenario="service-rules" />,
-    "receiving-position": <CourtZones highlightZones={[1, 5, 6]} showLabels />,
-    
-    // Ball at Net & Playing Actions
-    "ball-crossing": <BallCrossing scenario="crossing-space" size="lg" />,
-    "collective-screen": <CollectiveScreen scenario="legal" size="lg" />,
-    "completed-block": <CompletedBlock scenario="double" size="lg" />,
-    "back-row-attack": <BackRowAttack scenario="legal-behind-line" size="lg" />,
-    
-    // Blocking
-    "block-definition": <BlockingPositions blockType="double" showAttacker />,
-    "block-contact": <CompletedBlock scenario="triple" showHitCount size="lg" />,
-    "back-row-block": <CompletedBlock scenario="back-row-fault" size="lg" />,
-    "blocking-serve": <BlockingPositions blockType="double" showAttacker={false} />,
-    
-    // Faults
-    "four-hits": <CourtZones highlightZones={[2, 3, 4]} showLabels />,
-    "catch-carry": <CourtZones showLabels />,
-    "double-contact": <CourtZones highlightZones={[3]} showLabels />,
-    "net-violations": <BlockingPositions blockType="double" showAttacker />,
-    "center-line": <CourtZones highlightZones={[3, 6]} showLabels />,
-    
-    // Libero
-    "libero-basics": <LiberoZones showSettingRestriction={false} showReplacementZone />,
-    "libero-restrictions": <LiberoZones showSettingRestriction showReplacementZone={false} />,
-    "libero-replacement": <LiberoZones showSettingRestriction={false} showReplacementZone />,
-    "libero-setting": <LiberoZones showSettingRestriction showReplacementZone={false} />,
-    "injured-libero": <LiberoZones showSettingRestriction={false} showReplacementZone />,
-    "libero-complete": <ScenarioDiagram scenario="libero-complete" />,
-    "libero-redesignation": <ScenarioDiagram scenario="libero-redesignation" />,
-    
-    // Conduct & Sanctions
-    "sanction-cards": <SanctionCards showType="all" size="lg" />,
-    "conduct": <ScenarioDiagram scenario="conduct" />,
-    
-    // Referee Signals
-    "referee-positions": <CourtLayout highlightZone="substitution" size="lg" />,
-    "referee-crew": <ScenarioDiagram scenario="referee-crew" />,
-    "scorer-table": <ScenarioDiagram scenario="scorer-table" />,
-    "hand-signals": <HandSignals category="all" size="lg" />,
-    "flag-signals": <FlagSignals size="lg" />,
-    "scoring-signals": <RefereeSignals signal="point" />,
-    "fault-signals": <RefereeSignals signal="four-hits" />,
-    "attack-block-signals": <RefereeSignals signal="net-touch" />,
-    "timeout-sub-signals": <RefereeSignals signal="out" />,
-    "positioning-signals": <RefereeSignals signal="rotation-fault" />,
-
-    // Interruptions & scorekeeping
-    "interruptions": <ScenarioDiagram scenario="interruptions" />,
-    "substitution": <ScenarioDiagram scenario="substitution" />,
-    "exceptional-interruptions": <ScenarioDiagram scenario="exceptional-interruptions" />,
-    "scoresheet-before": <ScenarioDiagram scenario="scoresheet-before" />,
-    "scoresheet-toss": <ScenarioDiagram scenario="scoresheet-toss" />,
-    "scoresheet-points": <ScenarioDiagram scenario="scoresheet-points" />,
-    "deciding-set": <ScenarioDiagram scenario="deciding-set" />,
-    "scoresheet-timeouts": <ScenarioDiagram scenario="scoresheet-timeouts" />,
-    "scoresheet-close": <ScenarioDiagram scenario="scoresheet-close" />,
-
-    // Rallyball & beach
-    "rallyball-4v4-court": <ScenarioDiagram scenario="rallyball-4v4-court" />,
-    "rallyball-4v4-formation": <ScenarioDiagram scenario="rallyball-4v4-formation" />,
-    "tripleball": <ScenarioDiagram scenario="tripleball" />,
-    "rallyball-rules": <ScenarioDiagram scenario="rallyball-rules" />,
-    "rallyball-6v6-court": <ScenarioDiagram scenario="rallyball-6v6-court" />,
-    "rallyball-6v6-tripleball": <ScenarioDiagram scenario="rallyball-6v6-tripleball" />,
-    "rallyball-6v6-reception": <ScenarioDiagram scenario="rallyball-6v6-reception" />,
-    "free-ball-tosser": <ScenarioDiagram scenario="free-ball-tosser" />,
-    "beach-court": <ScenarioDiagram scenario="beach-court" />,
-    "beach-teams": <ScenarioDiagram scenario="beach-teams" />,
-    "beach-scoring": <ScenarioDiagram scenario="beach-scoring" />,
-    "beach-ball-handling": <ScenarioDiagram scenario="beach-ball-handling" />,
-    "beach-service-attack": <ScenarioDiagram scenario="beach-service-attack" />,
-  };
-  
-  return diagramMap[diagramType] || <CourtZones showLabels />;
 }
 
 export function LessonContent({ lesson, moduleColor, onNext, hasNext }: LessonContentProps) {
@@ -178,7 +60,7 @@ export function LessonContent({ lesson, moduleColor, onNext, hasNext }: LessonCo
         {/* Main content grid */}
         <div className="grid lg:grid-cols-5 gap-8">
           {/* Left column - Main content */}
-          <div className="lg:col-span-3 space-y-6">
+          <div className="min-w-0 lg:col-span-3 space-y-6">
             {lesson.content.map((paragraph, idx) => (
               <motion.p
                 key={idx}
@@ -241,20 +123,9 @@ export function LessonContent({ lesson, moduleColor, onNext, hasNext }: LessonCo
           </div>
           
           {/* Right column - Diagram & Key Points */}
-          <div className="lg:col-span-2 space-y-6">
-            {/* Diagram */}
-            <motion.div
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 0.3 }}
-              className="card p-4"
-            >
-              <p className="text-xs font-semibold uppercase tracking-wider text-muted mb-3">
-                Diagram
-              </p>
-              {getDiagramComponent(lesson.diagram)}
-            </motion.div>
-            
+          <div className="min-w-0 lg:col-span-2 space-y-6">
+            <LessonInfographic lesson={lesson} />
+
             {/* Key Points */}
             <motion.div
               initial={{ opacity: 0, x: 20 }}

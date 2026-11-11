@@ -331,6 +331,11 @@ button:disabled { cursor: not-allowed; opacity: .6; }
 .card { border-radius: 5px; border-color: #dedbd5; box-shadow: none; }
 .card:hover { transform: none; box-shadow: none; border-color: #aaa69f; }
 .card::before { display: none; }
+.learn-module-card { transition: border-color .2s, box-shadow .2s; }
+.learn-module-link:is(:hover, :focus-visible) .learn-module-card { border-color: var(--module-color); box-shadow: 0 5px 18px #20231f0a; }
+.learn-infographic { min-width: 0; overflow: hidden; border: 1px solid #dedbd5; border-radius: 8px; background: #fff; }
+.learn-infographic-dialog { width: min(960px, calc(100vw - 32px)); max-width: none; max-height: calc(100dvh - 32px); padding: 0; border: 1px solid #dedbd5; border-radius: 10px; color: #20231f; background: white; }
+.learn-infographic-dialog::backdrop { background: #20231fbf; }
 .text-gradient { background-image: linear-gradient(100deg, #20231f, #a00d24); }
 .text-link { display: inline-flex; align-items: center; gap: 13px; font-size: 13px; font-weight: 700; padding-block: 8px; }
 .text-link:hover { color: #c8102e; }

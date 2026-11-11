@@ -43,7 +43,7 @@ const categories: { key: CategoryFilter; label: string; color: string; descripti
 ];
 
 const categoryStats: Record<CategoryFilter, { chapters: string; lessons: string; rules: string; extra: string; extraLabel: string }> = {
-  indoor: { chapters: "9", lessons: "32", rules: "32", extra: "25+", extraLabel: "Hand Signals" },
+  indoor: { chapters: "9", lessons: "35", rules: "32", extra: "25+", extraLabel: "Hand Signals" },
   "rallyball-4v4": { chapters: "1", lessons: "4", rules: "4v4", extra: "OVA", extraLabel: "Standard" },
   "rallyball-6v6": { chapters: "1", lessons: "4", rules: "6v6", extra: "OVA", extraLabel: "Standard" },
   beach: { chapters: "1", lessons: "6", rules: "FIVB", extra: "2v2", extraLabel: "Format" },
@@ -175,7 +175,7 @@ export default function LearnPage() {
               className={`grid gap-5 ${
                 filteredModules.length <= 2 
                   ? "md:grid-cols-1 lg:grid-cols-1 max-w-2xl mx-auto" 
-                  : "md:grid-cols-2 lg:grid-cols-4"
+                  : "md:grid-cols-2 xl:grid-cols-3"
               }`}
             >
               {filteredModules.map((module: Module, idx: number) => (
@@ -188,26 +188,26 @@ export default function LearnPage() {
                     const progress = progressByModule.get(module.id);
                     const badge = statusBadge(progress);
                     return (
-                  <Link href={`/learn/${module.id}`}>
+                  <Link href={`/learn/${module.id}`} className="learn-module-link block h-full rounded-lg" style={{ "--module-color": module.color } as React.CSSProperties}>
                     <motion.div
                       whileHover={{ y: -2 }}
                       whileTap={{ scale: 0.98 }}
-                      className="group relative h-full card overflow-hidden cursor-pointer"
+                      className="learn-module-card group relative h-full cursor-pointer rounded-lg border-2 border-border bg-white p-5 sm:p-6"
                     >
                       {/* Content */}
-                      <div className="relative z-10">
+                      <div className="relative flex h-full min-w-0 flex-col">
                         {/* Chapter badge and Icon */}
                         <div className="flex items-start justify-between mb-4">
                           <motion.div
                             whileHover={{ rotate: [0, -10, 10, 0] }}
                             transition={{ duration: 0.5 }}
-                            className="w-14 h-14 rounded-xl flex items-center justify-center text-white shadow-lg transition-transform group-hover:scale-110"
+                            className="w-14 h-14 shrink-0 rounded-xl flex items-center justify-center text-white transition-transform group-hover:scale-105"
                             style={{ backgroundColor: "#20231f" }}
                           >
                             {moduleIcons[module.id] || module.icon}
                           </motion.div>
                           
-                          <div className="flex flex-col items-end gap-1">
+                          <div className="min-w-0 flex flex-col items-end gap-1 pl-3 text-right">
                             <span 
                               className="px-2.5 py-1 text-xs font-bold rounded-md text-white"
                               style={{ backgroundColor: "#20231f" }}
@@ -217,7 +217,7 @@ export default function LearnPage() {
                             <span className={`px-2 py-0.5 text-[10px] font-bold rounded-full border ${badge.cls}`}>
                               {badge.label}
                             </span>
-                            <span className="text-[10px] font-mono text-muted">
+                            <span className="break-words text-[10px] font-mono text-muted">
                               {module.ruleRange}
                             </span>
                           </div>
@@ -229,13 +229,13 @@ export default function LearnPage() {
                         </h3>
                         
                         {/* Description */}
-                        <p className="text-muted text-sm leading-relaxed mb-4 line-clamp-2">
+                        <p className="text-muted text-sm leading-relaxed mb-5">
                           {module.description}
                         </p>
                         
                         {/* Meta */}
-                        <div className="flex items-center justify-between pt-3 border-t border-border">
-                          <div className="flex items-center gap-3">
+                        <div className="mt-auto flex items-center justify-between gap-2 pt-4 border-t border-border">
+                          <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
                             <div className="flex items-center gap-1 text-xs text-muted">
                               <BookOpen size={12} />
                               <span>{module.lessons.length}</span>
@@ -264,11 +264,6 @@ export default function LearnPage() {
                         </div>
                       </div>
                       
-                      {/* Hover border effect */}
-                      <div 
-                        className="absolute inset-0 rounded-2xl border-2 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none"
-                        style={{ borderColor: module.color }}
-                      />
                     </motion.div>
                   </Link>
                     );
