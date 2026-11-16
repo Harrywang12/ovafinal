@@ -616,22 +616,25 @@ function draw(id: string, spec: LearnInfographic): string {
       );
     }
     case "overlap": {
-      let s = "";
-      [false, true].forEach((fault, i) => {
-        const x = 35 + i * 305;
+      let s = text(320, 28, "At service contact · feet viewed from above", 18, C.muted);
+      ["behind", "level", "ahead"].forEach((position, i) => {
+        const x = 20 + i * 205;
+        const fault = position === "ahead";
+        const backFootY = position === "behind" ? 275 : position === "level" ? 175 : 145;
+        const color = fault ? C.red : C.green;
         s +=
-          rect(x, 48, 265, 305, C.pale, C.line, 8) +
-          line(x + 15, 83, x + 250, 83, C.red, 4) +
-          text(x + 132, 73, "NET", 18, C.red) +
-          player(x + 132, 175, 3, C.blue) +
-          player(x + 132, fault ? 128 : 285, 6, fault ? C.red : C.green) +
-          text(
-            x + 132,
-            386,
-            fault ? "FAULT: 6 ahead of 3" : "LEGAL: 6 behind 3",
-            19,
-            fault ? C.red : C.green,
-          );
+          rect(x, 48, 190, 305, C.pale, C.line, 8) +
+          line(x + 15, 83, x + 175, 83, C.red, 4) +
+          text(x + 95, 73, "NET", 18, C.red) +
+          line(x + 20, 175, x + 170, 175, C.muted, 1, "5 4") +
+          player(x + 57, 145, 3, C.blue) +
+          rect(x + 45, 175, 10, 24, C.blue, "white", 4) +
+          rect(x + 59, 175, 10, 24, C.blue, "white", 4) +
+          player(x + 132, backFootY - 30, 6, color) +
+          rect(x + 120, backFootY, 10, 24, color, "white", 4) +
+          rect(x + 134, backFootY, 10, 24, color, "white", 4) +
+          text(x + 95, 386, fault ? "FAULT" : "LEGAL", 23, color) +
+          text(x + 95, 414, position === "behind" ? "6 behind 3" : position === "level" ? "6 level with 3" : "6 ahead of 3", 19, C.muted);
       });
       return s;
     }

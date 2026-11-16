@@ -115,16 +115,16 @@ export const learnInfographics: Record<string, LearnInfographic> = {
       "One team, facing the net at the top. Arrows show the next position when the team gains the right to serve. Numbers are rotational positions, not jersey numbers or fixed tactical roles.",
     notes: [
       "Rotation: 1 → 6 → 5 → 4 → 3 → 2 → 1.",
-      "Position 1 is back-right and supplies the server.",
+      "After service contact, players may change places; their front-row or back-row status stays the same.",
     ],
   },
   "positional-rotational-faults": {
     title: "Overlap and wrong server are different",
     kind: "overlap",
     caption:
-      "In this simplified foot-order example, back-row player 6 must be level with or behind front-row player 3 at service contact. Lateral relationships must also be maintained under the course’s VC positioning rules.",
+      "Compare feet at service contact: back-row player 6 may be level with or behind front-row player 3. The last floor contact determines an airborne player’s position. The required lateral order also allows level feet under the course’s VC positioning rules.",
     notes: [
-      "Compare feet at the service hit, rather than a player’s torso.",
+      "After the service hit, changing places alone is legal; allow the rally to continue.",
       "A rotational fault means the wrong player served; check the recorded service order.",
     ],
   },

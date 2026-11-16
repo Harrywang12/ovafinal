@@ -69,8 +69,26 @@ const verificationSchema = z.object({
   supported: z.boolean(),
   answerSupported: z.boolean(),
   explanationSupported: z.boolean(),
-  failureCode: z.enum(["ANSWER_NOT_ENTAILED", "EXPLANATION_NOT_ENTAILED", "SOURCE_MISMATCH", "AMBIGUOUS_ANSWER"]).optional(),
+  positionRulesSupported: z.boolean().optional(),
+  failureCode: z.enum(["ANSWER_NOT_ENTAILED", "EXPLANATION_NOT_ENTAILED", "SOURCE_MISMATCH", "AMBIGUOUS_ANSWER", "POSITION_RULE_CONTRADICTION"]).optional(),
 });
+
+// VC Rules 7.4.3.1–7.4.4 and 7.5.1. Keep these checks separate from
+// source entailment: a short excerpt can omit the timing or equality exception.
+// https://volleyball.ca/uploads/Development/Referee/Rules/Rulebook_Files/Current_Year/2026-27_VC_Rulebook_EN.pdf
+const INDOOR_POSITION_CHECKS = [
+  "Indoor position checks: Judge relative positional order at the moment of the service hit, not throughout the rally or simply before service contact.",
+  "After the service hit, changing places on the team's court or free zone alone is legal: a front-left player may move to front-right during a rally without a positional fault.",
+  "Players retain their rotational front-row/back-row status; attack, blocking and Libero restrictions still apply.",
+  "When comparing feet at service contact, level with is legal, as is a back-row player having at least part of one foot further from the centre line than the corresponding front-row player's front foot.",
+  "Lateral foot-order checks also permit level positions. Use the last floor contact for airborne players.",
+  "Never require strictly separated feet or three front-row players to remain along the net during a rally. Do not invent a fault that is not described in the question.",
+  "These are consistency checks; the answer and explanation must still be entailed by the supplied source. If the excerpt omits a necessary condition, do not assume that condition away.",
+].join(" ");
+
+function usesStandardIndoorRules(input: GenerateQuestionInput) {
+  return input.discipline === "indoor" && configuredRulesets(input).includes("standard_indoor");
+}
 
 function scopeFor(input: GenerateQuestionInput) {
   const flow = input.flow || (input.quizSessionId ? "program" : "adaptive");
@@ -102,7 +120,8 @@ function generationMessages(input: GenerateQuestionInput, blueprint: QuizBluepri
   return [
     {
       role: "system" as const,
-      content: "Create one official-source-grounded volleyball referee multiple-choice question. Return JSON only with: question, exactly four unique options, correctOptionIndex (0-3), concise explanation, and supportingQuote. The quote must be copied exactly as one contiguous substring of the source. Use only the supplied source. Do not output metadata or citations. Exactly one option must be correct.",
+      content: "Create one official-source-grounded volleyball referee multiple-choice question. Return JSON only with: question, exactly four unique options, correctOptionIndex (0-3), concise explanation, and supportingQuote. The quote must be copied exactly as one contiguous substring of the source. Use only the supplied source. Preserve its timing conditions, equality allowances and exceptions. Do not output metadata or citations. Exactly one option must be correct."
+        + (usesStandardIndoorRules(input) ? `\n${INDOOR_POSITION_CHECKS}` : ""),
     },
     {
       role: "user" as const,
@@ -111,11 +130,14 @@ function generationMessages(input: GenerateQuestionInput, blueprint: QuizBluepri
   ];
 }
 
-function verificationMessages(question: GeneratedQuizQuestion, blueprint: QuizBlueprint) {
+function verificationMessages(input: GenerateQuestionInput, question: GeneratedQuizQuestion, blueprint: QuizBlueprint) {
   return [
     {
       role: "system" as const,
-      content: "Classify whether a multiple-choice question is fully entailed by the supplied official source. Return compact JSON only: supported, answerSupported, explanationSupported, and optional failureCode. supported is true only if the selected answer and explanation are both supported and exactly one option is correct.",
+      content: "Classify whether a multiple-choice question is fully entailed by the supplied official source. Return compact JSON only: supported, answerSupported, explanationSupported, and optional failureCode. supported is true only if the selected answer and explanation are both supported and exactly one option is correct. Check the scenario's actual timing and conditions, not just whether the quote mentions a similar rule."
+        + (usesStandardIndoorRules(input)
+          ? `\n${INDOOR_POSITION_CHECKS}\nAlso return positionRulesSupported: true only if the selected answer and explanation pass every applicable indoor position check (true if none apply). A violation makes supported false with failureCode POSITION_RULE_CONTRADICTION. Incorrect distractors are allowed; assess the selected answer and explanation.`
+          : ""),
     },
     {
       role: "user" as const,
@@ -245,10 +267,13 @@ export async function generateGroundedQuizQuestion(input: GenerateQuestionInput)
         questionText: question.question, metadata: question,
       });
       if (novelty.duplicate) throw new Error(`DUPLICATE_${novelty.reason || "UNKNOWN"}`);
-      const verification = await llmObject(verificationMessages(question, blueprint), verificationSchema, {
+      const verification = await llmObject(verificationMessages(input, question, blueprint), verificationSchema, {
         maxTokens: AI_CONFIG.outputTokens.verifier, timeoutMs: 12_000,
         userId: input.userId, requestType: `quiz_verification:${flow}`, attempt,
       });
+      if (usesStandardIndoorRules(input) && verification.positionRulesSupported !== true) {
+        throw new Error("GROUNDING_POSITION_RULE_CONTRADICTION");
+      }
       if (!verification.supported || !verification.answerSupported || !verification.explanationSupported) {
         throw new Error(`GROUNDING_${verification.failureCode || "REJECTED"}`);
       }

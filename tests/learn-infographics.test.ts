@@ -80,6 +80,16 @@ describe("Learn infographic coverage and court rules", () => {
     }
   });
 
+  it("shows level feet as legal beside the behind and ahead examples", () => {
+    const overlap = svg("positional-rotational-faults");
+    expect(overlap).toContain("6 behind 3");
+    expect(overlap).toContain("6 level with 3");
+    expect(overlap).toContain("6 ahead of 3");
+    // The level example's front-most foot edges have the same distance to the net.
+    expect(overlap).toContain('x="270" y="175" width="10" height="24"');
+    expect(overlap).toContain('x="345" y="175" width="10" height="24"');
+  });
+
   it("distinguishes the indoor and beach block contact counts", () => {
     expect(svg("blocking")).toContain("Not a team hit");
     expect(svg("beach-ball-handling")).toContain("Counts as a hit");

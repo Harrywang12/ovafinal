@@ -238,17 +238,17 @@ export const moduleContent: Record<string, Module> = {
         title: "Positions & Rotation",
         subtitle: "The six positions and rotation order",
         content: [
-          "At the moment the ball is hit by the server, each team must be positioned within its own court in rotational order. The positions are numbered 1-6: Front row = 4 (left), 3 (centre), 2 (right); Back row = 5 (left), 6 (centre), 1 (right/server).",
-          "RELATIVE POSITIONS: Each back-row player must be positioned further from the centre line than the corresponding front-row player (1 behind 2, 6 behind 3, 5 behind 4). Side players must be positioned in correct left/right order.",
-          "Positions are determined by the players' FEET contacting the ground. Each back-row player must have at least part of one foot further from the centre line than the front foot of the corresponding front-row player.",
-          "AFTER THE SERVICE HIT, players may move around and occupy any position on their court and the free zone. There are no positional requirements after the serve - only attack and blocking restrictions for back-row players apply.",
+          "At the moment the ball is hit by the server, each team must be positioned within its own court in rotational order (except the server). The positions are numbered 1-6: Front row = 4 (left), 3 (centre), 2 (right); Back row = 5 (left), 6 (centre), 1 (right/server).",
+          "RELATIVE POSITIONS: Each back-row player may be level with or further from the centre line than the corresponding front-row player (compare 1 with 2, 6 with 3, and 5 with 4). Side players must maintain the required left/right order; level foot positions are also permitted.",
+          "Positions are determined by the players' FEET contacting the ground, using the last floor contact for an airborne player. A back-row player is legal when level with the corresponding front-row player, or when at least part of one foot is further from the centre line than that front-row player's front foot (Rule 7.4.3.1).",
+          "AFTER THE SERVICE HIT, players may move around and occupy any position on their court and the free zone (Rule 7.4.4). For example, a front-left player may move to the front-right during a rally: this movement alone is legal, and the referee allows play to continue. Players retain their rotational front-row or back-row status, so the relevant attack, blocking and Libero restrictions still apply.",
           "When the receiving team wins the rally and gains the right to serve, its players ROTATE ONE POSITION CLOCKWISE: Position 2 → 1 (to serve), 1 → 6, 6 → 5, 5 → 4, 4 → 3, 3 → 2."
         ],
         keyPoints: [
           "Positions: 1-6 (1=server, 2-4 front row, 5-6 back row)",
           "Correct positions only required at serve contact",
-          "Compare feet positions for overlaps",
-          "Free to move after serve is contacted",
+          "Compare feet: level with or behind is legal",
+          "Free to move after serve contact; row status stays the same",
           "Rotate clockwise when gaining serve"
         ],
         ruleRef: "Rules 7.4-7.6",
@@ -259,7 +259,7 @@ export const moduleContent: Record<string, Module> = {
         title: "Positional & Rotational Faults",
         subtitle: "What happens when positions are wrong",
         content: [
-          "A POSITIONAL FAULT is committed if any player is not in their correct position at the moment the ball is hit by the server. The team is sanctioned with a point and service to the opponent.",
+          "A POSITIONAL FAULT is committed if a player is not in their correct relative position at the moment the ball is hit by the server. Level foot positions are legal. Changing relative positions after the service hit is not a positional fault. The team committing a positional fault is sanctioned with a point and service to the opponent.",
           "If the server commits a serving fault at the moment of the service hit AND the opponent is out of position, the server's fault is counted first (before the positional fault).",
           "If the service is correct but becomes faulty after the hit (goes out, etc.), the positional fault that occurred first will be sanctioned instead.",
           "A ROTATIONAL FAULT is committed when the service is not made according to the rotational order. The scorer should stop play immediately. The opponent gains a point and service.",
